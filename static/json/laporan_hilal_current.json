@@ -1,0 +1,24 @@
+{
+    "metadata": {
+        "tanggal_pengamatan": "2026-04-17",
+        "lokasi": {
+            "kota": "Sokaraja",
+            "lat": -7.4589,
+            "lon": 109.2882
+        },
+        "last_updated": "2026-04-17 12:14:36"
+    },
+    "data_lokal": {
+        "tinggi_hilal": -3.31,
+        "elongasi": 3.91,
+        "status_mabims": "Belum Memenuhi",
+        "status_wh": "Di Bawah Ufuk"
+    },
+    "data_nasional": {
+        "mabims_sukses": false,
+        "wh_sukses": false
+    },
+    "data_global": {
+        "khgt_sukses": true
+    }
+}

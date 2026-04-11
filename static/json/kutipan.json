@@ -1,0 +1,26 @@
+[
+    {
+        "arab": "النَّظَافَةُ مِنَ الْإِيمَانِ",
+        "arti": "Kebersihan itu sebagian dari iman.",
+        "sumber": "Hadits Riwayat Muslim",
+        "aktif": true
+    },
+    {
+        "aktif": false,
+        "arab": "مَنْ سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ بِهِ طَرِيقًا إِلَى الْجَنَّةِ",
+        "arti": "Barangsiapa menempuh jalan untuk mencari ilmu, maka Allah akan memudahkan baginya jalan menuju surga.",
+        "sumber": "HR. Muslim"
+    },
+    {
+        "aktif": false,
+        "arab": "خَيْرُ الناسِ أَنْفَعُهُمْ لِلناسِ",
+        "arti": "Sebaik-baik manusia adalah yang paling bermanfaat bagi orang lain.",
+        "sumber": "HR. Ahmad"
+    },
+    {
+        "arab": "الصَّلاةُ عِمادُ الدِّينِ",
+        "arti": "Shalat adalah tiang agama.",
+        "sumber": "Hadits",
+        "aktif": false
+    }
+]

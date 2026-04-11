@@ -1,0 +1,39 @@
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Virtual Environment
+venv/
+env/
+.env
+
+# Large Astronomy Assets
+de421.bsp
+
+# Generated Data & Databases
+kalender_jangkar_*.json
+admin.json
+audit_log.json
+config.json
+# static/json/config_kriteria.json
+struktur_proyek.txt
+static/json/*Copy).json
+static/json/*kosong).json
+# Cache & Renders
+cache/
+static/images/peta_hilal_current.png
+
+# User Uploads
+static/img/pengumuman/*
+!static/img/pengumuman/.gitkeep
+static/img/kutipan/*
+!static/img/kutipan/.gitkeep
+static/img/pengumuman/archive/*
+
+# IDE Settings
+.vscode/
+.idea/
+
+# Coretan Pribadi
+catatan.md
+tools/

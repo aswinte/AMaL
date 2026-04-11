@@ -1,0 +1,30 @@
+{
+    "metode_aktif": "KEMENAG",
+    "parameter_kustom": {
+        "sudut_subuh": 20,
+        "sudut_isya": 18,
+        "isya_menit_setelah_maghrib": 0,
+        "mazhab_ashar": "SHAFII"
+    },
+    "ihtiyati_menit": {
+        "imsak": -10,
+        "subuh": 2,
+        "terbit": -2,
+        "dzuhur": 2,
+        "ashar": 2,
+        "maghrib": 2,
+        "isya": 2
+    },
+    "iqomah_menit": {
+        "subuh": 15,
+        "dzuhur": 10,
+        "ashar": 10,
+        "maghrib": 10,
+        "isya": 10
+    },
+    "jumat": {
+        "gunakan_waktu_tetap": true,
+        "waktu_tetap": "12:00",
+        "durasi_menit": 45
+    }
+}

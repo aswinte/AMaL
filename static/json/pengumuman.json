@@ -1,0 +1,23 @@
+[
+    {
+        "aktif": false,
+        "bobot": 1,
+        "isi": "Mohon tidak merokok di lingkungan masjid."
+    },
+    {
+        "aktif": false,
+        "bobot": 1,
+        "deadline": "2026-12-31",
+        "isi": "Persiapan rilis akhir tahun 31 Desember 2026"
+    },
+    {
+        "isi": "Harap tenang. Masjid adalah tempat untuk beribadah.",
+        "bobot": 1,
+        "aktif": false
+    },
+    {
+        "isi": "Pengajian rutin Masjid Al Amal diselenggarakan setiap Selasa malam Ba'da Maghrb.",
+        "bobot": 1,
+        "aktif": true
+    }
+]

@@ -1,0 +1,604 @@
+/* --- RESET & BASE --- */
+body {
+    background-color: #121212;
+    color: white;
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+.container { 
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    padding: 1.5vh 2vw 5vh 1.5vw;
+    box-sizing: border-box;
+    gap: 1.5vh;
+    overflow: hidden;
+}
+
+/* --- LAYOUT ATAS --- */
+.top-section {
+    display: flex;
+    flex: 1; /* Mengambil ruang sisa di atas jadwal */
+    gap: 2vw;
+    min-height: 0; 
+}
+
+/* SIDEBAR KIRI (20%) */
+.sidebar-left {
+    position: relative; /* Wajib ditambah agar pola tidak lari untuk pola*/
+    overflow: hidden;   /* Wajib agar pola tidak tumpah keluar kotak untuk pola*/
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 1vh;
+    text-align: center;
+    box-sizing: border-box;
+    width: 18vw;
+    /* flex: 0 0 20%; */
+}
+
+/* MENAMBAHKAN POLA GEOMETRIS (WATERMARK) */
+.sidebar-left::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    /* Ini adalah kode SVG pola islami (Hexagon/Bintang) bawaan CSS */
+    background-image: radial-gradient(circle at 100% 150%, #121212 24%, #ffffff 24%, #ffffff 28%, #121212 28%, #121212 36%, #ffffff 36%, #ffffff 40%, transparent 40%, transparent), radial-gradient(circle at 0    150%, #121212 24%, #ffffff 24%, #ffffff 28%, #121212 28%, #121212 36%, #ffffff 36%, #ffffff 40%, transparent 40%, transparent), radial-gradient(circle at 50%  100%, #ffffff 10%, #121212 10%, #121212 23%, #ffffff 23%, #ffffff 30%, #121212 30%, #121212 43%, #ffffff 43%, #ffffff 50%, #121212 50%, #121212 63%, #ffffff 63%, #ffffff 71%, transparent 71%, transparent), radial-gradient(circle at 100% 50%, #ffffff 5%, #121212 5%, #121212 15%, #ffffff 15%, #ffffff 20%, #121212 20%, #121212 29%, #ffffff 29%, #ffffff 34%, #121212 34%, #121212 44%, #ffffff 44%, #ffffff 49%, transparent 49%, transparent), radial-gradient(circle at 0    50%, #ffffff 5%, #121212 5%, #121212 15%, #ffffff 15%, #ffffff 20%, #121212 20%, #121212 29%, #ffffff 29%, #ffffff 34%, #121212 34%, #121212 44%, #ffffff 44%, #ffffff 49%, transparent 49%, transparent);
+    background-size: 50px 50px;
+    opacity: 0.03; /* Sangat tipis agar sekadar jadi tekstur */
+    z-index: 0;
+}
+
+/* Memastikan teks tetap berada di atas pola */
+.sidebar-left > * {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* flex: 0 0 10%; */
+}
+
+.header-info h2 {
+    font-size: 4vmin;
+    /* margin-bottom: -1vh; */
+    margin: 0vmin 0 0 0;
+    color:#aaaaaa;
+    font-weight: bold; 
+}
+
+.header-info p {
+    font-size: 1.5vmin;
+    margin: 0 0 0 0;
+    font-weight: normal;
+}
+
+.main-clock h1 { 
+    font-size: 8vmin; 
+    color: #00ff88; 
+    font-weight: bold;
+    margin: 1vh 0 0 0; 
+}
+.main-clock h1 .detik {
+    font-size: 0.40em; /* 0.4 dari ukuran induknya */
+    color: #ffd700; /* Atau bisa diganti warna lain jika ingin beda */
+    font-weight: normal; /* Opsional: agar detiknya tidak terlalu tebal */
+}
+.moon-container {
+    margin-top: 2vh;
+    margin-bottom: 2vh;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.hijri { color: #ffd700; 
+    font-size: 2vmin; 
+}
+
+.teks-metode {
+    font-size: 1.5vmin; /* Lebih kecil dari tanggal utama */
+    color: #aaaaaa;     /* Warna abu-abu terang agar elegan */
+    margin-top: -0.5vh; /* Mendekatkan jarak ke tanggal hijriah di atasnya */
+    font-weight: normal;
+    letter-spacing: 1px;
+}
+
+.kompas-box { margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+@keyframes kabah-glow { 0%, 100% { filter: drop-shadow(0 0 2px gold); } 50% { filter: drop-shadow(0 0 8px gold); } }
+.kabah-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; animation: kabah-glow 3s infinite ease-in-out; }
+/* .teks-kiblat { color: #00ff88 !important; 
+    font-size: 1.5vmin; 
+    font-weight: bold; 
+    line-height: 1; 
+    margin-top: 1px; 
+    position: absolute; 
+    top: 0%; left: 50%; 
+    transform: translate(-50%, -50%); 
+    z-index: 5} */
+.teks-kiblat { color: #00ff88 !important; 
+    font-size: 1.5vmin; 
+    font-weight: bold; 
+    line-height: 1; 
+    margin-top: 1px; 
+    position: relative; 
+    /* top: 0%; left: 50%;  */
+    /* transform: translate(-50%, -50%);  */
+    z-index: 5
+}
+
+/* Animasi Pendaran Cahaya Ka'bah */
+@keyframes pendar-kabah {
+    0% { filter: drop-shadow(0 0 2px rgba(0, 255, 136, 0.4)); }
+    50% { filter: drop-shadow(0 0 10px gold); }
+    100% { filter: drop-shadow(0 0 2px gold); }
+}
+
+.animasi-pendar {
+    animation: pendar-kabah 3s infinite ease-in-out;
+}
+
+/* Animasi Pendaran Kompas saat Event Rashdul Qiblah Tiba */
+@keyframes rashdul-alert {
+    0% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.2); border-color: rgba(0, 255, 136, 0.3); }
+    50% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.9), inset 0 0 15px rgba(255, 215, 0, 0.4); border-color: rgba(255, 215, 0, 1); }
+    100% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.2); border-color: rgba(0, 255, 136, 0.3); }
+}
+
+.sedang-rashdul {
+    animation: rashdul-alert 1.5s infinite ease-in-out !important;
+    background: rgba(255, 215, 0, 0.1) !important; /* Latar berubah agak keemasan */
+}
+
+/* Animasi Pendaran Khusus untuk Teks Rashdul */
+@keyframes teks-rashdul-alert {
+    0% { color: #fff; text-shadow: 0 0 5px rgba(255, 215, 0, 0); }
+    50% { color: #ffd700; text-shadow: 0 0 15px rgba(255, 215, 0, 1), 0 0 5px rgba(255, 215, 0, 0.8); }
+    100% { color: #fff; text-shadow: 0 0 5px rgba(255, 215, 0, 0); }
+}
+
+.teks-sedang-rashdul {
+    animation: teks-rashdul-alert 1.5s infinite ease-in-out !important;
+}
+
+   
+/* SIDEBAR KANAN (70%) */
+.sidebar-right {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-grow: 1;
+    /* flex: 0 0 70%; */
+    flex: 1;
+    flex-direction: column;
+    gap: 1.5vh;
+    min-height: 0;
+    box-sizing: border-box;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* Hiasan Sudut Kiri Atas */
+.sidebar-right::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 40px; height: 40px;
+    border-top: 2px solid rgba(255, 215, 0, 0.5); /* Warna Emas */
+    border-left: 2px solid rgba(255, 215, 0, 0.5);
+    border-top-left-radius: 15px;
+    pointer-events: none;
+}
+
+/* Hiasan Sudut Kanan Bawah */
+.sidebar-right::after {
+    content: "";
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 40px; height: 40px;
+    border-bottom: 2px solid rgba(255, 215, 0, 0.5);
+    border-right: 2px solid rgba(255, 215, 0, 0.5);
+    border-bottom-right-radius: 15px;
+    pointer-events: none;
+}
+
+
+
+#info-display-container {
+    flex: 1;
+    display: none; /* Diatur oleh JS */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 3vw;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.info-tag {
+    color: #ffd700;
+    font-size: 2.5vmin;
+    font-weight: bold;
+    letter-spacing: 0.5vw;
+    margin-bottom: 3vh;
+    text-transform: uppercase;
+    border-bottom: 2px solid #ffd700;
+}
+
+.info-text {
+    font-size: 5vmin;
+    font-weight: bold;
+    color: #fff;
+    line-height: 1.3;
+    animation: slideIn 0.8s ease-out;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* --- KALENDER --- */
+.calendar-container {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 15px;
+    padding: 1.5vh;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    position: relative; 
+    overflow: hidden;
+}
+
+.calendar-header { text-align: center; margin-bottom: 3vh; }
+#cal-masehi-title { font-size: 3.5vmin; font-weight: bold; color: #fff; margin-bottom: 1vh; }
+#cal-hijri-title { font-size: 1.8vmin; color: #00ff88; }
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: bold;
+    color: #ffd700;
+    font-size: 1.6vmin;
+    margin-bottom: 0.5vh;
+}
+
+/* Warna standar untuk hari kerja (Senin - Kamis) */
+.calendar-weekdays div {
+    color: #ffd700; /* Warna emas standar */
+    position: relative; 
+    padding: 0.5vh 0;
+}
+
+/* Kolom 1: Ahad (Minggu) -> Merah */
+.calendar-weekdays div:nth-child(1) {
+    color: #ff4d4d;
+}
+
+/* Kolom 6: Jumat -> Hijau */
+.calendar-weekdays div:nth-child(6) {
+    color: #00ff88;
+}
+
+/* Kolom 7: Sabtu -> Merah */
+.calendar-weekdays div:nth-child(7) {
+    color: #ff4d4d;
+}
+
+/* Hiasan Pojok Kiri Atas */
+/* .calendar-weekdays > div::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4vmin;
+    height: 1vmin;
+    border-top: 1px solid #ffd700; 
+    border-left: 3px solid #ffd700;
+    border-top-left-radius: 4px;
+    opacity: 0.7; 
+} */
+
+/* Hiasan Pojok Kanan Bawah */
+/* .calendar-weekdays > div::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 1vmin;
+    height: 1vmin;
+    border-bottom: 1px solid #ffd700;
+    border-right: 1px solid #ffd700;
+    border-bottom-right-radius: 4px;
+    opacity: 0.7;
+} */
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    gap: 5px;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    table-layout: fixed;
+}
+
+.calendar-day {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    padding: 0.5vh;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-sizing: border-box;
+}
+
+.calendar-day.today {
+    background: rgba(0, 255, 136, 0.15);
+    border: 2px solid #00ff88;
+    box-shadow: inset 0 0 15px rgba(0, 255, 136, 0.5);
+}
+.calendar-day.today .tgl-masehi {
+    color: #00ff88;
+    font-size: 3vmin; 
+    font-weight: 900; 
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.6);
+}
+/* Opsi tambahan: Mengatur font hijriah hari ini agar tetap terlihat jelas */
+.calendar-day.today .tgl-hijri-astro,
+.calendar-day.today .tgl-hijri-tab {
+    color: #ffffff; 
+    font-weight: bold;
+}
+
+.tgl-masehi { font-size: 2.75vmin; white-space: nowrap; display: flex; align-items: baseline; font-weight: bold; color: #fff; line-height: 1; }
+.tgl-masehi .pasaran { font-size: 1.5vmin; color: #00ff88; margin-left: 5px; font-weight: normal; display: inline-block;}
+.tgl-hijri-astro { position: absolute; bottom: 4px; left: 6px; color: #ffd700; font-size: 1.5vmin; }
+.tgl-hijri-tab { position: absolute; bottom: 4px; right: 6px; color: #888; font-size: 1vmin; }
+.tgl-jawa { 
+    position: absolute; 
+    bottom: 4px; 
+    right: 6px; 
+    color: #f59e0b; 
+    font-size: 1.5vmin; 
+    font-weight: bold; 
+}
+.tgl-moonicon{
+    color: #ffd700;
+    font-size: 0.7em;
+    opacity: 0.9;
+    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.5));
+
+}
+
+/* Container untuk teks event di dalam kotak tanggal */
+.event-container {
+    margin-top: 1px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap
+}
+
+.event-text {
+    font-size: 1.25vmin; /* Sangat kecil agar muat */
+    background: rgba(255, 215, 0, 0.15); /* Background emas transparan */
+    color: #ffd700;
+    padding: 1px 3px;
+    border-radius: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Jika teks panjang, akan muncul titik-titik (...) */
+    display: block;
+    max-width: 100%;
+    line-height: 1.1;
+    border-left: 2px solid #ffd700;
+    position: relative;
+}
+
+/* Jika hari ini ada event, warnanya lebih menyala */
+.calendar-day.today .event-text {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border-left: 2px solid #fff;
+}
+
+/* Hari Libur / Ahad & Sabtu */
+.calendar-day.ahad .tgl-masehi,
+.calendar-day.sabtu .tgl-masehi {
+    color: #ff4d4d; /* Merah */
+}
+
+/* Hari Jumat */
+.calendar-day.jumat .tgl-masehi {
+    color: #00ff88; /* Hijau terang */
+}
+
+/* Penyesuaian agar Today tetap prioritas warna putih walau di hari Ahad */
+.calendar-day.today .tgl-masehi {
+    color: #ffffff !important;
+}
+
+/* Pastikan event tidak menutupi tanggal hari ini yang membesar */
+.calendar-day.today .event-container {
+    margin-top: 0px; 
+}
+
+/* --- JADWAL SHALAT (BAWAH) --- */
+.jadwal-container-horizontal {
+    display: flex;
+    justify-content: space-between;
+    gap: 1vw;
+    width: 100%;
+    height: 10vh;
+    box-sizing: border-box;
+    align-items: center;
+    margin-bottom: 0vh;
+}
+
+.kartu {
+    flex: 1;
+    background: #1e1e1e;
+
+    /* border-radius: 12px; */
+    /* Ubah border-radius menjadi efek kubah (atas melengkung tajam, bawah tumpul) */
+    border-radius: 25px 25px 8px 8px;
+    /* Tambahkan garis topi tipis berwarna hijau redup */
+    border-top: 3px solid rgba(0, 255, 136, 0.3);
+    /* Tambahkan efek cahaya jatuh dari atas ke bawah */
+    background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(18,18,18,0) 80%);
+    background-color: rgba(255, 255, 255, 0.03); /* Dasar kartu */
+
+    border-bottom: 4px solid #333;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.6;
+    filter: grayscale(80%);
+    transition: all 0.4s ease;
+    height: 100%;
+}
+
+.kartu h2 { font-size: 3vmin; margin: 0; }
+.kartu .title { font-size: 1.2vmin; opacity: 0.6; }
+.kartu .selisih { font-size: 1.8vmin; opacity: 0.6;}
+
+/* Kartu Shalat yang sudah masuk waktunya */
+.kartu.active {
+    background: linear-gradient(135deg, #004d40, #00c853) !important;
+    transform: scale(1.00);
+    /* border: 2px solid #00ff88; */
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+    border-bottom-color: #00ff88 !important;
+    transform: scale(1.02);
+    opacity: 1 !important;
+    filter: grayscale(0%) !important;
+}
+
+/* Kartu Shalat yang akan datang */
+.kartu.next {
+    background: linear-gradient(135deg, #9f7200, #eee595) !important;
+    transform: scale(1.00);
+    /* border: 2px dashed #00ff88; */
+    box-shadow: 0 0 15px rgba(239, 224, 141, 0.6);
+    border-bottom-color: #f3e88d !important;
+    color: #212121 !important;
+    opacity: 1 !important;
+    filter: grayscale(0%) !important;
+}
+
+/* EFEK KHUSUS PRA-ADZAN: Kartu berkedip kuning */
+.kartu.pra-adzan {
+    background: linear-gradient(135deg, #ff6f00, #ffab00) !important;
+    animation: flash-yellow 1s infinite alternate;
+}
+
+@keyframes flash-yellow {
+    from { opacity: 1; }
+    to { opacity: 0.7; transform: scale(1.05); }
+}
+
+/* --- INFO ROLLING --- */
+#info-display-container {
+    display: none; /* JS akan mengubah ke 'flex' saat fase pengumuman */
+    /* flex: 1; */
+    flex-grow: 1;
+    min-height: 0;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    text-align: center;
+    padding: 2vw;
+    animation: fadeIn 0.8s ease-out;
+}
+
+.info-tag { color: #ffd700; font-size: 2vmin; font-weight: bold; letter-spacing: 0.5vw; margin-bottom: 2vh; }
+.info-text { font-size: 4.5vmin; font-weight: bold; color: #fff; line-height: 1.2; }
+
+/* --- FOOTER & LAINNYA --- */
+.footer-ticker {
+    position: fixed;
+    bottom: 0; width: 100%; height: 3vh;
+    /* background: #000; border-top: 2px solid #00ff88; */
+    background: #000; border-top: 2px solid #252525;
+    display: flex; align-items: center; z-index: 999;
+}
+.ticker-wrapper { display: flex; white-space: nowrap; animation: scroll 25s linear infinite; }
+.ticker-content { padding-right: 50vw; font-size: 2vh; color: #00ff88; background-color: #000000 ; font-weight: bold; vertical-align: middle; }
+
+@keyframes scroll { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
+
+/* ==========================================
+   GAYA UNTUK LOADING OVERLAY
+   ========================================== */
+#loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(18, 18, 18, 0.95); /* Warna biru gelap transparan */
+    z-index: 100; /* Pastikan selalu di paling depan */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+    border-radius: 15px; /* Mengikuti lengkungan calendar-container */
+}
+
+.spinner {
+    border: 8px solid rgba(255, 255, 255, 0.1);
+    border-top: 8px solid #00ff88; /* Warna hijau neon Kiosk Anda */
+    border-radius: 50%;
+    width: 8vmin;
+    height: 8vmin;
+    animation: spin 1s linear infinite;
+    margin-bottom: 3vh;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.teks-arab {
+    font-family: 'Amiri', 'Noto Naskh Arabic', serif;
+    font-size: 2em; /* Sesuaikan ukurannya, font Arab biasanya butuh ukuran lebih besar */
+    line-height: 1.8;
+}
+
+/* ==========================================
+   TRI-STATE DISPLAY (SCREENSAVER & BLACKOUT)
+   ========================================== */
+#layar-blackout {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000000;
+    z-index: 99999; /* Paling depan, menutupi segalanya */
+    display: none;
+    cursor: none; /* Sembunyikan kursor mouse */
+}

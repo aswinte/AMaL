@@ -1,0 +1,25 @@
+{
+    "versi_aktif": "1.1",
+    "history": [
+        {
+            "versi_algoritma": "1.1",
+            "tanggal_update": "2024-05-20",
+            "keterangan": "Implementasi KHGT Global hasil muktamar terbaru",
+            "kriteria": {
+                "MABIMS": {"alt": 3.0, "elong": 6.4},
+                "KHGT": {"alt": 5.0, "elong": 8.0, "limit_utc_hour": 0},
+                "WH": {"alt": 0.0}
+            }
+        },
+        {
+            "versi_algoritma": "1.0",
+            "tanggal_update": "2021-12-01",
+            "keterangan": "Kriteria MABIMS lama (2/3)",
+            "kriteria": {
+                "MABIMS": {"alt": 2.0, "elong": 3.0},
+                "KHGT": {"alt": 5.0, "elong": 8.0, "limit_utc_hour": 0},
+                "WH": {"alt": 0.0}
+            }
+        }
+    ]
+}

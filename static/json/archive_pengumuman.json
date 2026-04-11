@@ -1,0 +1,17 @@
+[
+    {
+        "isi": "Penerimaan Zakat Fitrah dibuka sampai H-1.",
+        "bobot": 5,
+        "deadline": "2024-04-09"
+    },
+    {
+        "isi": "Penerimaan Zakat Fitrah 1447 H dibuka sampai H-1.",
+        "bobot": 2,
+        "deadline": "2026-03-06"
+    },
+    {
+        "isi": "Catatan coba",
+        "bobot": 1,
+        "deadline": "2026-03-22"
+    }
+]

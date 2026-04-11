@@ -1,0 +1,48 @@
+{
+    "hijriah_rutin": {
+        "1 Muharram": "Tahun Baru Hijriah",
+        "1 Ramadhan": "Awal Puasa Ramadhan",
+        "1 Syawal": "Hari Raya Idul Fitri",
+        "10 Dzulhijjah": "Hari Raya Idul Adha",
+        "10 Muharram": "Hari Asyura",
+        "11 Dzulhijjah": "Hari Tasyrik ke-1",
+        "12 Dzulhijjah": "Hari Tasyrik ke-2",
+        "13 Dzulhijjah": "Hari Tasyrik ke-3",
+        "17 Ramadhan": "Nuzulul Qur'an",
+        "27 Rajab": "Isra' Mi'raj",
+        "9 Dzulhijjah": "Hari Arafah",
+        "9 Muharram": "Hari Tasu'a",
+        "8 Dzulhijjah": "Hari Tarwiyah",
+        "12 Rabi'ul Awwal": "Maulid Nabi"
+    },
+    "insidentil_spesifik": {
+        "2026-02-27": "Imlek 2577",
+        "2026-03-19": "Nyepi Saka 1948",
+        "2026-03-26": "Paskah",
+        "2026-04-03": "Wafat Isa Almasih",
+        "2026-05-14": "Kenaikan Isa Almasih",
+        "2026-05-31": "Waisak"
+    },
+    "masehi_rutin": {
+        "01 Januari": "Tahun Baru Masehi",
+        "01 Juni": "Hari Lahir Pancasila",
+        "01 Mei": "Hari Buruh Internasional",
+        "01 Oktober": "Hari Kesaktian Pancasila",
+        "02 Mei": "Hari Pendidikan Nasional",
+        "02 Oktober": "Hari Batik Nasional",
+        "05 Oktober": "Hari TNI",
+        "10 November": "Hari Pahlawan",
+        "12 November": [
+            "Hari Kesehatan Nasional",
+            "Hari Ayah Nasional"
+        ],
+        "17 Agustus": "HUT RI",
+        "20 Mei": "Hari Kebangkitan Nasional",
+        "21 April": "Hari Kartini",
+        "22 Desember": "Hari Ibu Nasional",
+        "22 Oktober": "Hari Santri Nasional",
+        "25 Desember": "Hari Natal",
+        "28 Oktober": "Hari Sumpah Pemuda",
+        "25 November": "Hari Guru"
+    }
+}
