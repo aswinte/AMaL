@@ -1,7 +1,9 @@
 # AMaL (Anjungan Masjid Libre)
 
 ![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
-![Status: Active](https://img.shields.io/badge/Status-Active-success.svg)
+![Status: Active](https://img.shields.io/badge/Status-Active-success.svg)![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Raspberry Pi](https://img.shields.io/badge/-RaspberryPi-C51A4A?style=for-the-badge&logo=Raspberry-Pi)
+![Flask](https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white)
 
 **AMaL** adalah sebuah mesin *smart kiosk* (anjungan pintar) berlisensi AGPL dengan semangat FLOSS (*Free Libre Open Source Software*) yang dirancang khusus untuk menunjang informasi dan edukasi di lingkungan masjid.
 
@@ -99,3 +101,5 @@ Kami sangat menunggu kontribusi dari komunitas! Jika Anda ingin menambahkan fitu
 ---
 ## 📄 Lisensi
 Proyek ini didistribusikan di bawah lisensi GNU AGPLv3. Lihat berkas LICENSE untuk informasi lebih lanjut. Pada intinya, Anda bebas menggunakan, memodifikasi, dan mendistribusikan perangkat lunak ini, dengan syarat perbaikan/modifikasi yang Anda lakukan harus dikembalikan ke ranah publik/sumber terbuka dengan lisensi yang sama.
+---
+**Keywords / Tags:** `Smart Kiosk Masjid`, `Jadwal Sholat Digital`, `Aplikasi Masjid Offline`, `Raspberry Pi Kiosk`, `Islamic Astronomy`, `Penghitung Arah Kiblat`, `Software Masjid Open Source`, `Jam Masjid Digital`, `Jadwal Shalat`, `Display Masjid`, `Jam Masjid Digital`, `TV Masjid`, `Kalender Hijriah`, `MABIMS`, `KGHT`, `Rukyatul Hilal`, `Imkanur Rukyat`, `Rasdhul Qiblah`.
