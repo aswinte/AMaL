@@ -150,6 +150,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             // ==========================================
 
+            // ==========================================
+            // TAMBAHAN: Tarik Data Audio ke Form Admin
+            // ==========================================
+            const audioSet = data.audio_settings || {};
+            
+            const tarhimSelect = document.getElementById('audio-tarhim-aktif');
+            const durasiInput = document.getElementById('audio-target-durasi');
+            const toleransiInput = document.getElementById('audio-toleransi-tamat');
+
+            if (tarhimSelect) tarhimSelect.value = audioSet.tarhim_aktif ? "true" : "false";
+            if (durasiInput) durasiInput.value = audioSet.target_durasi_menit || 10;
+            if (toleransiInput) toleransiInput.value = audioSet.toleransi_tamat_menit || 3;
+            // ==========================================
+
             modeSelect.dispatchEvent(new Event('change'));
         } catch (e) {
             console.error("Gagal memuat config:", e);
@@ -2085,13 +2099,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 10000); // Berdetak setiap 10 detik
 
     loadQariList();
-
-    fetch('/api/list_qari') // list_qari tidak cukup, kita butuh config. Kita bisa intip lewat API lain atau buat baru
-    .then(() => {
-        // Karena config.json sudah dikirim lewat template Flask (biasanya), 
-        // Anda bisa langsung mengambilnya jika app.py mengirimkan variabel config.
-        // Jika tidak, kita bisa tambahkan fetch config di sini.
-    });
 
 });
 

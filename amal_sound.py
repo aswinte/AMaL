@@ -82,9 +82,11 @@ class TarhimEngine:
 
             # --- ADAB 2: Pengecekan Basmalah ---
             if curr_ayat == "001" and data_surat["requires_bismillah"]:
-                # Cek apakah Qari punya basmalah sendiri
-                if "000" in data_surat["ayahs"]:
-                    ayat_000 = data_surat["ayahs"]["000"]
+                # Ambil data ayat 000 (jika ada)
+                ayat_000 = data_surat["ayahs"].get("000", {})
+                
+                # Cek apakah Qari punya basmalah sendiri DAN file aslinya ada (durasi > 0)
+                if ayat_000 and ayat_000.get("durasi", 0) > 0:
                     playlist.append({
                         "tipe": "bismillah",
                         "file": f"quran/{qari_aktif}/{curr_surat}000.mp3",
@@ -97,7 +99,7 @@ class TarhimEngine:
                     playlist.append({
                         "tipe": "bismillah",
                         "file": "core/bismillah.mp3",
-                        "teks_arab": "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
+                        "teks_arab": "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
                         "teks_indo": "Dengan menyebut nama Allah Yang Maha Pemurah lagi Maha Penyayang."
                     })
                     total_durasi += 4.0 

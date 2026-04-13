@@ -20,6 +20,11 @@ Secara arsitektur, **AMaL** dapat beroperasi 100% luring (*offline*) tanpa memer
 * **Edukasi:** **AMaL** ditujukan sebagai media informasi dan edukasi bagi umat terutama terkait peristiwa astronomi Islam guna mendorong sikap saling menghargai perbedaan. 
 * **Amal Jariyah:** **AMaL** dirilis di bawah lisensi AGPL untuk memastikan sistem ini selamanya terbuka, tidak pernah diprivatisasi, dan tetap menjadi milik umat sehingga bebas digunakan olah masjid manapun. Keterbukaan lisensi ini memastikan setiap kontributor yang menyempurnakan dan menyebarkan kodenya turut merajut untaian *amal jariyah* yang manfaatnya mengalir tiada terputus.
 
+
+*Catatan:* **AMaL** menggunakan data dari proyek berikut:
+* *Audio Al-Quran per ayat* dari [everyayah](https://everyayah.com/)
+* *Metadata, teks Arab, dan terjemahan Bahasa Indonesia* dari [tanzil.net](https://tanzil.net/)
+
 ---
 
 ## ✨ Fitur Unggulan
@@ -31,6 +36,7 @@ Tidak ada lagi penyesuaian (*offset*) hari secara manual. AMaL menghitung posisi
 * **Kalender Hijriah Komputasional:** Dihitung langsung menggunakan algoritma astronomi berdasarkan kriteria **Wujudul Hilal, MABIMS, dan KHGT**.
 * **Sistem Penanggalan Lengkap & Kultural:** Tampilan utamanya adalah kelender Hijrian dan Masehi. AMaL juga memiliki pilihan menampilkan kalender Jawa sebagai warisan budaya lokal.
 * **Jadwal Sholat & Arah Kiblat:** Disesuaikan dengan presisi titik koordinat lokal masjid.
+* **Auto Tarhim:** Memperdengarkan tilawah Al Quran otomatis menjelang adzan.
 * **Pengingat Puasa:** Menampilkan jadwal puasa wajib dan sunnah secara otomatis di layar utama.
 * **Manajemen Hari Libur:** Mengakomodasi hari libur/besar rutin tahunan (Hijriah/Masehi) maupun kejadian insidentil.
 
