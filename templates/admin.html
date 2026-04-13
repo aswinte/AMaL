@@ -72,6 +72,10 @@
                 <li><a href="#" data-target="panel-log">🕵️ Catatan Aktifitas</a></li>
                 {% endif %}
 
+                {% if role == 'superadmin' %}
+                <li><a href="#" data-target="panel-audio">🔊 Pengaturan Audio</a></li>
+                {% endif %}
+
                 <li><a href="#" data-target="panel-akun">👥 Manajemen Akun</a></li>
             </ul>
 
@@ -862,6 +866,70 @@
                         </div>
                 </div>
             </div>
+
+            <section id="panel-audio" class="admin-panel" style="display: none;">
+                <div class="panel-header">
+                    <h2>🔊 Manajemen Murottal & Tarhim</h2>
+                    <p>Kelola berkas suara Qari dan pengaturan waktu tilawah sebelum Adzan.</p>
+                </div>
+
+                <div class="admin-card">
+                    <h3>Unggah Qari Baru (ZIP)</h3>
+                    <div class="form-grid" style="grid-template-columns: 1fr 1fr auto;">
+                        <div class="form-group">
+                            <label>Nama Qari / Pembaca</label>
+                            <input type="text" id="input-qari-name" placeholder="Misal: mishary_alafasy" class="admin-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Pilih File ZIP</label>
+                            <input type="file" id="input-qari-zip" accept=".zip" class="admin-input">
+                        </div>
+                        <div class="form-group" style="justify-content: flex-end; display: flex; align-items: flex-end;">
+                            <button onclick="handleUploadQari()" class="btn-login" style="width: auto; padding: 12px 25px;">Mulai Unggah</button>
+                        </div>
+                    </div>
+                    <div id="upload-status" style="margin-top: 10px; font-size: 14px; color: var(--primary);"></div>
+                </div>
+
+                <div class="form-grid" style="grid-template-columns: 2fr 1fr;">
+                    <div class="admin-card">
+                        <h3>Daftar Qari Tersedia</h3>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Nama Qari</th>
+                                    <th>Metadata</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="list-qari-body">
+                                </tbody>
+                        </table>
+                    </div>
+
+                    <div class="admin-card">
+                        <h3>Konfigurasi Tarhim</h3>
+                        <div class="form-group">
+                            <label>Fitur Tarhim</label>
+                            <select id="audio-tarhim-aktif" class="admin-input" onchange="updateAudioSettings()">
+                                <option value="true">Aktif</option>
+                                <option value="false">Nonaktif</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Target Durasi (Menit)</label>
+                            <input type="number" id="audio-target-durasi" class="admin-input" min="5" max="30" onchange="updateAudioSettings()">
+                        </div>
+                        <div class="form-group">
+                            <label>Toleransi Tamat (Menit)</label>
+                            <input type="number" id="audio-toleransi-tamat" class="admin-input" min="1" max="10" onchange="updateAudioSettings()">
+                        </div>
+                        <p style="font-size: 12px; color: var(--text-muted); margin-top: 15px;">
+                            * Perubahan akan tersimpan otomatis ke config.json.
+                        </p>
+                    </div>
+                </div>
+            </section>
 
         </main>
     </div>

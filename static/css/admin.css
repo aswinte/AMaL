@@ -411,3 +411,55 @@ body.admin-body {
     margin-top: 5px; 
     font-weight: bold;
 }
+
+/* Status Badge untuk Metadata */
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.status-ok {
+    background: rgba(0, 255, 136, 0.1);
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+
+.status-warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    border: 1px solid #f59e0b;
+}
+
+/* Tombol Aksi Kecil di Tabel */
+.btn-action {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    border: none;
+    margin-right: 5px;
+    transition: 0.2s;
+}
+
+.btn-process { background: #3b82f6; color: white; }
+.btn-delete { background: var(--danger); color: white; }
+.btn-process:hover, .btn-delete:hover { opacity: 0.8; }
+
+.btn-active-now {
+    background: var(--primary);
+    color: #0f172a;
+    font-weight: bold;
+    cursor: default;
+}
+.btn-select {
+    background: transparent;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+}
+.btn-select:hover {
+    background: var(--primary);
+    color: #0f172a;
+}

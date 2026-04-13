@@ -3,8 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>AMaL: Anjungan Masjid bebas-terbuk(a)-Libre</title>
+    <title>AMaL: Anjungan Masjid Libre</title>
     <meta name="google" content="notranslate">
+    <style>
+        :root {
+            /* Jembatan Variabel dari Python/Jinja2 ke CSS */
+            --color-mabims: {{C_NAS_MABIMS}};
+            --color-wh: {{C_NAS_WH}};
+            --color-khgt: {{C_KHGT}};
+        }
+    </style>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="icon" href="/static/images/AMaL.jpeg" type="image/jpeg">
 </head>
@@ -15,15 +23,7 @@
 
                 <div class="header-info">
                     <h2 id="nama-masjid">Memuat Nama Masjid...</h2>
-                    <p id="alamat-masjid" style="
-                        margin: 0; 
-                        /* color: #aaa; */ 
-                        line-height: 1.4; /* Memberi spasi antar baris agar tidak rapat */
-                        word-wrap: break-word; /* Memutus kata yang terlalu panjang */
-                        overflow-wrap: break-word; 
-                        white-space: normal; /* Memastikan teks boleh pindah baris */
-                        text-align: center; /* Opsional: agar teks tetap di tengah jika lebih dari satu baris */
-                    ">Memuat Alamat...</p>
+                    <p id="alamat-masjid" class="alamat-teks">Memuat Alamat...</p>
                 </div>
 
                 <div class="main-clock">
@@ -33,10 +33,10 @@
 
                     <div id="moon-container" class="moon-container"></div>
                     
-                    <p id="tgl-hijri" class="hijri" style="margin-bottom: 0; margin-top: -1vh;">Memuat hijriah...</p>
+                    <p id="tgl-hijri" class="hijri" style="margin-bottom: 0; margin-top: 0vh;">Memuat hijriah...</p>
                     <div id="info-metode" class="teks-metode" style="margin-top: 0vh; margin-bottom: 1vh"></div>
 
-                    <p id="tgl-jawa" style="color: #f59e0b; font-size: 2vmin; font-weight: bold; margin-top: 0.5vh; margin-bottom: 0;">Memuat jawa...</p>
+                    <p id="tgl-jawa" style="color: #f59e0b; font-size: 2vmin; margin-top: 0.5vh; margin-bottom: 0;">Memuat jawa...</p>
                     <div id="info-kurup" class="teks-metode" style="color: rgba(245, 158, 11, 0.7); margin-top: 0vh; margin-bottom: 1vh;"></div>
                     
                     <div id="adzan-countdown" style="color: #ff4444; font-weight: bold; font-size: 2vmin; margin-top: 0.5vh; margin-bottom: 0.5vh; display: none; background: rgba(255, 68, 68, 0.1); border: 1px solid #ff4444; border-radius: 8px; padding: 5px; animation: pulse 1s infinite;"></div>
@@ -158,8 +158,8 @@
                     <div class="calendar-header">
                         <div id="cal-masehi-title">Maret 2026</div>
                         <div id="cal-hijri-title">Ramadhan - Syawal 1447 H</div>
-                        <div id="cal-jawa-title" style="font-size: 1.8vmin; color: #f59e0b; margin-top: 2px; font-weight: bold;"></div>
-                        <div id="cal-jawa-info" style="font-size: 1.3vmin; color: #aaa; margin-top: 2px;"></div>
+                        <div id="cal-jawa-title"></div>
+                        <div id="cal-jawa-info"></div>
                     </div>
                     <!-- <div class="calendar-header" style="display: flex; align-items: center; justify-content: center; gap: 15px; padding-bottom: 10px;">
                         <img src="/static/images/AMaL2.png" alt="Logo AMaL" style="max-height: 8vh; width: auto; filter: invert(100%); opacity: 0.9;">

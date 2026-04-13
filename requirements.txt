@@ -15,3 +15,8 @@ scipy
 
 # Keamanan & Password
 werkzeug
+
+# audio
+mutagen
+pygame
+zipfile

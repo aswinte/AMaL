@@ -75,6 +75,16 @@ body {
     font-weight: bold; 
 }
 
+.alamat-teks {
+    margin: 0;
+    line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    text-align: center;
+    color: #aaaaaa;
+}
+
 .header-info p {
     font-size: 1.5vmin;
     margin: 0 0 0 0;
@@ -266,6 +276,8 @@ body {
 .calendar-header { text-align: center; margin-bottom: 3vh; }
 #cal-masehi-title { font-size: 3.5vmin; font-weight: bold; color: #fff; margin-bottom: 1vh; }
 #cal-hijri-title { font-size: 1.8vmin; color: #00ff88; }
+#cal-jawa-title {font-size: 1.8vmin; color: #f59e0b; margin-top: 2px;}
+#cal-jawa-info {font-size: 1.3vmin; color: #aaa; margin-top: 2px;}
 
 .calendar-weekdays {
     display: grid;
@@ -371,11 +383,12 @@ body {
 .tgl-hijri-tab { position: absolute; bottom: 4px; right: 6px; color: #888; font-size: 1vmin; }
 .tgl-jawa { 
     position: absolute; 
-    bottom: 4px; 
+    bottom: 1px; 
     right: 6px; 
     color: #f59e0b; 
     font-size: 1.5vmin; 
-    font-weight: bold; 
+    white-space: nowrap;
+    /* font-weight: bold;  */
 }
 .tgl-moonicon{
     color: #ffd700;
@@ -602,3 +615,40 @@ body {
     display: none;
     cursor: none; /* Sembunyikan kursor mouse */
 }
+
+/* Container Laporan Hilal */
+.hilal-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 8px 10px;
+    border-radius: 6px;
+    margin-bottom: 5px;
+}
+
+.hilal-info {
+    font-size: 0.65em;
+    line-height: 1.2;
+    color: #ccc;
+}
+
+.hilal-info strong {
+    color: white;
+    font-size: 1.1em;
+}
+
+.hilal-data {
+    font-size: 0.75em;
+    font-weight: bold;
+}
+
+/* Menggunakan CSS Variables untuk warna dinamis */
+.hilal-card.mabims { border-left: 4px solid var(--color-mabims); }
+.hilal-card.mabims .hilal-data { color: var(--color-mabims); }
+
+.hilal-card.wh { border-left: 4px solid var(--color-wh); }
+.hilal-card.wh .hilal-data { color: var(--color-wh); }
+
+.hilal-card.khgt { border-left: 4px solid var(--color-khgt); }
+.hilal-card.khgt .hilal-data { color: var(--color-khgt); }

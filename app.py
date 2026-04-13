@@ -20,6 +20,10 @@ from skyfield import almanac, eclipselib
 from pembaca_kalender import get_hijri_from_json
 import threading
 import copy
+from quran_processor import QuranProcessor
+import pygame
+from amal_sound import TarhimEngine # Impor mesin yang baru kita buat
+import zipfile
 
 # Mencari lokasi folder tempat app.py berada
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -105,6 +109,12 @@ def load_config():
         "durasi_aktif": 15,
         "debug_mode": False,
         "selalu_aktif": False,
+        "audio_settings": {
+            "tarhim_aktif": False,
+            "qari_aktif": "",
+            "target_durasi_menit": 10,
+            "toleransi_tamat_menit": 3
+        },
         "tampilkan_jawa": True,
         "display_settings": {
             "tri_state_enabled": True,
@@ -207,6 +217,89 @@ def load_config_waktu():
     except Exception as e:
         print(f"Error membaca config_waktu.json: {e}")
         return default_config
+# ==========================================
+# HELPER GLOBAL: LOKASI & KALKULASI SHALAT
+# ==========================================
+def get_current_location():
+    """Fungsi tunggal pengambil koordinat agar tidak ada inkonsistensi antar fitur"""
+    CONFIG = load_config()
+    
+    if CONFIG.get("mode") == "manual":
+        return {
+            "nama": "Lokasi Manual",
+            "lat": float(CONFIG.get("manual_lat", -7.45)),
+            "lon": float(CONFIG.get("manual_lon", 109.28)),
+            "tz": float(CONFIG.get("manual_tz", 7))
+        }
+    else:
+        pilihan = CONFIG.get("pilihan_kota", "Sokaraja")
+        daftar = CONFIG.get("daftar_kota", {})
+        
+        if pilihan not in daftar: # Fallback jika error
+            pilihan = "Sokaraja"
+            kota_data = {"lat": -7.4589, "lon": 109.2882, "tz": 7}
+        else:
+            kota_data = daftar[pilihan]
+            
+        return {
+            "nama": pilihan,
+            "lat": float(kota_data.get("lat", -7.45)),
+            "lon": float(kota_data.get("lon", 109.28)),
+            "tz": float(kota_data.get("tz", 7))
+        }
+
+def calculate_prayer_times_core(lat, lon, tz_offset, date_target):
+    """Fungsi inti pengolah mesin Adhanpy, Ihtiyati, dan logika Jumat"""
+    cfg_waktu = load_config_waktu()
+    prm = cfg_waktu.get('parameter_kustom', {})
+    iht = cfg_waktu.get('ihtiyati_menit', {})
+
+    params = CalculationParameters(fajr_angle=prm.get('sudut_subuh', 20.0), isha_angle=prm.get('sudut_isya', 18.0))
+    if prm.get('isya_menit_setelah_maghrib', 0) > 0:
+        params.isha_interval = prm['isya_menit_setelah_maghrib']
+        
+    if prm.get('mazhab_ashar') == "HANAFI":
+        params.madhab = Madhab.HANAFI
+    else:
+        params.madhab = Madhab.SHAFI
+
+    pt = PrayerTimes((lat, lon), DateComponents(date_target.year, date_target.month, date_target.day), calculation_parameters=params)
+    delta = timedelta(hours=tz_offset)
+
+    # Kalkulasi Jam + Timezone + Ihtiyati
+    waktu_subuh = pt.fajr + delta + timedelta(minutes=iht.get('subuh', 0))
+    waktu_dzuhur = pt.dhuhr + delta + timedelta(minutes=iht.get('dzuhur', 0))
+    waktu_ashar = pt.asr + delta + timedelta(minutes=iht.get('ashar', 0))
+    waktu_maghrib = pt.maghrib + delta + timedelta(minutes=iht.get('maghrib', 0))
+    waktu_isya = pt.isha + delta + timedelta(minutes=iht.get('isya', 0))
+    waktu_terbit = pt.sunrise + delta + timedelta(minutes=iht.get('terbit', 0))
+    waktu_imsak = waktu_subuh + timedelta(minutes=iht.get('imsak', 0))
+
+    # Logika Shalat Jumat
+    is_jumat = date_target.weekday() == 4 
+    jumat_cfg = cfg_waktu.get("jumat", {"gunakan_waktu_tetap": False, "waktu_tetap": "12:00"})
+    waktu_dzuhur_str = waktu_dzuhur.strftime("%H:%M")
+    
+    if is_jumat and jumat_cfg.get("gunakan_waktu_tetap", False):
+        waktu_dzuhur_str = jumat_cfg.get("waktu_tetap", "12:00")
+
+    jadwal = {
+        "Imsak": waktu_imsak.strftime("%H:%M"),
+        "Subuh": waktu_subuh.strftime("%H:%M"),
+        "Terbit": waktu_terbit.strftime("%H:%M"),
+        "Dzuhur": waktu_dzuhur_str,
+        "Ashar": waktu_ashar.strftime("%H:%M"),
+        "Maghrib": waktu_maghrib.strftime("%H:%M"),
+        "Isya": waktu_isya.strftime("%H:%M")
+    }
+    
+    return {
+        "jadwal": jadwal,
+        "iqomah": cfg_waktu.get("iqomah_menit", {}),
+        "is_jumat": is_jumat,
+        "jumat_config": jumat_cfg
+    }
+
 
 # ==========================================
 # Menghitung arah kiblat dan rashdul qiblah harian
@@ -282,8 +375,206 @@ def cari_rashdul_harian(lat, lon, tz_offset, tgl, arah_kiblat):
 # ==========================================
 # Mengambil data harian
 # ==========================================
+# def get_daily_data(tgl_manual=None):
+#     # 1. SELALU BACA CONFIG TERBARU
+#     CONFIG = load_config()
+    
+#     if tgl_manual:
+#         try:
+#             now = datetime.strptime(tgl_manual, "%Y-%m-%d")
+#         except:
+#             now = datetime.now()
+#     else:
+#         now = datetime.now()
+        
+#     current_date_str = now.strftime("%Y-%m-%d")
+#     pilihan_saat_ini = CONFIG.get("pilihan_kota", "Sokaraja")
+
+#     # ================================================================
+#     # AMBIL LOKASI DULU SEBELUM CACHE
+#     # ================================================================
+#     try:
+#         if CONFIG.get("mode") == "manual":
+#             lat = CONFIG.get("manual_lat", -7.4589)
+#             lon = CONFIG.get("manual_lon", 109.2882)
+#             tz_offset = CONFIG.get("manual_tz", 7)
+#             nama_lokasi = "Lokasi Manual"
+#         else:
+#             pilihan = CONFIG.get("pilihan_kota", "Sokaraja")
+#             daftar = CONFIG.get("daftar_kota", {"Sokaraja": {"lat": -7.4589, "lon": 109.2882, "tz": 7}})
+            
+#             if pilihan in daftar:
+#                 nama_lokasi = pilihan
+#                 kota = daftar[pilihan]
+#             else:
+#                 nama_lokasi = next(iter(daftar))
+#                 kota = daftar[nama_lokasi]
+            
+#             lat, lon = kota["lat"], kota["lon"]
+#             tz_offset = kota.get("tz", 7)
+#     except Exception as e:
+#         print(f"Error lokasi: {e}")
+#         lat, lon, tz_offset, nama_lokasi = -7.4589, 109.2882, 7, "Sokaraja (Error)"
+
+#     # ================================================================
+#     # HITUNG PLANETARIUM DULU SEBELUM CACHE
+#     # ================================================================
+#     posisi_tata_surya = {"matahari": 0, "bulan": 0, "matahari_terbit": False, "bulan_terbit": False}
+#     try:
+#         eph_path = os.path.join(BASE_DIR, 'de421.bsp')
+#         eph = load(eph_path)
+#         ts = load.timescale()
+#         bumi, mthri, bln = eph['earth'], eph['sun'], eph['moon']
+#         lokasi_radar = bumi + wgs84.latlon(lat, lon)
+        
+#         jam_kiosk = now.hour
+#         menit_kiosk = now.minute
+        
+#         waktu_dari_kiosk = request.args.get('time')
+#         if waktu_dari_kiosk:
+#             j, m = waktu_dari_kiosk.split(':')
+#             jam_kiosk = int(j)
+#             menit_kiosk = int(m)
+            
+#         now_utc = now.replace(hour=jam_kiosk, minute=menit_kiosk) - timedelta(hours=float(tz_offset))
+#         t_sekarang = ts.utc(now_utc.year, now_utc.month, now_utc.day, now_utc.hour, now_utc.minute)
+        
+#         alt_m, az_m, _ = lokasi_radar.at(t_sekarang).observe(mthri).apparent().altaz()
+#         alt_b, az_b, _ = lokasi_radar.at(t_sekarang).observe(bln).apparent().altaz()
+        
+#         posisi_tata_surya = {
+#             "matahari": float(round(az_m.degrees, 1)),
+#             "bulan": float(round(az_b.degrees, 1)),
+#             "alt_matahari": float(round(alt_m.degrees, 1)),
+#             "alt_bulan": float(round(alt_b.degrees, 1)),
+#             "matahari_terbit": bool(alt_m.degrees > 0),
+#             "bulan_terbit": bool(alt_b.degrees > 0)
+#         }
+#     except Exception as e:
+#         print(f"[Warning] Gagal melacak planet: {e}")
+
+#     # ================================================================
+#     # 2. LOGIKA CACHE
+#     # ================================================================
+#     if not tgl_manual and daily_cache["date"] == current_date_str:
+#         if daily_cache["data"] and daily_cache["data"]["lokasi"]["nama"] == pilihan_saat_ini:
+#             # data_update = daily_cache["data"].copy()
+#             data_update = copy.deepcopy(daily_cache["data"])
+#             data_update["nama_masjid"] = CONFIG.get("nama_masjid", "Masjid")
+#             data_update["alamat_masjid"] = CONFIG.get("alamat_masjid", "Lokasi")
+#             data_update["durasi_aktif"] = CONFIG.get("durasi_aktif", 15)
+#             data_update["selalu_aktif"] = CONFIG.get("selalu_aktif", True)
+#             data_update["tampilkan_jawa"] = CONFIG.get("tampilkan_jawa", True)
+#             data_update["metode"] = CONFIG.get("metode_kalender", "NASIONAL_MABIMS")
+#             data_update["display_settings"] = CONFIG.get("display_settings", {
+#                 "tri_state_enabled": True,
+#                 "blackout": [{"start": "22:00", "end": "03:30"}],
+#                 "screensaver": [
+#                     {"start": "06:00", "end": "11:00"},
+#                     {"start": "13:00", "end": "14:30"}
+#                 ]
+#             })
+#             data_update["keuangan"] = CONFIG.get("keuangan", {
+#                 "tampilkan": False,
+#                 "tanggal_laporan": "",
+#                 "saldo_awal": 0,
+#                 "pemasukan": 0,
+#                 "pengeluaran": 0
+#             })
+            
+#             data_update["lokasi"]["planetarium"] = posisi_tata_surya
+            
+#             return data_update
+
+#     # ================================================================
+#     # 3. HITUNG ULANG JADWAL SHALAT (Hanya jika Cache kosong/beda hari)
+#     # ================================================================
+#     cfg_waktu = load_config_waktu()
+#     prm = cfg_waktu['parameter_kustom']
+#     iht = cfg_waktu['ihtiyati_menit']
+
+#     params = CalculationParameters(fajr_angle=prm['sudut_subuh'], isha_angle=prm['sudut_isya'])
+#     if prm.get('isya_menit_setelah_maghrib', 0) > 0:
+#         params.isha_interval = prm['isya_menit_setelah_maghrib']
+        
+#     if prm.get('mazhab_ashar') == "HANAFI":
+#         params.madhab = Madhab.HANAFI
+#     else:
+#         params.madhab = Madhab.SHAFI
+
+#     pt = PrayerTimes((lat, lon), DateComponents(now.year, now.month, now.day), calculation_parameters=params)
+#     delta = timedelta(hours=tz_offset)
+
+#     waktu_subuh = pt.fajr + delta + timedelta(minutes=iht['subuh'])
+#     waktu_dzuhur = pt.dhuhr + delta + timedelta(minutes=iht['dzuhur'])
+#     waktu_ashar = pt.asr + delta + timedelta(minutes=iht['ashar'])
+#     waktu_maghrib = pt.maghrib + delta + timedelta(minutes=iht['maghrib'])
+#     waktu_isya = pt.isha + delta + timedelta(minutes=iht['isya'])
+#     waktu_terbit = pt.sunrise + delta + timedelta(minutes=iht['terbit'])
+#     waktu_imsak = waktu_subuh + timedelta(minutes=iht['imsak'])
+
+#     # Logika Shalat Jumat, digunakan untuk merubah jadwal Dzuhur jika diinginkan
+#     is_jumat = now.weekday() == 4 
+#     jumat_cfg = cfg_waktu.get("jumat", {"gunakan_waktu_tetap": False, "waktu_tetap": "12:00"})
+#     waktu_dzuhur_str = waktu_dzuhur.strftime("%H:%M")
+    
+#     if is_jumat and jumat_cfg.get("gunakan_waktu_tetap", False):
+#         waktu_dzuhur_str = jumat_cfg.get("waktu_tetap", "12:00")
+
+#     arah_kiblat = hitung_arah_kiblat(lat, lon)
+#     rashdul_harian = cari_rashdul_harian(lat, lon, tz_offset, now, arah_kiblat)
+
+#     data = {
+#         "nama_masjid": CONFIG.get("nama_masjid", "Masjid"),
+#         "alamat_masjid": CONFIG.get("alamat_masjid", "Lokasi"),
+#         "lokasi": {
+#             "nama": nama_lokasi,
+#             "lat": lat,
+#             "lon": lon,
+#             "koordinat": f"{lat}, {lon}",
+#             "kiblat": arah_kiblat,
+#             "rashdul_harian": rashdul_harian,
+#             "planetarium": posisi_tata_surya
+#         },
+#         "durasi_aktif": CONFIG.get("durasi_aktif", 15),
+#         "selalu_aktif": CONFIG.get("selalu_aktif", True),
+#         "tampilkan_jawa": CONFIG.get("tampilkan_jawa", True),
+#         "jadwal": {
+#             "Imsak": waktu_imsak.strftime("%H:%M"),
+#             "Subuh": waktu_subuh.strftime("%H:%M"),
+#             "Terbit": waktu_terbit.strftime("%H:%M"),
+#             "Dzuhur": waktu_dzuhur_str,
+#             "Ashar": waktu_ashar.strftime("%H:%M"),
+#             "Maghrib": waktu_maghrib.strftime("%H:%M"),
+#             "Isya": waktu_isya.strftime("%H:%M")
+#         },
+#         "iqomah": cfg_waktu.get("iqomah_menit", {}), 
+#         "is_jumat": is_jumat, 
+#         "jumat_config": jumat_cfg,
+#         "metode": CONFIG.get("metode_kalender", "NASIONAL_MABIMS"),
+#         "display_settings": CONFIG.get("display_settings", {
+#             "tri_state_enabled": True,
+#             "blackout": [{"start": "22:00", "end": "03:30"}],
+#             "screensaver": [
+#                 {"start": "06:00", "end": "11:00"},
+#                 {"start": "13:00", "end": "14:30"}
+#             ]
+#         }),
+#         "keuangan": CONFIG.get("keuangan", {
+#             "tampilkan": False,
+#             "tanggal_laporan": "",
+#             "saldo_awal": 0,
+#             "pemasukan": 0,
+#             "pengeluaran": 0
+#         })
+#     }
+
+#     if not tgl_manual:
+#         daily_cache["date"] = current_date_str
+#         daily_cache["data"] = data
+        
+#     return data
 def get_daily_data(tgl_manual=None):
-    # 1. SELALU BACA CONFIG TERBARU
     CONFIG = load_config()
     
     if tgl_manual:
@@ -295,33 +586,10 @@ def get_daily_data(tgl_manual=None):
         now = datetime.now()
         
     current_date_str = now.strftime("%Y-%m-%d")
-    pilihan_saat_ini = CONFIG.get("pilihan_kota", "Sokaraja")
 
-    # ================================================================
-    # AMBIL LOKASI DULU SEBELUM CACHE
-    # ================================================================
-    try:
-        if CONFIG.get("mode") == "manual":
-            lat = CONFIG.get("manual_lat", -7.4589)
-            lon = CONFIG.get("manual_lon", 109.2882)
-            tz_offset = CONFIG.get("manual_tz", 7)
-            nama_lokasi = "Lokasi Manual"
-        else:
-            pilihan = CONFIG.get("pilihan_kota", "Sokaraja")
-            daftar = CONFIG.get("daftar_kota", {"Sokaraja": {"lat": -7.4589, "lon": 109.2882, "tz": 7}})
-            
-            if pilihan in daftar:
-                nama_lokasi = pilihan
-                kota = daftar[pilihan]
-            else:
-                nama_lokasi = next(iter(daftar))
-                kota = daftar[nama_lokasi]
-            
-            lat, lon = kota["lat"], kota["lon"]
-            tz_offset = kota.get("tz", 7)
-    except Exception as e:
-        print(f"Error lokasi: {e}")
-        lat, lon, tz_offset, nama_lokasi = -7.4589, 109.2882, 7, "Sokaraja (Error)"
+    # 1. AMBIL LOKASI (Cukup 1 Baris dengan Helper)
+    lok = get_current_location()
+    lat, lon, tz_offset, nama_lokasi = lok["lat"], lok["lon"], lok["tz"], lok["nama"]
 
     # ================================================================
     # HITUNG PLANETARIUM DULU SEBELUM CACHE
@@ -358,14 +626,11 @@ def get_daily_data(tgl_manual=None):
             "bulan_terbit": bool(alt_b.degrees > 0)
         }
     except Exception as e:
-        print(f"[Warning] Gagal melacak planet: {e}")
+        pass # Supress error planetarium agar tidak spam terminal
 
-    # ================================================================
     # 2. LOGIKA CACHE
-    # ================================================================
-    if not tgl_manual and daily_cache["date"] == current_date_str:
-        if daily_cache["data"] and daily_cache["data"]["lokasi"]["nama"] == pilihan_saat_ini:
-            # data_update = daily_cache["data"].copy()
+    if not tgl_manual and daily_cache.get("date") == current_date_str:
+        if daily_cache.get("data") and daily_cache["data"]["lokasi"]["nama"] == nama_lokasi:
             data_update = copy.deepcopy(daily_cache["data"])
             data_update["nama_masjid"] = CONFIG.get("nama_masjid", "Masjid")
             data_update["alamat_masjid"] = CONFIG.get("alamat_masjid", "Lokasi")
@@ -373,60 +638,13 @@ def get_daily_data(tgl_manual=None):
             data_update["selalu_aktif"] = CONFIG.get("selalu_aktif", True)
             data_update["tampilkan_jawa"] = CONFIG.get("tampilkan_jawa", True)
             data_update["metode"] = CONFIG.get("metode_kalender", "NASIONAL_MABIMS")
-            data_update["display_settings"] = CONFIG.get("display_settings", {
-                "tri_state_enabled": True,
-                "blackout": [{"start": "22:00", "end": "03:30"}],
-                "screensaver": [
-                    {"start": "06:00", "end": "11:00"},
-                    {"start": "13:00", "end": "14:30"}
-                ]
-            })
-            data_update["keuangan"] = CONFIG.get("keuangan", {
-                "tampilkan": False,
-                "tanggal_laporan": "",
-                "saldo_awal": 0,
-                "pemasukan": 0,
-                "pengeluaran": 0
-            })
-            
+            data_update["display_settings"] = CONFIG.get("display_settings", {})
+            data_update["keuangan"] = CONFIG.get("keuangan", {})
             data_update["lokasi"]["planetarium"] = posisi_tata_surya
-            
             return data_update
 
-    # ================================================================
-    # 3. HITUNG ULANG JADWAL SHALAT (Hanya jika Cache kosong/beda hari)
-    # ================================================================
-    cfg_waktu = load_config_waktu()
-    prm = cfg_waktu['parameter_kustom']
-    iht = cfg_waktu['ihtiyati_menit']
-
-    params = CalculationParameters(fajr_angle=prm['sudut_subuh'], isha_angle=prm['sudut_isya'])
-    if prm.get('isya_menit_setelah_maghrib', 0) > 0:
-        params.isha_interval = prm['isya_menit_setelah_maghrib']
-        
-    if prm.get('mazhab_ashar') == "HANAFI":
-        params.madhab = Madhab.HANAFI
-    else:
-        params.madhab = Madhab.SHAFI
-
-    pt = PrayerTimes((lat, lon), DateComponents(now.year, now.month, now.day), calculation_parameters=params)
-    delta = timedelta(hours=tz_offset)
-
-    waktu_subuh = pt.fajr + delta + timedelta(minutes=iht['subuh'])
-    waktu_dzuhur = pt.dhuhr + delta + timedelta(minutes=iht['dzuhur'])
-    waktu_ashar = pt.asr + delta + timedelta(minutes=iht['ashar'])
-    waktu_maghrib = pt.maghrib + delta + timedelta(minutes=iht['maghrib'])
-    waktu_isya = pt.isha + delta + timedelta(minutes=iht['isya'])
-    waktu_terbit = pt.sunrise + delta + timedelta(minutes=iht['terbit'])
-    waktu_imsak = waktu_subuh + timedelta(minutes=iht['imsak'])
-
-    # Logika Shalat Jumat, digunakan untuk merubah jadwal Dzuhur jika diinginkan
-    is_jumat = now.weekday() == 4 
-    jumat_cfg = cfg_waktu.get("jumat", {"gunakan_waktu_tetap": False, "waktu_tetap": "12:00"})
-    waktu_dzuhur_str = waktu_dzuhur.strftime("%H:%M")
-    
-    if is_jumat and jumat_cfg.get("gunakan_waktu_tetap", False):
-        waktu_dzuhur_str = jumat_cfg.get("waktu_tetap", "12:00")
+    # 3. HITUNG ULANG JADWAL SHALAT (Cukup 1 Baris dengan Helper)
+    kalkulasi_shalat = calculate_prayer_times_core(lat, lon, tz_offset, now)
 
     arah_kiblat = hitung_arah_kiblat(lat, lon)
     rashdul_harian = cari_rashdul_harian(lat, lon, tz_offset, now, arah_kiblat)
@@ -446,34 +664,13 @@ def get_daily_data(tgl_manual=None):
         "durasi_aktif": CONFIG.get("durasi_aktif", 15),
         "selalu_aktif": CONFIG.get("selalu_aktif", True),
         "tampilkan_jawa": CONFIG.get("tampilkan_jawa", True),
-        "jadwal": {
-            "Imsak": waktu_imsak.strftime("%H:%M"),
-            "Subuh": waktu_subuh.strftime("%H:%M"),
-            "Terbit": waktu_terbit.strftime("%H:%M"),
-            "Dzuhur": waktu_dzuhur_str,
-            "Ashar": waktu_ashar.strftime("%H:%M"),
-            "Maghrib": waktu_maghrib.strftime("%H:%M"),
-            "Isya": waktu_isya.strftime("%H:%M")
-        },
-        "iqomah": cfg_waktu.get("iqomah_menit", {}), 
-        "is_jumat": is_jumat, 
-        "jumat_config": jumat_cfg,
+        "jadwal": kalkulasi_shalat["jadwal"], 
+        "iqomah": kalkulasi_shalat["iqomah"],
+        "is_jumat": kalkulasi_shalat["is_jumat"], 
+        "jumat_config": kalkulasi_shalat["jumat_config"],
         "metode": CONFIG.get("metode_kalender", "NASIONAL_MABIMS"),
-        "display_settings": CONFIG.get("display_settings", {
-            "tri_state_enabled": True,
-            "blackout": [{"start": "22:00", "end": "03:30"}],
-            "screensaver": [
-                {"start": "06:00", "end": "11:00"},
-                {"start": "13:00", "end": "14:30"}
-            ]
-        }),
-        "keuangan": CONFIG.get("keuangan", {
-            "tampilkan": False,
-            "tanggal_laporan": "",
-            "saldo_awal": 0,
-            "pemasukan": 0,
-            "pengeluaran": 0
-        })
+        "display_settings": CONFIG.get("display_settings", {}),
+        "keuangan": CONFIG.get("keuangan", {})
     }
 
     if not tgl_manual:
@@ -541,6 +738,101 @@ def api_simulasi():
         return jsonify({"status": "success", "state": state_simulasi})
         
     return jsonify(state_simulasi)
+
+# def get_prayer_times_data():
+#     """Fungsi mandiri untuk menghitung jadwal shalat menggunakan parameter kustom AMaL"""
+#     global daily_cache
+#     now = datetime.now()
+#     today_str = now.strftime("%Y-%m-%d")
+
+#     # Jika cache sudah ada dan tanggalnya masih hari ini, langsung kembalikan
+#     if daily_cache.get("date") == today_str and daily_cache.get("data"):
+#         return daily_cache["data"]
+
+#     # Jika cache kosong atau ganti hari, mari kita hitung ulang
+#     try:
+#         with open(os.path.join(BASE_DIR, 'config.json'), 'r', encoding='utf-8') as f:
+#             config = json.load(f)
+
+#         lat = float(config.get("manual_lat", -7.45))
+#         lon = float(config.get("manual_lon", 109.28))
+#         tz_offset = float(config.get("manual_tz", 7))
+
+#         # --- MENGGUNAKAN LOGIKA EKSISTING AMAL ---
+#         # Pastikan fungsi load_config_waktu() sudah bisa dipanggil dari sini
+#         cfg_waktu = load_config_waktu() 
+#         prm = cfg_waktu['parameter_kustom']
+#         iht = cfg_waktu['ihtiyati_menit']
+
+#         params = CalculationParameters(fajr_angle=prm['sudut_subuh'], isha_angle=prm['sudut_isya'])
+#         if prm.get('isya_menit_setelah_maghrib', 0) > 0:
+#             params.isha_interval = prm['isya_menit_setelah_maghrib']
+            
+#         if prm.get('mazhab_ashar') == "HANAFI":
+#             params.madhab = Madhab.HANAFI
+#         else:
+#             params.madhab = Madhab.SHAFI
+
+#         # Eksekusi adhanpy
+#         pt = PrayerTimes((lat, lon), DateComponents(now.year, now.month, now.day), calculation_parameters=params)
+#         delta = timedelta(hours=tz_offset)
+
+#         # Tambahkan Ihtiyati
+#         waktu_subuh = pt.fajr + delta + timedelta(minutes=iht.get('subuh', 0))
+#         waktu_dzuhur = pt.dhuhr + delta + timedelta(minutes=iht.get('dzuhur', 0))
+#         waktu_ashar = pt.asr + delta + timedelta(minutes=iht.get('ashar', 0))
+#         waktu_maghrib = pt.maghrib + delta + timedelta(minutes=iht.get('maghrib', 0))
+#         waktu_isya = pt.isha + delta + timedelta(minutes=iht.get('isya', 0))
+#         waktu_terbit = pt.sunrise + delta + timedelta(minutes=iht.get('terbit', 0))
+
+#         # Logika Shalat Jumat
+#         is_jumat = now.weekday() == 4 
+#         jumat_cfg = cfg_waktu.get("jumat", {"gunakan_waktu_tetap": False, "waktu_tetap": "12:00"})
+#         waktu_dzuhur_str = waktu_dzuhur.strftime("%H:%M")
+        
+#         if is_jumat and jumat_cfg.get("gunakan_waktu_tetap", False):
+#             waktu_dzuhur_str = jumat_cfg.get("waktu_tetap", "12:00")
+
+#         # Pemetaan nama ke bahasa Indonesia untuk mesin audio
+#         jadwal = {
+#             "Subuh": waktu_subuh.strftime("%H:%M"),
+#             "Terbit": waktu_terbit.strftime("%H:%M"),
+#             "Dzuhur": waktu_dzuhur_str,
+#             "Ashar": waktu_ashar.strftime("%H:%M"),
+#             "Maghrib": waktu_maghrib.strftime("%H:%M"),
+#             "Isya": waktu_isya.strftime("%H:%M")
+#         }
+
+#         # Simpan ke cache
+#         daily_cache["date"] = today_str
+#         daily_cache["data"] = jadwal
+#         print(f"[AMaL System] Jadwal Shalat berhasil diperbarui untuk {today_str} (Termasuk Ihtiyati & Jumat)")
+        
+#         return jadwal
+        
+#     except Exception as e:
+#         print(f"[AMaL System] ERROR Hitung Jadwal: {e}")
+#         traceback.print_exc() 
+#         return None
+def get_prayer_times_data():
+    """Fungsi mandiri mesin audio untuk menghitung/mengambil jadwal"""
+    global daily_cache
+    now = datetime.now()
+    today_str = now.strftime("%Y-%m-%d")
+
+    # Jika TV Kiosk sudah nyala dan bikin cache, numpang ambil dari sana
+    if daily_cache.get("date") == today_str and daily_cache.get("data"):
+        return daily_cache["data"].get("jadwal")
+
+    # Jika TV belum nyala, hitung mandiri menggunakan Helper Utama
+    try:
+        lokasi = get_current_location()
+        kalkulasi = calculate_prayer_times_core(lokasi["lat"], lokasi["lon"], lokasi["tz"], now)
+        return kalkulasi["jadwal"]
+    except Exception as e:
+        print(f"[AMaL System] ERROR Hitung Jadwal Audio: {e}")
+        return None
+
 
 # ==========================================
 # index.html
@@ -691,25 +983,30 @@ def get_jangkar_json(tahun):
             # Panggil fungsi generator
             from generator_tahunan import generate_adaptif
 
-            # --- AMBIL KOORDINAT DARI CONFIG ---
-            CONFIG = load_config()
-            if CONFIG.get("mode") == "manual":
-                lat = CONFIG.get("manual_lat", -7.4589)
-                lon = CONFIG.get("manual_lon", 109.2882)
-                kota = "Lokasi Manual"
-            else:
-                pilihan = CONFIG.get("pilihan_kota", "Sokaraja")
-                daftar = CONFIG.get("daftar_kota", {"Sokaraja": {"lat": -7.4589, "lon": 109.2882}})
+            # # --- AMBIL KOORDINAT DARI CONFIG ---
+            # CONFIG = load_config()
+            # if CONFIG.get("mode") == "manual":
+            #     lat = CONFIG.get("manual_lat", -7.4589)
+            #     lon = CONFIG.get("manual_lon", 109.2882)
+            #     kota = "Lokasi Manual"
+            # else:
+            #     pilihan = CONFIG.get("pilihan_kota", "Sokaraja")
+            #     daftar = CONFIG.get("daftar_kota", {"Sokaraja": {"lat": -7.4589, "lon": 109.2882}})
                 
-                if pilihan in daftar:
-                    kota = pilihan
-                    lat = daftar[pilihan]["lat"]
-                    lon = daftar[pilihan]["lon"]
-                else:
-                    kota = next(iter(daftar))
-                    lat = daftar[kota]["lat"]
-                    lon = daftar[kota]["lon"]
-            # --------------------------------------------------- 
+            #     if pilihan in daftar:
+            #         kota = pilihan
+            #         lat = daftar[pilihan]["lat"]
+            #         lon = daftar[pilihan]["lon"]
+            #     else:
+            #         kota = next(iter(daftar))
+            #         lat = daftar[kota]["lat"]
+            #         lon = daftar[kota]["lon"]
+            # # --------------------------------------------------- 
+
+            # --- AMBIL KOORDINAT TERPUSAT ---
+            lokasi = get_current_location()
+            lat, lon, kota = lokasi["lat"], lokasi["lon"], lokasi["nama"]
+            # --------------------------------
             
             print(f"[System] Koordinat generator: {kota} ({lat}, {lon})")
             
@@ -1390,14 +1687,17 @@ def api_rashdul_qiblah():
 @app.route('/api/gerhana', methods=['GET'])
 def api_gerhana():
     try:
-        # 1. Ambil Koordinat Masjid dari config.json
-        config_path = os.path.join(BASE_DIR, 'config.json')
-        with open(config_path, 'r') as f:
-            cfg = json.load(f)
+        # # 1. Ambil Koordinat Masjid dari config.json
+        # config_path = os.path.join(BASE_DIR, 'config.json')
+        # with open(config_path, 'r') as f:
+        #     cfg = json.load(f)
         
-        tz_offset = cfg.get('manual_tz', 7)
-        lat = cfg.get('manual_lat', -7.45)
-        lon = cfg.get('manual_lon', 109.28)
+        # tz_offset = cfg.get('manual_tz', 7)
+        # lat = cfg.get('manual_lat', -7.45)
+        # lon = cfg.get('manual_lon', 109.28)
+        # 1. Ambil Koordinat Terpusat
+        lokasi = get_current_location()
+        lat, lon, tz_offset = lokasi["lat"], lokasi["lon"], lokasi["tz"]
         tahun_sekarang = datetime.now().year
         
         # 2. Setup Vektor Pengamat (Lokasi Masjid)
@@ -1556,24 +1856,28 @@ def api_hilal():
             if is_hilal_generating:
                 return jsonify({"status": "processing", "msg": "Sedang merender peta (estimasi 5-10 menit)..."})
             
-            # AMBIL KOORDINAT DARI CONFIG AMAL
-            # PENTING: Karena ini ada di file terpisah, kita butuh cara baca config
-            try:
-                with open(os.path.join(BASE_DIR, 'config.json'), 'r') as f:
-                    config_app = json.load(f)
-            except:
-                config_app = {}
+            # # AMBIL KOORDINAT DARI CONFIG AMAL
+            # # PENTING: Karena ini ada di file terpisah, kita butuh cara baca config
+            # try:
+            #     with open(os.path.join(BASE_DIR, 'config.json'), 'r') as f:
+            #         config_app = json.load(f)
+            # except:
+            #     config_app = {}
 
-            if config_app.get("mode") == "manual":
-                lat = config_app.get("manual_lat", -7.4589)
-                lon = config_app.get("manual_lon", 109.2882)
-                kota = "Lokasi Manual"
-            else:
-                pilihan = config_app.get("pilihan_kota", "Sokaraja")
-                # Jika daftar_kota tidak ada di config, gunakan nilai statis ini
-                lat = -7.4589
-                lon = 109.2882
-                kota = pilihan
+            # if config_app.get("mode") == "manual":
+            #     lat = config_app.get("manual_lat", -7.4589)
+            #     lon = config_app.get("manual_lon", 109.2882)
+            #     kota = "Lokasi Manual"
+            # else:
+            #     pilihan = config_app.get("pilihan_kota", "Sokaraja")
+            #     # Jika daftar_kota tidak ada di config, gunakan nilai statis ini
+            #     lat = -7.4589
+            #     lon = 109.2882
+            #     kota = pilihan
+            
+            # AMBIL KOORDINAT TERPUSAT
+            lokasi = get_current_location()
+            lat, lon, kota = lokasi["lat"], lokasi["lon"], lokasi["nama"]
 
             # PEKERJA LATAR BELAKANG (THREAD)
             def background_worker():
@@ -1610,5 +1914,297 @@ def sync_waktu():
     waktu_server_ms = int(time.time() * 1000)
     return jsonify({"server_time": waktu_server_ms})
 
+@app.route('/api/proses_metadata_qari', methods=['POST'])
+def proses_metadata():
+    qari_name = request.json.get('qari_name')
+    if not qari_name:
+        return jsonify({"status": "error", "msg": "Nama Qari tidak disertakan"})
+    
+    processor = QuranProcessor()
+    success, message = processor.build_qari_metadata(qari_name)
+    
+    if success:
+        return jsonify({"status": "success", "msg": message})
+    else:
+        return jsonify({"status": "error", "msg": message})
+    
+# ==========================================\n
+# # --- ENDPOINT & MESIN AUDIO TARHIM (BACKGROUND) ---\n
+# # ==========================================
+# Inisialisasi Audio Mixer
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+pygame.mixer.init()
+
+# Variabel Global untuk mengirim data teks ke Frontend (Nanti digunakan untuk UI Layar)
+state_audio = {
+    "is_playing": False,
+    "teks_arab": "",
+    "teks_indo": "",
+    "surat_ayat": ""
+}
+
+def audio_background_worker():
+    """Detak Jantung Audio: Memantau waktu dan memutar Murottal"""
+    global state_audio
+    engine = TarhimEngine()
+    
+    playlist_hari_ini = None
+    waktu_putar = None
+    sudah_dirakit_untuk_jadwal = "" # Gunakan string nama jadwal sebagai kunci pengaman
+    
+    while True:
+        time.sleep(1) 
+        try:
+            jadwal_hari_ini = get_prayer_times_data()
+            if not jadwal_hari_ini:
+                continue 
+                
+            now = datetime.now()
+            
+            with open(os.path.join(BASE_DIR, 'config.json'), 'r', encoding='utf-8') as f:
+                config = json.load(f)
+            
+            audio_conf = config.get('audio_settings', {})
+            if not audio_conf.get('tarhim_aktif', False):
+                sudah_dirakit_untuk_jadwal = "" # Reset kunci jika dimatikan
+                continue
+
+            t_durasi = audio_conf.get('target_durasi_menit', 10) or 10
+            t_toleransi = audio_conf.get('toleransi_tamat_menit', 3) or 3
+
+            # Dapatkan Waktu Adzan Terdekat 
+            nama_target, waktu_adzan = get_next_prayer_target(now, jadwal_hari_ini)
+            
+            # Hitung Jendela Waktu
+            target_menit = t_durasi + t_toleransi
+            
+            # Kita rakit 5 menit LEBIH AWAL dari target durasi
+            batas_rakit = waktu_adzan - timedelta(minutes=target_menit + 5)
+            
+            # --- BLOK PERAKITAN PLAYLIST (HANYA DIEKSEKUSI 1 KALI) ---
+            if now >= batas_rakit and now < waktu_adzan and sudah_dirakit_untuk_jadwal != nama_target:
+                print(f"\n[AMaL Audio] Memasuki zona persiapan untuk {nama_target} pada pukul {waktu_adzan.strftime('%H:%M:%S')}.")
+                print(f"[AMaL Audio] Merakit Playlist Pra-Adzan (Durasi Target: {t_durasi} mnt)...")
+                
+                status, pesan, data = engine.build_playlist()
+                
+                if status:
+                    playlist_hari_ini = data['playlist']
+                    waktu_putar = waktu_adzan - timedelta(seconds=data['total_detik'])
+                    
+                    # MENGUNCI SISTEM: Tandai bahwa jadwal ini sudah dirakit!
+                    sudah_dirakit_untuk_jadwal = nama_target 
+                    
+                    print(f"[AMaL Audio] Selesai! Audio dijadwalkan berbunyi pada {waktu_putar.strftime('%H:%M:%S')}")
+                else:
+                    print(f"[AMaL Audio] Gagal merakit: {pesan}")
+                    # Tetap kunci agar tidak error berulang-ulang menyepam terminal
+                    sudah_dirakit_untuk_jadwal = nama_target 
+                    
+            # --- BLOK PEMUTARAN AUDIO ---
+            if sudah_dirakit_untuk_jadwal == nama_target and playlist_hari_ini and now >= waktu_putar and now < waktu_adzan:
+                if not state_audio["is_playing"]:
+                    state_audio["is_playing"] = True
+                    
+                    print(f"\n[AMaL Audio] MEMULAI TILAWAH PRA-ADZAN {nama_target.upper()}...")
+                    
+                    for item in playlist_hari_ini:
+                        # Cek apakah tiba-tiba dimatikan oleh Admin saat sedang berbunyi
+                        with open(os.path.join(BASE_DIR, 'config.json'), 'r') as f:
+                            if not json.load(f).get('audio_settings', {}).get('tarhim_aktif', False):
+                                break
+                                
+                        file_path = os.path.join(BASE_DIR, "static", "audio", item['file'])
+                        
+                        if os.path.exists(file_path):
+                            state_audio["teks_arab"] = item.get("teks_arab", "")
+                            state_audio["teks_indo"] = item.get("teks_indo", "")
+                            state_audio["surat_ayat"] = item.get("surat", "") + " " + item.get("ayat_num", "")
+                            
+                            pygame.mixer.music.load(file_path)
+                            pygame.mixer.music.play()
+                            
+                            while pygame.mixer.music.get_busy():
+                                time.sleep(0.1)
+                                
+                    # Selesai seluruh playlist
+                    state_audio["is_playing"] = False
+                    playlist_hari_ini = None
+                    print(f"[AMaL Audio] Tilawah Selesai, masuk waktu Adzan {nama_target}.")
+                    
+            # Reset kunci jika sudah melewati waktu adzan (Pindah jadwal)
+            if now >= waktu_adzan:
+                sudah_dirakit_untuk_jadwal = ""
+                
+        except Exception as e:
+            print(f"[AMaL Audio Worker] Error: {e}")
+            time.sleep(5)
+
+def get_next_prayer_target(now, jadwal_hari_ini):
+    """
+    Mencari waktu shalat terdekat yang belum tiba.
+    Urutan: Subuh, Dzuhur, Ashar, Maghrib, Isya.
+    """
+    # Urutan shalat yang didukung untuk fitur Tarhim
+    urutan_shalat = ["Subuh", "Dzuhur", "Ashar", "Maghrib", "Isya"]
+    
+    for nama_shalat in urutan_shalat:
+        waktu_str = jadwal_hari_ini.get(nama_shalat)
+        if not waktu_str:
+            continue
+            
+        jam, menit = map(int, waktu_str.split(':'))
+        waktu_target = now.replace(hour=jam, minute=menit, second=0, microsecond=0)
+        
+        # Jika waktu target masih di masa depan, inilah target kita
+        if waktu_target > now:
+            return nama_shalat, waktu_target
+            
+    # Jika semua sudah lewat (setelah Isya), maka targetnya adalah Subuh besok
+    # Kita asumsikan jam Subuh besok kurang lebih sama dengan hari ini 
+    # (atau sistem akan update cache saat lewat tengah malam)
+    waktu_str_subuh = jadwal_hari_ini.get("Subuh", "04:30")
+    jam, menit = map(int, waktu_str_subuh.split(':'))
+    besok = now + timedelta(days=1)
+    waktu_subuh_besok = besok.replace(hour=jam, minute=menit, second=0, microsecond=0)
+    
+    return "Subuh", waktu_subuh_besok
+
+# API untuk Frontend Kiosk (mengambil lirik/ayat yang sedang diputar)
+@app.route('/api/audio_state')
+def get_audio_state():
+    return jsonify(state_audio)            
+
+# ==========================================
+# --- API MANAJEMEN AUDIO & QARI ---
+# ==========================================
+
+@app.route('/api/list_qari', methods=['GET'])
+def list_qari():
+    """Mengambil daftar folder Qari yang tersedia"""
+    base_path = os.path.join(BASE_DIR, "static", "audio", "quran")
+    if not os.path.exists(base_path):
+        os.makedirs(base_path, exist_ok=True)
+    
+    # Ambil info qari_aktif dari config.json
+    config_path = os.path.join(BASE_DIR, 'config.json')
+    active_qari = ""
+    if os.path.exists(config_path):
+        with open(config_path, 'r', encoding='utf-8') as f:
+            active_qari = json.load(f).get('audio_settings', {}).get('qari_aktif', "")
+    
+    folders = [f for f in os.listdir(base_path) if os.path.isdir(os.path.join(base_path, f))]
+    qari_list = []
+    
+    for f in folders:
+        json_path = os.path.join(BASE_DIR, "data", "generated", f"quran_master_{f}.json")
+        qari_list.append({
+            "name": f,
+            "has_metadata": os.path.exists(json_path),
+            "is_active": (f == active_qari) # Tambahkan flag status aktif
+        })
+    
+    return jsonify(qari_list)
+
+@app.route('/api/upload_qari', methods=['POST'])
+def upload_qari():
+    """Menangani unggahan ZIP Murottal dan mengekstraknya"""
+    if 'file' not in request.files:
+        return jsonify({"status": "error", "msg": "Tidak ada file yang diunggah"})
+    
+    file = request.files['file']
+    qari_name = request.form.get('qari_name', '').strip()
+    
+    if not qari_name or file.filename == '':
+        return jsonify({"status": "error", "msg": "Nama Qari dan File wajib diisi"})
+    
+    # Amankan nama folder
+    qari_name = secure_filename(qari_name).lower()
+    temp_path = os.path.join(BASE_DIR, "data", "uploads", "uploads_temp", file.filename)
+    extract_path = os.path.join(BASE_DIR, "static", "audio", "quran", qari_name)
+    
+    os.makedirs(os.path.dirname(temp_path), exist_ok=True)
+    file.save(temp_path)
+    
+    try:
+        with zipfile.ZipFile(temp_path, 'r') as zip_ref:
+            # Pastikan folder ekstraksi bersih atau buat baru
+            if os.path.exists(extract_path):
+                shutil.rmtree(extract_path)
+            os.makedirs(extract_path, exist_ok=True)
+            
+            # Ekstrak semua file langsung ke folder qari_name
+            # (Jika ZIP berisi folder, kita mungkin perlu logika perapihan lebih lanjut)
+            zip_ref.extractall(extract_path)
+            
+        os.remove(temp_path) # Hapus ZIP setelah selesai
+        return jsonify({"status": "success", "msg": f"Berhasil mengekstrak {qari_name}"})
+    except Exception as e:
+        return jsonify({"status": "error", "msg": str(e)})
+
+@app.route('/api/delete_qari', methods=['POST'])
+def delete_qari():
+    """Menghapus data audio dan metadata Qari"""
+    qari_name = request.json.get('qari_name')
+    if not qari_name: return jsonify({"status": "error", "msg": "Nama Qari tidak valid"})
+    
+    try:
+        # Hapus Audio
+        audio_path = os.path.join(BASE_DIR, "static", "audio", "quran", qari_name)
+        if os.path.exists(audio_path): shutil.rmtree(audio_path)
+        
+        # Hapus Metadata
+        json_path = os.path.join(BASE_DIR, "data", "generated", f"quran_master_{qari_name}.json")
+        if os.path.exists(json_path): os.remove(json_path)
+        
+        return jsonify({"status": "success", "msg": f"Qari {qari_name} berhasil dihapus"})
+    except Exception as e:
+        return jsonify({"status": "error", "msg": str(e)})
+    
+@app.route('/api/update_config', methods=['POST'])
+def update_config():
+    """Menyimpan pembaruan pengaturan dari panel Admin ke config.json"""
+    try:
+        new_data = request.json
+        config_path = os.path.join(BASE_DIR, 'config.json')
+
+        # 1. Baca konfigurasi yang ada saat ini
+        if os.path.exists(config_path):
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+        else:
+            config = {}
+
+        # 2. Perbarui blok audio_settings (gabungkan data baru tanpa menghapus data lama)
+        if 'audio_settings' in new_data:
+            if 'audio_settings' not in config:
+                config['audio_settings'] = {}
+            # Update hanya nilai yang dikirim dari JS
+            config['audio_settings'].update(new_data['audio_settings'])
+
+        # (Opsional) Jika ke depannya ada pengaturan lain yang mau diupdate, 
+        # bisa ditambahkan di sini.
+
+        # 3. Tulis kembali ke config.json
+        with open(config_path, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=4, ensure_ascii=False)
+
+        return jsonify({"status": "success", "msg": "Konfigurasi berhasil disimpan"})
+
+    except Exception as e:
+        print(f"Error update config: {e}")
+        return jsonify({"status": "error", "msg": str(e)}), 500
+
+# Global variable to track thread status across imports
+_audio_thread_started = False
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # 1. Enforce a strict global lock
+    if not _audio_thread_started:
+        print("\n[AMaL System] Menyinkronkan Mesin Audio (Strict Lock Enabled)...")
+        audio_thread = threading.Thread(target=audio_background_worker, daemon=True)
+        audio_thread.start()
+        _audio_thread_started = True
+        
+    # 2. CRITICAL: Disable use_reloader to prevent duplicate processes
+    app.run(debug=True, host='0.0.0.0', port=5000, use_reloader=False)

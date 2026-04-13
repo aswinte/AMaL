@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Ambil semua tombol menu dan semua panel konten
     // LOGIKA PANEL 1: NAVIGASI TAB
     const menuLinks = document.querySelectorAll('.nav-menu a');
-    const panels = document.querySelectorAll('.panel');
+    const panels = document.querySelectorAll('.panel, .admin-panel');
 
     menuLinks.forEach(link => {
         link.addEventListener('click', function(e) {
@@ -2084,4 +2084,149 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 10000); // Berdetak setiap 10 detik
 
+    loadQariList();
+
+    fetch('/api/list_qari') // list_qari tidak cukup, kita butuh config. Kita bisa intip lewat API lain atau buat baru
+    .then(() => {
+        // Karena config.json sudah dikirim lewat template Flask (biasanya), 
+        // Anda bisa langsung mengambilnya jika app.py mengirimkan variabel config.
+        // Jika tidak, kita bisa tambahkan fetch config di sini.
+    });
+
+});
+
+// Fungsi untuk memuat daftar Qari dari server
+// Memuat daftar Qari dengan tombol Pilih/Aktif
+async function loadQariList() {
+    try {
+        const response = await fetch('/api/list_qari');
+        const data = await response.json();
+        const tbody = document.getElementById('list-qari-body');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+
+        data.forEach(qari => {
+            const statusClass = qari.has_metadata ? 'status-ok' : 'status-warning';
+            const statusText = qari.has_metadata ? '✓ Ready' : '⚠ Perlu Proses';
+            
+            // Logika tombol aktif
+            const activeBtnClass = qari.is_active ? 'btn-active-now' : 'btn-select';
+            const activeBtnText = qari.is_active ? '✓ Aktif' : 'Pilih';
+            const activeDisabled = qari.is_active ? 'disabled' : '';
+
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${qari.name}</strong></td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>
+                        <button onclick="handleSetActiveQari('${qari.name}')" class="btn-action ${activeBtnClass}" ${activeDisabled}>${activeBtnText}</button>
+                        <button onclick="handleProcessMetadata('${qari.name}')" class="btn-action btn-process">Proses Metadata</button>
+                        <button onclick="handleDeleteQari('${qari.name}')" class="btn-action btn-delete">Hapus</button>
+                    </td>
+                </tr>
+            `;
+        });
+    } catch (e) {
+        console.error("Gagal memuat daftar Qari", e);
+    }
+}
+
+// Fungsi untuk menentukan Qari Aktif
+async function handleSetActiveQari(qariName) {
+    try {
+        const response = await fetch('/api/update_config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                audio_settings: { qari_aktif: qariName } 
+            })
+        });
+        const res = await response.json();
+        if(res.status === 'success') {
+            loadQariList(); // Segarkan tabel
+        }
+    } catch (e) {
+        alert("Gagal mengaktifkan Qari.");
+    }
+}
+
+// Fungsi Unggah Berkas ZIP
+async function handleUploadQari() {
+    const nameInput = document.getElementById('input-qari-name');
+    const zipInput = document.getElementById('input-qari-zip');
+    const statusDiv = document.getElementById('upload-status');
+
+    if (!nameInput.value || !zipInput.files[0]) {
+        alert("Mohon isi nama Qari dan pilih file ZIP.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('qari_name', nameInput.value);
+    formData.append('file', zipInput.files[0]);
+
+    statusDiv.innerText = "⏳ Sedang mengunggah dan mengekstrak... Mohon tunggu.";
+    
+    try {
+        const response = await fetch('/api/upload_qari', {
+            method: 'POST',
+            body: formData
+        });
+        const res = await response.json();
+        
+        if (res.status === 'success') {
+            statusDiv.innerText = "✅ " + res.msg;
+            nameInput.value = '';
+            zipInput.value = '';
+            loadQariList();
+        } else {
+            statusDiv.innerText = "❌ " + res.msg;
+        }
+    } catch (e) {
+        statusDiv.innerText = "❌ Terjadi kesalahan jaringan.";
+    }
+}
+
+// Memicu pembangunan master JSON untuk Qari
+async function handleProcessMetadata(qariName) {
+    if (!confirm(`Bangun ulang metadata untuk ${qariName}? Ini akan memindai durasi setiap ayat.`)) return;
+
+    try {
+        const response = await fetch('/api/proses_metadata_qari', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ qari_name: qariName })
+        });
+        const res = await response.json();
+        alert(res.msg);
+        loadQariList();
+    } catch (e) {
+        alert("Gagal memproses metadata.");
+    }
+}
+
+// Sinkronisasi Pengaturan ke config.json
+async function updateAudioSettings() {
+    const settings = {
+        tarhim_aktif: document.getElementById('audio-tarhim-aktif').value === 'true',
+        target_durasi_menit: parseInt(document.getElementById('audio-target-durasi').value),
+        toleransi_tamat_menit: parseInt(document.getElementById('audio-toleransi-tamat').value)
+    };
+
+    // Kita gunakan endpoint update_config yang sudah ada di app.py Anda
+    try {
+        await fetch('/api/update_config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ audio_settings: settings })
+        });
+        console.log("Audio settings updated");
+    } catch (e) {
+        console.error("Gagal update config", e);
+    }
+}
+
+// Panggil saat halaman dimuat
+document.addEventListener('DOMContentLoaded', () => {
+    loadQariList();
 });
