@@ -2157,11 +2157,13 @@ async function handleSetActiveQari(qariName) {
     }
 }
 
-// Fungsi Unggah Berkas ZIP
-async function handleUploadQari() {
+// Fungsi Unggah Berkas ZIP dengan Progress Bar
+function handleUploadQari() {
     const nameInput = document.getElementById('input-qari-name');
     const zipInput = document.getElementById('input-qari-zip');
     const statusDiv = document.getElementById('upload-status');
+    const progressContainer = document.getElementById('upload-progress-container');
+    const progressBar = document.getElementById('upload-progress-bar');
 
     if (!nameInput.value || !zipInput.files[0]) {
         alert("Mohon isi nama Qari dan pilih file ZIP.");
@@ -2172,26 +2174,57 @@ async function handleUploadQari() {
     formData.append('qari_name', nameInput.value);
     formData.append('file', zipInput.files[0]);
 
-    statusDiv.innerText = "⏳ Sedang mengunggah dan mengekstrak... Mohon tunggu.";
-    
-    try {
-        const response = await fetch('/api/upload_qari', {
-            method: 'POST',
-            body: formData
-        });
-        const res = await response.json();
-        
-        if (res.status === 'success') {
-            statusDiv.innerText = "✅ " + res.msg;
-            nameInput.value = '';
-            zipInput.value = '';
-            loadQariList();
-        } else {
-            statusDiv.innerText = "❌ " + res.msg;
+    // Tampilkan UI Progress
+    statusDiv.innerText = "⏳ Memulai unggahan...";
+    progressContainer.style.display = 'block';
+    progressBar.style.width = '0%';
+    progressBar.style.backgroundColor = "var(--primary)"; 
+
+    const xhr = new XMLHttpRequest();
+
+    // 1. Pelacak Proses Unggah (Upload)
+    xhr.upload.addEventListener('progress', function(e) {
+        if (e.lengthComputable) {
+            const percentComplete = Math.round((e.loaded / e.total) * 100);
+            progressBar.style.width = percentComplete + '%';
+            
+            if (percentComplete === 100) {
+                // Beri tahu user bahwa upload web selesai, tapi mesin sedang mengekstrak file
+                statusDiv.innerText = "⏳ Unggahan selesai. Sedang mengekstrak ZIP di server (Jangan tutup halaman)...";
+                progressBar.style.backgroundColor = "#f59e0b"; // Ubah jadi oranye
+            } else {
+                statusDiv.innerText = `⏳ Mengunggah... ${percentComplete}%`;
+            }
         }
-    } catch (e) {
-        statusDiv.innerText = "❌ Terjadi kesalahan jaringan.";
-    }
+    });
+
+    // 2. Penanganan Saat Respon Server Tiba (Selesai/Gagal)
+    xhr.addEventListener('load', function() {
+        try {
+            const res = JSON.parse(xhr.responseText);
+            if (res.status === 'success') {
+                statusDiv.innerText = "✅ " + res.msg;
+                nameInput.value = '';
+                zipInput.value = '';
+                loadQariList();
+            } else {
+                statusDiv.innerText = "❌ " + res.msg;
+            }
+        } catch (err) {
+            statusDiv.innerText = "❌ Gagal membaca respon server. File mungkin terlalu besar untuk diproses.";
+        }
+        // Sembunyikan baris kemajuan setelah 4 detik
+        setTimeout(() => { progressContainer.style.display = 'none'; }, 4000);
+    });
+
+    // 3. Penanganan Jika Koneksi Putus Tengah Jalan
+    xhr.addEventListener('error', function() {
+        statusDiv.innerText = "❌ Koneksi terputus atau server menolak file.";
+        progressBar.style.backgroundColor = "#ef4444"; // Ubah jadi merah
+    });
+
+    xhr.open('POST', '/api/upload_qari', true);
+    xhr.send(formData);
 }
 
 // Memicu pembangunan master JSON untuk Qari
@@ -2214,26 +2247,82 @@ async function handleProcessMetadata(qariName) {
 
 // Sinkronisasi Pengaturan ke config.json
 async function updateAudioSettings() {
+    const pesanEl = document.getElementById('pesan-audio');
+    if (pesanEl) { 
+        pesanEl.style.color = "yellow"; 
+        pesanEl.innerText = "Menyimpan..."; 
+    }
     const settings = {
         tarhim_aktif: document.getElementById('audio-tarhim-aktif').value === 'true',
         target_durasi_menit: parseInt(document.getElementById('audio-target-durasi').value),
         toleransi_tamat_menit: parseInt(document.getElementById('audio-toleransi-tamat').value)
     };
 
-    // Kita gunakan endpoint update_config yang sudah ada di app.py Anda
+    // // Kita gunakan endpoint update_config yang sudah ada di app.py Anda
+    // try {
+    //     await fetch('/api/update_config', {
+    //         method: 'POST',
+    //         headers: { 'Content-Type': 'application/json' },
+    //         body: JSON.stringify({ audio_settings: settings })
+    //     });
+    //     console.log("Audio settings updated");
+    // } catch (e) {
+    //     console.error("Gagal update config", e);
+    // }
+
     try {
-        await fetch('/api/update_config', {
+        const response = await fetch('/api/update_config', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ audio_settings: settings })
         });
-        console.log("Audio settings updated");
+        const res = await response.json();
+        
+        if (pesanEl) {
+            pesanEl.style.color = response.ok ? "#00ff88" : "#ef4444";
+            pesanEl.innerText = response.ok ? "✅ Tersimpan!" : "❌ Gagal: " + res.msg;
+            setTimeout(() => { pesanEl.innerText = ""; }, 3000);
+        }
     } catch (e) {
-        console.error("Gagal update config", e);
+        if (pesanEl) {
+            pesanEl.style.color = "#ef4444";
+            pesanEl.innerText = "❌ Kesalahan jaringan.";
+        }
+    }
+
+}
+
+// Fungsi untuk Menghapus Qari
+async function handleDeleteQari(qariName) {
+    if (!confirm(`Yakin ingin MENGHAPUS PERMANEN audio dan metadata untuk Qari ${qariName}?`)) return;
+
+    try {
+        const response = await fetch('/api/delete_qari', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ qari_name: qariName })
+        });
+        const res = await response.json();
+        
+        alert(res.msg);
+        
+        if (res.status === 'success') {
+            loadQariList(); // Segarkan tabel setelah berhasil dihapus
+        }
+    } catch (e) {
+        alert("Gagal menghapus Qari. Periksa koneksi jaringan.");
+        console.error(e);
     }
 }
 
 // Panggil saat halaman dimuat
 document.addEventListener('DOMContentLoaded', () => {
     loadQariList();
+    
+    const btnSaveAudio = document.getElementById('btn-save-audio');
+    if (btnSaveAudio) {
+        btnSaveAudio.addEventListener('click', updateAudioSettings);
+    }    
+    // Pastikan loadConfigData juga memuat nilai awal ke form audio
+    // loadConfigData();
 });

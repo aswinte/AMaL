@@ -24,14 +24,23 @@ from quran_processor import QuranProcessor
 import pygame
 from amal_sound import TarhimEngine # Impor mesin yang baru kita buat
 import zipfile
+import tempfile
 
 # Mencari lokasi folder tempat app.py berada
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Paksa sistem menggunakan folder data AMaL sebagai tempat transit (bukan RAM)
+temp_dir = os.path.join(BASE_DIR, 'data', 'uploads_temp')
+os.makedirs(temp_dir, exist_ok=True)
+tempfile.tempdir = temp_dir
+
 app = Flask(__name__, 
             template_folder=os.path.join(BASE_DIR, 'templates'),
             static_folder=os.path.join(BASE_DIR, 'static'))
 app.secret_key = os.urandom(24)
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
+app.config['MAX_CONTENT_LENGTH'] = 3000 * 1024 * 1024  # Batas maksimal 3 GB
+
 # Penampung sementara agar tidak hitung jadwal setiap detik
 daily_cache = {"date": None, "data": None}
 

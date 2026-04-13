@@ -463,3 +463,22 @@ body.admin-body {
     background: var(--primary);
     color: #0f172a;
 }
+
+/* Progress Bar Upload */
+.progress-container {
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    margin-top: 15px;
+    overflow: hidden;
+    display: none; /* Sembunyikan default */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.progress-bar {
+    width: 0%;
+    height: 14px;
+    background-color: var(--primary);
+    transition: width 0.2s ease;
+}
+

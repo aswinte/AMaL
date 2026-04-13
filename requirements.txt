@@ -19,4 +19,3 @@ werkzeug
 # audio
 mutagen
 pygame
-zipfile
