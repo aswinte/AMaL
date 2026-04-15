@@ -155,11 +155,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // ==========================================
             const audioSet = data.audio_settings || {};
             
+            const murottalSelect = document.getElementById('audio-murottal-aktif');
+            const adzanSelect = document.getElementById('audio-adzan-aktif');
             const tarhimSelect = document.getElementById('audio-tarhim-aktif');
             const durasiInput = document.getElementById('audio-target-durasi');
             const toleransiInput = document.getElementById('audio-toleransi-tamat');
 
-            if (tarhimSelect) tarhimSelect.value = audioSet.tarhim_aktif ? "true" : "false";
+            if (murottalSelect) murottalSelect.value = audioSet.murottal_aktif ? "true" : "false";
+            if (adzanSelect) adzanSelect.value = audioSet.adzan_aktif ? "true" : "false";
             if (durasiInput) durasiInput.value = audioSet.target_durasi_menit || 10;
             if (toleransiInput) toleransiInput.value = audioSet.toleransi_tamat_menit || 3;
             // ==========================================
@@ -2252,10 +2255,23 @@ async function updateAudioSettings() {
         pesanEl.style.color = "yellow"; 
         pesanEl.innerText = "Menyimpan..."; 
     }
+
+    // --- FILTER & VERIFIKASI ANGKA ---
+    let durasiVal = parseInt(document.getElementById('audio-target-durasi').value) || 10;
+    if (durasiVal > 20) durasiVal = 20;
+    if (durasiVal < 5) durasiVal = 5;
+
+    let toleransiVal = parseInt(document.getElementById('audio-toleransi-tamat').value) || 3;
+    if (toleransiVal > 10) toleransiVal = 10;
+    if (toleransiVal < 1) toleransiVal = 1;
+    // ---------------------------------
+
     const settings = {
+        murottal_aktif: document.getElementById('audio-murottal-aktif').value === 'true',
+        adzan_aktif: document.getElementById('audio-adzan-aktif').value === 'true',
         tarhim_aktif: document.getElementById('audio-tarhim-aktif').value === 'true',
-        target_durasi_menit: parseInt(document.getElementById('audio-target-durasi').value),
-        toleransi_tamat_menit: parseInt(document.getElementById('audio-toleransi-tamat').value)
+        target_durasi_menit: durasiVal,          // Gunakan variabel yang sudah difilter
+        toleransi_tamat_menit: toleransiVal      // Gunakan variabel yang sudah difilter
     };
 
     // // Kita gunakan endpoint update_config yang sudah ada di app.py Anda
@@ -2281,6 +2297,11 @@ async function updateAudioSettings() {
         if (pesanEl) {
             pesanEl.style.color = response.ok ? "#00ff88" : "#ef4444";
             pesanEl.innerText = response.ok ? "✅ Tersimpan!" : "❌ Gagal: " + res.msg;
+
+            // Perbarui kembali angka di kotak input sesuai angka yang sudah diamankan
+            document.getElementById('audio-target-durasi').value = durasiVal;
+            document.getElementById('audio-toleransi-tamat').value = toleransiVal;
+            
             setTimeout(() => { pesanEl.innerText = ""; }, 3000);
         }
     } catch (e) {
@@ -2326,3 +2347,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Pastikan loadConfigData juga memuat nilai awal ke form audio
     // loadConfigData();
 });
+
+// Fungsi untuk memicu Test Audio dari Server
+window.testAudioServer = async function() {
+    try {
+        const res = await fetch('/api/test_audio', { method: 'POST' });
+        const result = await res.json();
+        
+        if (res.ok) {
+            alert("🎵 " + result.msg + "\n\nSilakan dengarkan speaker Raspberry Pi/Kiosk Anda.");
+        } else {
+            alert("❌ Gagal: " + result.msg);
+        }
+    } catch (e) {
+        alert("❌ Terjadi kesalahan jaringan saat mencoba menghubungi server.");
+    }
+};

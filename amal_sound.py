@@ -4,7 +4,7 @@ import json
 # WAJIB: Kunci folder utama aplikasi agar tidak salah baca file
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-class TarhimEngine:
+class SoundEngine:
     def __init__(self):
         # PERBAIKAN 1: Gunakan BASE_DIR untuk semua path
         self.config_path = os.path.join(BASE_DIR, "config.json")
@@ -35,8 +35,8 @@ class TarhimEngine:
         
         # 1. Cek Konfigurasi Admin (Lapis 1)
         config = self._load_json(self.config_path).get("audio_settings", {})
-        if not config.get("tarhim_aktif", False):
-            return False, "Tarhim dinonaktifkan oleh Admin.", None
+        if not config.get("murottal_aktif", False):
+            return False, "Murotaal dinonaktifkan oleh Admin.", None
 
         qari_aktif = config.get("qari_aktif", "")
         if not qari_aktif:

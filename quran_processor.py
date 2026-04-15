@@ -81,6 +81,22 @@ class QuranProcessor:
                 "ayahs": {}
             }
 
+            # # Scan durasi (000-Total Ayat)
+            # for a in range(0, master_data[s_num]["total_ayahs"] + 1):
+            #     a_num = str(a).zfill(3)
+            #     file_path = os.path.join(audio_dir, f"{s_num}{a_num}.mp3")
+            #     durasi = 0
+            #     if os.path.exists(file_path):
+            #         try: durasi = round(MP3(file_path).info.length, 2)
+            #         except: pass
+                
+            #     # Masukkan data teks (Basmalah pakai teks default jika 000)
+            #     master_data[s_num]["ayahs"][a_num] = {
+            #         "durasi": durasi,
+            #         "arab": teks_arab.get(s_num, {}).get(a_num, "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ" if a==0 else ""),
+            #         "indo": teks_indo.get(s_num, {}).get(a_num, "Dengan menyebut nama Allah..." if a==0 else "")
+            #     }
+
             # Scan durasi (000-Total Ayat)
             for a in range(0, master_data[s_num]["total_ayahs"] + 1):
                 a_num = str(a).zfill(3)
@@ -90,11 +106,41 @@ class QuranProcessor:
                     try: durasi = round(MP3(file_path).info.length, 2)
                     except: pass
                 
-                # Masukkan data teks (Basmalah pakai teks default jika 000)
+                # 1. Ambil teks mentah dari file txt
+                raw_arab = teks_arab.get(s_num, {}).get(a_num, "")
+                raw_indo = teks_indo.get(s_num, {}).get(a_num, "")
+
+                # ========================================================
+                # 2. PEMBERSIHAN TEKS BISMILLAH BAWAAN PADA AYAT 1
+                # ========================================================
+                # Hanya potong jika ini ayat 1 DAN surat ini memang butuh bismillah (Bukan Al-Fatihah/At-Tawbah)
+                if a == 1 and master_data[s_num]["requires_bismillah"]:
+                    
+                    # Hapus Bismillah teks Arab
+                    bismillah_arab = "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ"
+                    if raw_arab.startswith(bismillah_arab):
+                        # Potong string bismillah dan hapus spasi kosong di depannya
+                        raw_arab = raw_arab[len(bismillah_arab):].strip()
+                        
+                    # Hapus Bismillah teks Indonesia (Ada 2 versi yang sering dipakai Kemenag/Tanzil)
+                    bismillah_indo_1 = "Dengan menyebut nama Allah Yang Maha Pemurah lagi Maha Penyayang."
+                    bismillah_indo_2 = "Dengan nama Allah Yang Maha Pengasih, Maha Penyayang."
+                    
+                    if raw_indo.startswith(bismillah_indo_1):
+                        raw_indo = raw_indo[len(bismillah_indo_1):].strip()
+                    elif raw_indo.startswith(bismillah_indo_2):
+                        raw_indo = raw_indo[len(bismillah_indo_2):].strip()
+
+                # 3. Teks khusus untuk ayat 000 (File Bismillah Mandiri)
+                if a == 0:
+                    raw_arab = "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ"
+                    raw_indo = "Dengan menyebut nama Allah Yang Maha Pemurah lagi Maha Penyayang."
+                
+                # 4. Masukkan ke master data
                 master_data[s_num]["ayahs"][a_num] = {
                     "durasi": durasi,
-                    "arab": teks_arab.get(s_num, {}).get(a_num, "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ" if a==0 else ""),
-                    "indo": teks_indo.get(s_num, {}).get(a_num, "Dengan menyebut nama Allah..." if a==0 else "")
+                    "arab": raw_arab,
+                    "indo": raw_indo
                 }
 
         output_path = os.path.join(self.output_dir, f"quran_master_{qari_name}.json")

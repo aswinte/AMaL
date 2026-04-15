@@ -20,6 +20,9 @@
                     <p>Halo, <span style="color: #00ff88;">{{ username }}</span></p>
                     <small style="color: #aaa; font-size: 11px;">Akses: <span style="font-weight: bold;">{{ role }}</span></small>
                 </div>
+                <div style="margin-top:10px;">
+                    <a href="{{ url_for('logout') }}" class="btn-logout">🚪 Keluar (Logout)</a>
+                </div>
             </div>
             
             <!-- <ul class="nav-menu">
@@ -89,11 +92,19 @@
                     <p style="margin: 0; font-size: 1.2vmin; font-weight: bold; color: #77da05; letter-spacing: 1px;">AMaL</p>
                     <p style="margin: 2px 0 0 0; font-size: 1vmin; color: #aaa;">Anjungan Masjid Libre</p>
                     <p style="margin: 4px 0 0 0; font-size: 0.9vmin; color: #3b82f6; font-family: monospace;">⚖️ GNU AGPLv3 License</p>
+                    <!-- <p style="margin: 2px 0 0 0; font-size: 1vmin; color: #aaa;">https://s.id/AMaL-Libre</p> -->
                 </div>                    
             </div>
 
             <div class="sidebar-footer">
-                <a href="{{ url_for('logout') }}" class="btn-logout">🚪 Keluar (Logout)</a>
+                <!-- <a href="{{ url_for('logout') }}" class="btn-logout">🚪 Keluar (Logout)</a> -->
+                <!-- <img src="/static/images/AMaL2.png" alt="Logo AMaL" style="max-height: 4vh; width: auto; flex-shrink: 0; filter: invert(100%); opacity: 0.9;">
+                <div style="text-align: left;">
+                    <p style="margin: 0; font-size: 1.2vmin; font-weight: bold; color: #77da05; letter-spacing: 1px;">AMaL</p>
+                    <p style="margin: 2px 0 0 0; font-size: 1vmin; color: #aaa;">Anjungan Masjid Libre</p>
+                    <p style="margin: 2px 0 0 0; font-size: 1vmin; color: #aaa;">https://s.id/AMaL-Libre</p>
+                    <p style="margin: 4px 0 0 0; font-size: 0.9vmin; color: #3b82f6; font-family: monospace;">⚖️ GNU AGPLv3 License</p>
+                </div>   -->
             </div>
         </aside>
 
@@ -867,111 +878,114 @@
                 </div>
             </div>
 
-            <section id="panel-audio" class="admin-panel" style="display: none;">
-                <div class="panel-header">
-                    <h2>🔊 Manajemen Murottal & Tarhim</h2>
-                    <p>Kelola berkas suara Qari dan pengaturan waktu tilawah sebelum Adzan.</p>
+<div id="panel-audio" class="panel" style="display: none;">
+                <h1>🔊 Manajemen Audio</h1>
+                <p>Atur keluaran perangkat keras, serta konfigurasi otomatisasi Adzan, Tarhim, dan Murottal.</p>
+
+                <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 8px; border-top: 3px solid #3b82f6; margin-top: 20px;">
+                    <h3 style="color: #3b82f6; margin-top: 0;">1. Perangkat Keras (Hardware)</h3>
+                    <p style="font-size: 13px; color: #aaa; margin-bottom: 15px;">Uji coba keluaran suara untuk memastikan speaker dan amplifier di Kiosk berfungsi dengan baik.</p>
+                    <button onclick="testAudioServer()" class="btn-login" style="width: auto; padding: 10px 20px; background: #3b82f6;">🎵 Uji Coba Suara (Test Audio)</button>
                 </div>
 
-                <!-- <div class="admin-card">
-                    <h3>Unggah Qari Baru (ZIP)</h3>
-                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 15px;">
-                        * Unduh berkas audio Al Quran tiap ayat dari <everyayah class="com"></everyayah>.
-                    </p>
-                    <div class="form-grid" style="grid-template-columns: 1fr 1fr auto;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; align-items: start;">
+                    
+                    <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 8px; border-top: 3px solid #10b981;">
+                        <h3 style="color: #10b981; margin-top: 0;">2. Konfigurasi Adzan</h3>
                         <div class="form-group">
-                            <label>Nama Qari / Pembaca</label>
-                            <input type="text" id="input-qari-name" placeholder="Misal: mishary_alafasy" class="admin-input">
+                            <label>Fitur Adzan Otomatis</label>
+                            <select id="audio-adzan-aktif" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;">
+                                <option value="true">Aktif</option>
+                                <option value="false">Nonaktif</option>
+                            </select>
                         </div>
-                        <div class="form-group">
-                            <label>Pilih File ZIP</label>
-                            <input type="file" id="input-qari-zip" accept=".zip" class="admin-input">
-                        </div>
-                        <div class="form-group" style="justify-content: flex-end; display: flex; align-items: flex-end;">
-                            <button onclick="handleUploadQari()" class="btn-login" style="width: auto; padding: 12px 25px;">Mulai Unggah</button>
-                        </div>
+                        <p style="font-size: 12px; color: #888; margin-top: 10px;">* Fitur manajemen & unggah berkas Adzan khusus akan hadir pada pembaruan berikutnya.</p>
                     </div>
-                    <div id="upload-status" style="margin-top: 10px; font-size: 14px; color: var(--primary);"></div>
-                    
-                </div> -->
 
-                <p style="font-size: 12px; color: var(--text-muted); margin-top: 15px;">
-                        * Unduh berkas audio Al Quran tiap ayat dari <everyayah class="com"></everyayah>.
-                    </p>
-                <p style="font-size: 12px; color: var(--text-muted); margin-top: 15px;">
-                        * Jika ukuran terlalu besar, salin manual ke server pada folder ~./AMaL/static/audio/quran/<Nama_Qari>.
-                    </p>
-
-                <div class="admin-card">
-                    <h3>Unggah Qari Baru (ZIP)</h3>
-                    <div class="form-grid" style="grid-template-columns: 1fr 1fr auto;">
+                    <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 8px; border-top: 3px solid #eab308;">
+                        <h3 style="color: #eab308; margin-top: 0;">3. Konfigurasi Tarhim</h3>
                         <div class="form-group">
-                            <label>Nama Qari / Pembaca</label>
-                            <input type="text" id="input-qari-name" placeholder="Misal: mishary_alafasy" class="admin-input">
+                            <label>Fitur Tarhim (Pra-Adzan Pendek)</label>
+                            <select id="audio-tarhim-aktif" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;">
+                                <option value="true">Aktif</option>
+                                <option value="false">Nonaktif</option>
+                            </select>
                         </div>
-                        <div class="form-group">
-                            <label>Pilih File ZIP</label>
-                            <input type="file" id="input-qari-zip" accept=".zip" class="admin-input">
-                        </div>
-                        <div class="form-group" style="justify-content: flex-end; display: flex; align-items: flex-end;">
-                            <button onclick="handleUploadQari()" class="btn-login" style="width: auto; padding: 12px 25px;">Mulai Unggah</button>
-                        </div>
-                    </div>
-                    
-                    <div id="upload-status" style="margin-top: 10px; font-size: 14px; color: var(--primary);"></div>
-                    
-                    <div id="upload-progress-container" class="progress-container">
-                        <div id="upload-progress-bar" class="progress-bar"></div>
+                        <p style="font-size: 12px; color: #888; margin-top: 10px;">* Fitur manajemen & unggah berkas Tarhim khusus akan hadir pada pembaruan berikutnya.</p>
                     </div>
 
                 </div>
 
-                <div class="form-grid" style="grid-template-columns: 2fr 1fr;">
-                    <div class="admin-card">
-                        <h3>Daftar Qari Tersedia</h3>
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Nama Qari</th>
-                                    <th>Metadata</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="list-qari-body">
-                                </tbody>
-                        </table>
-                    </div>
-
-                    <div class="admin-card">
-                        <h3>Konfigurasi Tilawah</h3>
+                <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 8px; border-top: 3px solid #a855f7; margin-top: 20px;">
+                    <h3 style="color: #a855f7; margin-top: 0;">4. Konfigurasi Murottal (Tilawah Pra-Adzan)</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
                         <div class="form-group">
-                            <label>Fitur Tilawah</label>
-                            <select id="audio-tarhim-aktif" class="admin-input" onchange="updateAudioSettings()">
+                            <label>Status Fitur Murottal</label>
+                            <select id="audio-murottal-aktif" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;">
                                 <option value="true">Aktif</option>
                                 <option value="false">Nonaktif</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label>Target Durasi (Menit)</label>
-                            <!-- <input type="number" id="audio-target-durasi" class="admin-input" min="5" max="30" onchange="updateAudioSettings()"> -->
-                            <input type="number" id="audio-target-durasi" class="admin-input" min="5" max="30">
+                            <input type="number" id="audio-target-durasi" min="5" max="20" 
+                                onblur="if(this.value > 20) this.value = 20; if(this.value < 5) this.value = 5;" 
+                                style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;">
                         </div>
                         <div class="form-group">
                             <label>Toleransi Tamat (Menit)</label>
-                            <!-- <input type="number" id="audio-toleransi-tamat" class="admin-input" min="1" max="10" onchange="updateAudioSettings()"> -->
-                            <input type="number" id="audio-toleransi-tamat" class="admin-input" min="1" max="10">
+                            <input type="number" id="audio-toleransi-tamat" min="1" max="10" 
+                                onblur="if(this.value > 10) this.value = 10; if(this.value < 1) this.value = 1;" 
+                                style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;">
                         </div>
-                        <div style="margin-top: 20px;">
-                            <button id="btn-save-audio" class="btn-login" style="width: auto; padding: 10px 20px;">💾 Simpan Pengaturan Audio</button>
-                            <span id="pesan-audio" style="margin-left: 15px; font-weight: bold; font-size: 13px;"></span>
+                    </div>
+
+                    <div style="margin-bottom: 30px; padding-bottom: 25px; border-bottom: 1px dashed rgba(255,255,255,0.2);">
+                        <button id="btn-save-audio" class="btn-login" style="width: auto; padding: 12px 25px; background: #00ff88; color: #121212; font-size: 15px;">💾 Simpan Pengaturan Audio & Status</button>
+                        <span id="pesan-audio" style="margin-left: 15px; font-weight: bold; font-size: 14px;"></span>
+                    </div>
+
+                    <h4 style="color: #ddd;">Manajemen Berkas Qari (Murottal)</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; align-items: start;">
+                        
+                        <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 6px;">
+                            <h5 style="margin-top: 0; color: #00ff88; font-size: 15px;">⬆️ Unggah Qari Baru (ZIP)</h5>
+                            <p style="font-size: 11px; color: #aaa; margin-bottom: 15px;">Unduh MP3 per ayat dari <em>everyayah.com</em>. Jika ukuran file &gt; 2GB, salin manual ke folder <code>static/audio/quran/Nama_Qari/</code> via flashdisk.</p>
+                            
+                            <div class="form-group">
+                                <label style="font-size: 12px;">Nama Qari / Pembaca</label>
+                                <input type="text" id="input-qari-name" placeholder="Misal: mishary_alafasy" style="width: 100%; padding: 8px; background: rgba(0,0,0,0.5); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px;">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-size: 12px;">Pilih File ZIP</label>
+                                <input type="file" id="input-qari-zip" accept=".zip" style="width: 100%; padding: 8px; background: rgba(0,0,0,0.5); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px;">
+                            </div>
+                            <button onclick="handleUploadQari()" class="btn-login" style="width: 100%; padding: 10px;">Mulai Unggah</button>
+                            
+                            <div id="upload-status" style="margin-top: 10px; font-size: 12px; color: #00ff88;"></div>
+                            <div id="upload-progress-container" class="progress-container" style="display: none; margin-top: 10px; width: 100%; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+                                <div id="upload-progress-bar" style="width: 0%; height: 10px; background: #00ff88; transition: width 0.3s;"></div>
+                            </div>
                         </div>
-                        <p style="font-size: 12px; color: var(--text-muted); margin-top: 15px;">
-                            * Perubahan akan tersimpan otomatis ke config.json.
-                            * Pengaturan ini menentukan durasi murottal yang akan diputar sebelum waktu adzan tiba.
-                        </p>
+
+                        <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 6px; overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid #a855f7;">
+                                        <th style="padding: 10px; text-align: left;">Nama Qari</th>
+                                        <th style="padding: 10px; text-align: center;">Status Metadata</th>
+                                        <th style="padding: 10px; text-align: right;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="list-qari-body">
+                                    </tbody>
+                            </table>
+                        </div>
+
                     </div>
                 </div>
-            </section>
+            </div>
 
         </main>
     </div>

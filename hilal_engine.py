@@ -74,10 +74,13 @@ def generate_peta_kontur(date_dt, ijtima_unix, lat_lokal, lon_lokal, kota):
     
     str_tanggal = date_dt.strftime('%Y%m%d')
     versi_algo = config["versi_algoritma"].replace(".", "_")
+
+    kota_aman = "".join([c if c.isalnum() else "_" for c in kota])
     
     file_npz = os.path.join(CACHE_DIR, f"data_hilal_{str_tanggal}_v{versi_algo}.npz")
     file_csv = os.path.join(CACHE_DIR, f"data_hilal_{str_tanggal}_v{versi_algo}.csv")
-    file_png = os.path.join(CACHE_DIR, f"peta_hilal_{str_tanggal}_v{versi_algo}.png") # Nama file peta unik
+    #file_png = os.path.join(CACHE_DIR, f"peta_hilal_{str_tanggal}_v{versi_algo}.png") # Nama file peta unik
+    file_png = os.path.join(CACHE_DIR, f"peta_hilal_{str_tanggal}_{kota_aman}_v{versi_algo}.png")
 
     # Grid Resolusi 0.5 Derajat
     lats_05deg = np.arange(-90, 90.1, 0.5)
@@ -178,11 +181,20 @@ def generate_peta_kontur(date_dt, ijtima_unix, lat_lokal, lon_lokal, kota):
         
         print(f"    -> [DATA DISIMPAN] Laporan CSV terekspor: {file_csv}")
 
+# =========================================================
+    # MERENDER GAMBAR & SINKRONISASI KE STATIC UI
     # =========================================================
-    # MERENDER GAMBAR (Hanya jika file PNG belum ada di cache)
-    # =========================================================
+    import shutil # Panggil pustaka penyalin file OS
+    peta_terbaru_ui = os.path.join(STATIC_IMG_DIR, 'peta_hilal_current.png')
+
     if os.path.exists(file_png):
         print(f"    -> [CACHE] Peta sudah tersedia: {os.path.basename(file_png)}")
+        # Wajib salin file dari cache ke Static UI agar layar TV Kiosk ter-update!
+        try:
+            shutil.copy2(file_png, peta_terbaru_ui)
+            print("    -> [SYNC] Layar Kiosk disinkronkan dari Cache.")
+        except Exception as e:
+            print(f"    -> [ERROR] Gagal menyalin peta ke UI: {e}")
     else:
         print("    -> Merender peta baru ke cache (Tema Gelap Ekstrem)...")
         import matplotlib.pyplot as plt
@@ -195,7 +207,7 @@ def generate_peta_kontur(date_dt, ijtima_unix, lat_lokal, lon_lokal, kota):
         grid_lon, grid_lat = LONS_05DEG, LATS_05DEG
         alt_draw, elong_draw = ALT_05DEG, ELONG_05DEG
 
-        # --- [TAMBAHAN BARU]: Hitung Unix Timestamp untuk 00:00 UTC Hari Berikutnya ---
+        # --- Hitung Unix Timestamp untuk 00:00 UTC Hari Berikutnya ---
         besok = date_dt + timedelta(days=1)
         batas_utc_dt = datetime(besok.year, besok.month, besok.day, 0, 0, 0, tzinfo=timezone.utc)
         batas_utc_unix = batas_utc_dt.timestamp()
@@ -212,33 +224,24 @@ def generate_peta_kontur(date_dt, ijtima_unix, lat_lokal, lon_lokal, kota):
         ax.add_feature(cfeature.LAND, facecolor='#2A2A2A', zorder=0) 
         ax.add_feature(cfeature.OCEAN, facecolor='#181818', zorder=0) 
         
-        # --- [TAMBAHAN BARU]: Highlight Wilayah Indonesia ---
+        # --- Highlight Wilayah Indonesia ---
         try:
-            # Mengunduh/membaca data batas negara beresolusi rendah (110m sangat ringan)
             shpfilename = shpreader.natural_earth(resolution='110m', category='cultural', name='admin_0_countries')
             reader = shpreader.Reader(shpfilename)
-            
-            # Cari poligon yang bernama 'Indonesia'
             indo_geoms = [
                 record.geometry for record in reader.records() 
                 if record.attributes.get('NAME') == 'Indonesia' or record.attributes.get('ADMIN') == 'Indonesia'
             ]
-            
             if indo_geoms:
                 ax.add_geometries(indo_geoms, ccrs.PlateCarree(), 
-                                  facecolor="#77DE71",
-                                  edgecolor="#7CF97A",
-                                  linewidth=1, 
-                                  alpha=1, 
-                                  zorder=0.5)            # Z-order 0.5 (Di atas daratan, di bawah gradasi hilal)
+                                  facecolor="#77DE71", edgecolor="#7CF97A",
+                                  linewidth=1, alpha=1, zorder=0.5)
         except Exception as e:
             print(f"    -> [WARNING] Gagal mewarnai wilayah Indonesia: {e}")
-        # --------------------------------------------------------
 
         # Layer Tengah (Gradasi Altitude)
         contour = ax.contourf(grid_lon, grid_lat, alt_draw, 
-                              levels=level_dinamis, 
-                              cmap='magma', alpha=0.45, 
+                              levels=level_dinamis, cmap='magma', alpha=0.45, 
                               transform=ccrs.PlateCarree(), zorder=1)
         
         # Layer Atas (Batas Negara/Pantai)
@@ -252,28 +255,20 @@ def generate_peta_kontur(date_dt, ijtima_unix, lat_lokal, lon_lokal, kota):
         # =========================================================
         # PENGGAMBARAN GARIS KRITERIA
         # =========================================================
-        
-        # 1. BUAT SALINAN DATA (Ubah -99 menjadi NaN agar garis tidak anjlok ke dasar)
         alt_garis = np.where(alt_draw == -99, np.nan, alt_draw)
-        
-        # Sembunyikan garis elongasi Bulan Tua (Sebelum Ijtima)
         elong_garis = np.where((ELONG_05DEG == -99) | (WAKTU_05DEG <= ijtima_unix), np.nan, ELONG_05DEG)
-        
-        # --- [TAMBAHAN BARU]: Data waktu untuk diplot menjadi garis vertikal melengkung ---
         waktu_garis = np.where(WAKTU_05DEG == -99, np.nan, WAKTU_05DEG)
 
-        # 2. Gambar Kontur (Wujudul Hilal & MABIMS)
+        # Gambar Kontur (Wujudul Hilal & MABIMS)
         ax.contour(grid_lon, grid_lat, alt_garis, levels=[val_wh_alt], colors='#FF3333', linewidths=1.5, transform=ccrs.PlateCarree(), zorder=2)
-        
         ax.contour(grid_lon, grid_lat, alt_garis, levels=[val_mabims_alt], colors="#40E712", linewidths=1.5, transform=ccrs.PlateCarree(), zorder=2)
         ax.contour(grid_lon, grid_lat, elong_garis, levels=[val_mabims_elong], colors='#40E712', linewidths=1.0, linestyles='dashed', transform=ccrs.PlateCarree(), zorder=2)
         
-        # 3. Gambar Kontur (KHGT)
+        # Gambar Kontur (KHGT)
         ax.contour(grid_lon, grid_lat, alt_garis, levels=[val_khgt_alt], colors='#3399FF', linewidths=1.5, transform=ccrs.PlateCarree(), zorder=2)
         ax.contour(grid_lon, grid_lat, elong_garis, levels=[val_khgt_elong], colors='#3399FF', linewidths=1.0, linestyles='dashed', transform=ccrs.PlateCarree(), zorder=2)
 
-        # --- [TAMBAHAN BARU]: Garis Pembatas 00:00 UTC (Warna Emas, Dotted) ---
-        # Ini akan menggambar garis tepat di bujur di mana matahari terbenam bersamaan dengan jam 00:00 UTC
+        # Garis Pembatas 00:00 UTC (Warna Emas, Dotted)
         ax.contour(grid_lon, grid_lat, waktu_garis, levels=[batas_utc_unix], colors='gold', linewidths=1.0, linestyles='dotted', transform=ccrs.PlateCarree(), zorder=3)
 
         # Titik Lokasi Kiosk
@@ -306,15 +301,17 @@ def generate_peta_kontur(date_dt, ijtima_unix, lat_lokal, lon_lokal, kota):
         gl.top_labels = False; gl.right_labels = False
         gl.xlabel_style = {'color': 'white'}; gl.ylabel_style = {'color': 'white'}
 
-        # Simpan ke Cache
+        # 1. Simpan gambar dari memori (Matplotlib) ke file Cache (Hanya dirender 1x)
         plt.savefig(file_png, bbox_inches='tight', dpi=150, facecolor=fig.get_facecolor(), edgecolor='none')
-        
-        # Simpan salinan ke Static UI
-        peta_terbaru_ui = os.path.join(STATIC_IMG_DIR, 'peta_hilal_current.png')
-        plt.savefig(peta_terbaru_ui, bbox_inches='tight', dpi=150, facecolor=fig.get_facecolor(), edgecolor='none')
-        
         plt.close()
-        print(f"[OK] Peta arsip berhasil disimpan ke cache: {file_png}")
+        print(f"[OK] Peta arsip berhasil dirender dan disimpan ke cache: {file_png}")
+
+        # 2. Salin file cache yang baru saja jadi tersebut ke Static UI (Kecepatan 0.01 detik)
+        try:
+            shutil.copy2(file_png, peta_terbaru_ui)
+            print("    -> [SYNC] Layar Kiosk berhasil diperbarui dengan peta baru.")
+        except Exception as e:
+            print(f"    -> [ERROR] Gagal menyalin peta baru ke UI: {e}")
 
 # Baca langsung dari kalender_jangkar
 def generate_laporan_harian(date_dt, lat_lokal, lon_lokal, kota, t_ijtima_terdekat=None):
@@ -382,7 +379,7 @@ def generate_laporan_harian(date_dt, lat_lokal, lon_lokal, kota, t_ijtima_terdek
     versi_algo = config["versi_algoritma"].replace(".", "_")
     
     # Rangkai nama file di cache yang seharusnya sudah dibuat oleh V3.0
-    file_png_cache = os.path.join(CACHE_DIR, f"peta_hilal_{str_tanggal}_v{versi_algo}.png")
+    file_png_cache = os.path.join(CACHE_DIR, f"peta_hilal_{str_tanggal}_{kota}_v{versi_algo}.png")
     peta_terbaru_ui = os.path.join(STATIC_IMG_DIR, 'peta_hilal_current.png')
     
     # Cek apakah peta di cache benar-benar ada
