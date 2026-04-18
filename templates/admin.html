@@ -21,7 +21,7 @@
                     <small style="color: #aaa; font-size: 11px;">Akses: <span style="font-weight: bold;">{{ role }}</span></small>
                 </div>
                 <div style="margin-top:10px;">
-                    <a href="{{ url_for('logout') }}" class="btn-logout">🚪 Keluar (Logout)</a>
+                    <a href="{{ url_for('web.logout') }}" class="btn-logout">🚪 Keluar (Logout)</a>
                 </div>
             </div>
             
@@ -97,7 +97,7 @@
             </div>
 
             <div class="sidebar-footer">
-                <!-- <a href="{{ url_for('logout') }}" class="btn-logout">🚪 Keluar (Logout)</a> -->
+                <!-- <a href="{{ url_for('web.logout') }}" class="btn-logout">🚪 Keluar (Logout)</a> -->
                 <!-- <img src="/static/images/AMaL2.png" alt="Logo AMaL" style="max-height: 4vh; width: auto; flex-shrink: 0; filter: invert(100%); opacity: 0.9;">
                 <div style="text-align: left;">
                     <p style="margin: 0; font-size: 1.2vmin; font-weight: bold; color: #77da05; letter-spacing: 1px;">AMaL</p>
@@ -990,6 +990,7 @@
         </main>
     </div>
 
+    <script src="/static/js/utils.js"></script>
     <script src="/static/js/kalender_jawa.js"></script>
     <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
 </body>

@@ -37,7 +37,17 @@ echo "📥 Mengunduh Shapefile batas negara untuk visualisasi peta (Offline Prep
 python3 -c "import cartopy.io.shapereader as shpreader; shpreader.natural_earth(resolution='110m', category='cultural', name='admin_0_countries')"
 
 # 7. Inisialisasi Kalender Tahun Berjalan
-echo "⚙️ Menghitung kalender tahun berjalan (Membangun Cache Awal)..."
-python3 -c "from generator_tahunan import generate_adaptif; generate_adaptif(2026, -7.4589, 109.2882, 'Sokaraja', True)"
 
-echo "✅ Instalasi Selesai! Jalankan aplikasi dengan: source venv/bin/activate && python app.py"
+# echo "⚙️ Menghitung kalender tahun berjalan (Membangun Cache Awal)..."
+# python3 -c "from generator_tahunan import generate_adaptif; generate_adaptif(2026, -7.4589, 109.2882, 'Sokaraja', True)"
+echo "-------------------------------------------------------"
+read -p "❓ Apakah ingin membangun cache kalender tahun 2026 sekarang? (y/n): " jawaban
+
+if [[ "$jawaban" =~ ^[Yy]$ ]]; then
+    echo "⚙️ Menghitung kalender tahun berjalan (Membangun Cache Awal)..."
+    python3 -c "from generator_tahunan import generate_adaptif; generate_adaptif(2026, -7.4589, 109.2882, 'Sokaraja', True)"
+else
+    echo "⏩ Melewati langkah inisialisasi kalender."
+fi
+
+echo "✅ Instalasi Selesai! Jalankan aplikasi dengan: source venv/bin/activate && python main.py"

@@ -2,7 +2,7 @@ import os
 import json
 
 # WAJIB: Kunci folder utama aplikasi agar tidak salah baca file
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 class SoundEngine:
     def __init__(self):

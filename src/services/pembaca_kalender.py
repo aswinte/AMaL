@@ -11,7 +11,7 @@ def get_hijri_from_json(target_date, metode="NASIONAL_MABIMS"):
     tahun_masehi = target_date.year
     
     # Memastikan direktori pembacaan merujuk pada lokasi absolut berkas
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     nama_file = os.path.join(BASE_DIR, f"kalender_jangkar_{tahun_masehi}.json")
     
     try:

@@ -14,11 +14,11 @@ import shutil
 import re
 
 # Mengimpor fungsi dari mesin utama
-from generator_tahunan import (
+from .generator_tahunan import (
     load_kriteria_config, get_semua_ijtima_tahunan, core_hitung_hilal, get_hijri_month_name, generate_adaptif
 )
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 STATIC_IMG_DIR = os.path.join(BASE_DIR, 'static', 'images')
 STATIC_JSON_DIR = os.path.join(BASE_DIR, 'static', 'json')
 CACHE_DIR = os.path.join(BASE_DIR, 'cache')
@@ -62,7 +62,7 @@ def worker_hitung_hilal(koordinat):
 # FUNGSI PETA & CACHE YANG DIPERBARUI
 # =========================================================
 def generate_peta_kontur(date_dt, ijtima_unix, lat_lokal, lon_lokal, kota):
-    print(f"\n[1] Merender Peta Kontur Terselerasi untuk {date_dt.strftime('%d-%m-%Y')}...")
+    print(f"\n[1] Merender Peta Kontur Terakselerasi untuk {date_dt.strftime('%d-%m-%Y')}...")
     
     config = load_kriteria_config()
     k_aktif = config["kriteria"]
@@ -74,13 +74,15 @@ def generate_peta_kontur(date_dt, ijtima_unix, lat_lokal, lon_lokal, kota):
     
     str_tanggal = date_dt.strftime('%Y%m%d')
     versi_algo = config["versi_algoritma"].replace(".", "_")
-
     kota_aman = "".join([c if c.isalnum() else "_" for c in kota])
+    lat_val = str(abs(lat_lokal)).replace(".", "_")
+    lat_dir = "S" if lat_lokal < 0 else "N"
+    lon_val = str(abs(lon_lokal)).replace(".", "_")
+    lon_dir = "W" if lon_lokal < 0 else "E"
     
     file_npz = os.path.join(CACHE_DIR, f"data_hilal_{str_tanggal}_v{versi_algo}.npz")
     file_csv = os.path.join(CACHE_DIR, f"data_hilal_{str_tanggal}_v{versi_algo}.csv")
-    #file_png = os.path.join(CACHE_DIR, f"peta_hilal_{str_tanggal}_v{versi_algo}.png") # Nama file peta unik
-    file_png = os.path.join(CACHE_DIR, f"peta_hilal_{str_tanggal}_{kota_aman}_v{versi_algo}.png")
+    file_png = os.path.join(CACHE_DIR, f"peta_hilal_{str_tanggal}_{kota_aman}_{lat_val}{lat_dir}_{lon_val}{lon_dir}_v{versi_algo}.png")
 
     # Grid Resolusi 0.5 Derajat
     lats_05deg = np.arange(-90, 90.1, 0.5)
@@ -98,7 +100,6 @@ def generate_peta_kontur(date_dt, ijtima_unix, lat_lokal, lon_lokal, kota):
         LONS_05DEG = data_cache['LON']
         LATS_05DEG = data_cache['LAT']
     else:
-        # print("    -> Menghitung Alt & Elong dengan Multiprocessing (Estimasi < 30 detik)...")
         print("    -> Menghitung Alt & Elong dengan Multiprocessing...")
         # 1. Bangun Grid Kasar
         step = 5
@@ -107,9 +108,6 @@ def generate_peta_kontur(date_dt, ijtima_unix, lat_lokal, lon_lokal, kota):
         titik_koordinat = [(lat, lon, date_dt) for lat in lats_kasar for lon in lons_kasar]
         
         # 2. Hitung Paralel
-        # hasil_alt = np.zeros((len(lats_kasar), len(lons_kasar)))
-        # hasil_elong = np.zeros((len(lats_kasar), len(lons_kasar)))
-
         # Deteksi total core yang dimiliki perangkat (Laptop = 8, RasPi = 4)
         total_core = os.cpu_count()
         
@@ -181,20 +179,22 @@ def generate_peta_kontur(date_dt, ijtima_unix, lat_lokal, lon_lokal, kota):
         
         print(f"    -> [DATA DISIMPAN] Laporan CSV terekspor: {file_csv}")
 
-# =========================================================
+    # =========================================================
     # MERENDER GAMBAR & SINKRONISASI KE STATIC UI
     # =========================================================
     import shutil # Panggil pustaka penyalin file OS
-    peta_terbaru_ui = os.path.join(STATIC_IMG_DIR, 'peta_hilal_current.png')
+
+    # Copy ke  Static UI diserahkan ke generate_laporan_harian() agar sinkron dengan laporan harian yang dibuat.
+    # peta_terbaru_ui = os.path.join(STATIC_IMG_DIR, 'peta_hilal_current.png')
 
     if os.path.exists(file_png):
         print(f"    -> [CACHE] Peta sudah tersedia: {os.path.basename(file_png)}")
-        # Wajib salin file dari cache ke Static UI agar layar TV Kiosk ter-update!
-        try:
-            shutil.copy2(file_png, peta_terbaru_ui)
-            print("    -> [SYNC] Layar Kiosk disinkronkan dari Cache.")
-        except Exception as e:
-            print(f"    -> [ERROR] Gagal menyalin peta ke UI: {e}")
+        # Copy ke Static UI diserahkan ke generate_laporan_harian() agar sinkron dengan laporan harian yang dibuat.
+        # try:
+        #     shutil.copy2(file_png, peta_terbaru_ui)
+        #     print("    -> [SYNC] Layar Kiosk disinkronkan dari Cache.")
+        # except Exception as e:
+        #     print(f"    -> [ERROR] Gagal menyalin peta ke UI: {e}")
     else:
         print("    -> Merender peta baru ke cache (Tema Gelap Ekstrem)...")
         import matplotlib.pyplot as plt
@@ -306,12 +306,13 @@ def generate_peta_kontur(date_dt, ijtima_unix, lat_lokal, lon_lokal, kota):
         plt.close()
         print(f"[OK] Peta arsip berhasil dirender dan disimpan ke cache: {file_png}")
 
-        # 2. Salin file cache yang baru saja jadi tersebut ke Static UI (Kecepatan 0.01 detik)
-        try:
-            shutil.copy2(file_png, peta_terbaru_ui)
-            print("    -> [SYNC] Layar Kiosk berhasil diperbarui dengan peta baru.")
-        except Exception as e:
-            print(f"    -> [ERROR] Gagal menyalin peta baru ke UI: {e}")
+        # Copy ke Static UI diserahkan ke generate_laporan_harian() agar sinkron dengan laporan harian yang dibuat.
+        # # 2. Salin file cache yang baru saja jadi tersebut ke Static UI (Kecepatan 0.01 detik)
+        # try:
+        #     shutil.copy2(file_png, peta_terbaru_ui)
+        #     print("    -> [SYNC] Layar Kiosk berhasil diperbarui dengan peta baru.")
+        # except Exception as e:
+        #     print(f"    -> [ERROR] Gagal menyalin peta baru ke UI: {e}")
 
 # Baca langsung dari kalender_jangkar
 def generate_laporan_harian(date_dt, lat_lokal, lon_lokal, kota, t_ijtima_terdekat=None):
@@ -320,14 +321,42 @@ def generate_laporan_harian(date_dt, lat_lokal, lon_lokal, kota, t_ijtima_terdek
     tahun = date_dt.year
     file_kalender = os.path.join(BASE_DIR, f"kalender_jangkar_{tahun}.json")
     
-    # 1. Pastikan file kalender tahunan sudah ada, jika belum, buat dulu!
-    if not os.path.exists(file_kalender):
-        print(f"    -> Kalender {tahun} belum ada. Melakukan komputasi setahun penuh...")
-        generate_adaptif(tahun, lat_lokal, lon_lokal, kota)
+    # # 1. Pastikan file kalender tahunan sudah ada, jika belum, buat dulu!
+    # if not os.path.exists(file_kalender):
+    #     print(f"    -> Kalender {tahun} belum ada. Melakukan komputasi setahun penuh...")
+    #     generate_adaptif(tahun, lat_lokal, lon_lokal, kota)
 
-    # 2. Buka dan baca JSON kalender
-    with open(file_kalender, 'r') as f:
-        data_kalender = json.load(f)
+    # # 2. Buka dan baca JSON kalender
+    # with open(file_kalender, 'r') as f:
+    #     data_kalender = json.load(f)
+
+    perlu_generate = False
+    
+    # Cek berkas yang sudah ada
+    # 1.a Cek keberadaan berkas
+    if not os.path.exists(file_kalender):
+        print(f"    -> Berkas {tahun} tidak ditemukan.")
+        perlu_generate = True
+    else:
+        # 1.b Cek apakah parameter di dalam berkas masih sama
+        with open(file_kalender, 'r') as f:
+            data_existing = json.load(f)
+            loc = data_existing.get("lokasi_masjid", {})
+            if loc.get("lat") != lat_lokal and loc.get("lon") != lon_lokal and loc.get('kota') != kota:
+                print(f"[*] Lokasi sama {kota} ({lat_lokal}, {lon_lokal}). Tidak ada perubahan data.")
+                perlu_generate = True
+
+    # 2. Jika perlu generate ulang, jika tidak gunakan data yang sudah ada
+    if perlu_generate:
+        print(f"    -> Memulai komputasi setahun untuk {kota} ({lat_lokal}, {lon_lokal})")
+        generate_adaptif(tahun, lat_lokal, lon_lokal, kota)
+            
+        # Baca ulang file yang baru saja dibuat
+        with open(file_kalender, 'r') as f:
+            data_kalender = json.load(f)
+    else:
+        # Jika tidak ada perubahan, gunakan data yang sudah ada (step 2 di atas)
+        data_kalender = data_existing
         
     # 3. Cari bulan yang sesuai dengan Ijtima saat ini
     nama_bulan_target = get_hijri_month_name(date_dt)
@@ -377,9 +406,15 @@ def generate_laporan_harian(date_dt, lat_lokal, lon_lokal, kota, t_ijtima_terdek
     config = load_kriteria_config()
     str_tanggal = date_dt.strftime('%Y%m%d')
     versi_algo = config["versi_algoritma"].replace(".", "_")
+    kota_aman = "".join([c if c.isalnum() else "_" for c in kota])
+    lat_val = str(abs(lat_lokal)).replace(".", "_")
+    lat_dir = "S" if lat_lokal < 0 else "N"
+    lon_val = str(abs(lon_lokal)).replace(".", "_")
+    lon_dir = "W" if lon_lokal < 0 else "E"
     
     # Rangkai nama file di cache yang seharusnya sudah dibuat oleh V3.0
-    file_png_cache = os.path.join(CACHE_DIR, f"peta_hilal_{str_tanggal}_{kota}_v{versi_algo}.png")
+
+    file_png_cache = os.path.join(CACHE_DIR, f"peta_hilal_{str_tanggal}_{kota_aman}_{lat_val}{lat_dir}_{lon_val}{lon_dir}_v{versi_algo}.png")
     peta_terbaru_ui = os.path.join(STATIC_IMG_DIR, 'peta_hilal_current.png')
     
     # Cek apakah peta di cache benar-benar ada

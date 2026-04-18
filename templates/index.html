@@ -18,6 +18,7 @@
 </head>
 <body>
     <div class="container">
+        
         <div class="top-section">            
             <div class="sidebar-left">
 
@@ -28,68 +29,48 @@
 
                 <div class="main-clock">
                     <h1 id="jam">00:00:00</h1>
-
-                    <p id="tgl-masehi" style="margin-bottom: 0; font-size: 2vh;">Memuat tanggal...</p>
+                    <p id="tgl-masehi" class="tgl-masehi">Memuat tanggal...</p>
 
                     <div id="moon-container" class="moon-container"></div>
                     
-                    <p id="tgl-hijri" class="hijri" style="margin-bottom: 0; margin-top: 0vh;">Memuat hijriah...</p>
-                    <div id="info-metode" class="teks-metode" style="margin-top: 0vh; margin-bottom: 1vh"></div>
+                    <p id="tgl-hijri" class="hijri">Memuat hijriah...</p>
+                    <div id="info-metode" class="teks-metode"></div>
 
-                    <p id="tgl-jawa" style="color: #f59e0b; font-size: 2vmin; margin-top: 0.5vh; margin-bottom: 0;">Memuat jawa...</p>
-                    <div id="info-kurup" class="teks-metode" style="color: rgba(245, 158, 11, 0.7); margin-top: 0vh; margin-bottom: 1vh;"></div>
+                    <p id="tgl-jawa" class="jawa">Memuat jawa...</p>
+                    <div id="info-kurup" class="teks-metode teks-kurup"></div>
                     
-                    <div id="adzan-countdown" style="color: #ff4444; font-weight: bold; font-size: 2vmin; margin-top: 0.5vh; margin-bottom: 0.5vh; display: none; background: rgba(255, 68, 68, 0.1); border: 1px solid #ff4444; border-radius: 8px; padding: 5px; animation: pulse 1s infinite;"></div>
+                    <div id="adzan-countdown" class="adzan-countdown"></div>
                 </div>
 
                 <div class="lokasi-container">
-                    <div style="display: flex; align-items: baseline; gap: 8px; justify-content: center; vertical-align: middle;">
-                        <p id="info-kota" style="color: #00ff88; font-size: 2vmin; font-weight: bold; margin: 0;">Memuat Kota...</p>
-                        <p style="color:#aaa; font-size:1.5vmin; margin: 0; ">(</p>
-                        <p id="info-lokasi" style="color:#aaa; font-size:1.5vmin; margin: 0; ">( Memuat lokasi... )</p>
-                        <p style="color:#aaa; font-size:1.5vmin; margin: 0; ">)</p>
+                    <div class="lokasi-header">
+                        <p id="info-kota" class="info-kota">Memuat Kota...</p>
+                        <p class="info-koordinat">(</p>
+                        <p id="info-lokasi" class="info-koordinat">( Memuat lokasi... )</p>
+                        <p class="info-koordinat">)</p>
                     </div>
+
                     <div class="kompas-box">
-                        <!-- <div class="kompas-wrapper" style="position: relative; width: 14vmin; height: 14vmin; border: 1px dashed rgba(0, 255, 136, 0.3); border-radius: 50%;"> -->
-                        <div class="kompas-wrapper" style="position: relative; width: 14vmin; height: 14vmin; border: 1px dashed rgba(0, 255, 136, 0.3); border-radius: 50%; background: rgba(255, 255, 255, 0.2);">
+                        <div class="kompas-lingkaran">
+                            <div class="kompas-pusat"></div>
                             
-                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 0.5vmin; height: 0.5vmin; background: #00ff88; border-radius: 50%; z-index: 5; box-shadow: 0 0 5px #00ff88;"></div>
-
-                            <div id="wadah-matahari-bayangan" style="position: absolute; top: 50%; left: 50%; width: 0; height: 0; transform-origin: 0 0; z-index: 4; opacity: 0; transition: transform 1.5s ease-in-out;">
-                                
-                                <div style="position: absolute; top: -1px; left: 0; width: 6vmin; height: 2px; background: linear-gradient(90deg, rgba(0,0,0,1), transparent); transform-origin: 0 50%; transform: rotate(180deg);"></div>
-                                
-                                <div style="position: absolute; top: -1px; left: 0; width: 3.5vmin; height: 2px; background: linear-gradient(90deg, transparent, rgba(255,215,0,0.9)); transform-origin: 0 50%;"></div>
-
+                            <!-- SKY DOME BARU -->
+                            <div id="sky-dome">
+                                <div class="sky-grid"></div>
+                                <div id="obj-sun" class="sky-object"></div>
+                                <div id="obj-moon" class="sky-object"></div>
                             </div>
 
-                            <!-- <div id="planetarium-matahari" style="position: absolute; top: 50%; left: 50%; width: 0; height: 0; transform-origin: 0 0; z-index: 5; transition: transform 2s ease-in-out;">
-                                <div style="position: absolute; top: 0; left: 4.5vmin; transform: translate(-50%, -50%); font-size: 1.5vmin; filter: drop-shadow(0 0 5px gold);">☀️</div>
-                            </div>
+                            <div class="cardinal N">U</div>
+                            <div class="cardinal E">T</div>
+                            <div class="cardinal S">S</div>
+                            <div class="cardinal W">B</div>
 
-                            <div id="planetarium-bulan" style="position: absolute; top: 50%; left: 50%; width: 0; height: 0; transform-origin: 0 0; z-index: 5; transition: transform 2s ease-in-out;">
-                                <div style="position: absolute; top: 0; left: 4.5vmin; transform: translate(-50%, -50%); font-size: 1.5vmin; filter: drop-shadow(0 0 5px #a3c2c2);">🌙</div>
-                            </div> -->
-
-                            <div id="planetarium-matahari" style="position: absolute; top: 50%; left: 50%; width: 0; height: 0; transform-origin: 0 0; z-index: 5; transition: transform 2s ease-in-out;">
-                                <div style="position: absolute; top: 0; left: 0; transform: translate(-50%, -50%);">
-                                    <svg width="2.5vmin" height="2.5vmin" viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.6));">
-                                        <circle cx="12" cy="12" r="4" fill="#ffcc00"></circle>
-                                        <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
-                                    </svg>
-                                </div>
-                            </div>
-
-                            <div id="planetarium-bulan" style="position: absolute; top: 50%; left: 50%; width: 0; height: 0; transform-origin: 0 0; z-index: 6; transition: transform 2s ease-in-out;">
-                                <div style="position: absolute; top: 0; left: 0; transform: translate(-50%, -50%);">
-                                    <svg width="2vmin" height="2vmin" viewBox="0 0 24 24" fill="#e2e8f0" stroke="#121212" stroke-width="1" stroke-linejoin="round" style="filter: drop-shadow(0 0 4px rgba(163, 194, 194, 0.6));">
-                                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                                    </svg>
-                                </div>
-                            </div>
-
-                            <div id="ikon-kabah-rashdul" style="position: absolute; top: 50%; left: 50%; transform-origin: 0 0; z-index: 6; transition: transform 1.5s ease;">
-                                <div style="transform: translate(-50%, -50%);">
+                            <div id="sun-ray"></div>
+                            <div id="shadow-line"></div>
+                            
+                            <div id="ikon-kabah-rashdul" class="kompas-elemen-tengah" style="z-index: 6; transition: transform 1.5s ease;">
+                                <div class="kompas-elemen-absolut">
                                     <svg class="animasi-pendar" width="2.5vmin" height="2.5vmin" viewBox="0 0 40 40">
                                         <rect width="40" height="40" rx="4" fill="#3a3a3a" /> 
                                         <rect width="40" height="8" y="10" fill="#ffd700" /> 
@@ -99,57 +80,48 @@
                             </div>
                         </div>
                         
-                        <div class="teks-kiblat" style="margin-top: 5px; text-align: center;">
-                            <p id="teks-kiblat" style="margin:0; font-size:1.8vmin; color: #00ff88; font-weight: bold;">--°</p>
-                            <p id="teks-waktu-rashdul" style="margin:0; font-size:1.5vmin; color:#fff; font-weight:normal;">--:--</p>
+                        <div class="teks-kiblat-container">
+                            <p id="teks-kiblat" class="teks-kiblat">--°</p>
+                            <p id="teks-waktu-rashdul" class="teks-waktu-rashdul">--:--</p>
                         </div>
                     </div>
                 </div>
 
-                <div style="margin-top: auto; border-top: 2px solid rgba(255,255,255,0.15); padding-top: 1vh; width: 100%; display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: center; gap: 2px;">
-                    
-                    <img src="/static/images/AMaL2.png" alt="Logo AMaL" style="max-height: 4vh; width: auto; flex-shrink: 0; filter: invert(100%); opacity: 0.9;">
-                                    
-                    <div style="text-align: left;">
-                        <p style="margin: 0; font-size: 1.4vmin; font-weight: bold; color: #77da05; letter-spacing: 1px;">AMaL</p>
-                        <p style="margin: 2px 0 0 0; font-size: 1vmin; color: #aaa;">Anjungan Masjid Libre</p>
-                        <p style="margin: 4px 0 0 0; font-size: 1vmin; color: #3b82f6; font-family: monospace;">⚖️ GNU AGPLv3 License</p>
+                <div class="sidebar-footer">
+                    <img src="/static/images/AMaL2.png" alt="Logo AMaL">
+                    <div class="sidebar-footer-teks">
+                        <p class="judul">AMaL</p>
+                        <p class="sub">Anjungan Masjid Libre</p>
+                        <p class="lisensi">⚖️ GNU AGPLv3 License</p>
                     </div>                    
-                                    
                 </div>
-
             </div>
 
             <div class="sidebar-right">
                 <div id="calendar-container" class="calendar-container">
-                    <div id="rashdul-takeover" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 20, 40, 0.95); z-index: 100; flex-direction: column; justify-content: center; align-items: center; text-align: center; border-radius: 15px; border: 3px solid #ffd700; box-shadow: 0 0 30px rgba(255, 215, 0, 0.3); backdrop-filter: blur(10px); padding: 20px;">
-                        
-                        <div style="font-size: 3em; margin-bottom: 10px; animation: pulse 2s infinite;">☀️ 🕋</div>
-                        <h2 style="color: #ffd700; font-size: 2.2em; margin: 0 0 10px 0; text-transform: uppercase;">Momentum Kalibrasi Kiblat</h2>
-                        <h2 style="color: #ffd700; font-size: 2.2em; margin: 0 0 10px 0; text-transform: uppercase;">Rashdul Qiblah Global (Istiwa A'dham)</h2>
-                        
-                        <div id="rashdul-countdown" style="font-size: 5em; font-weight: bold; color: #00ff88; margin: 15px 0; text-shadow: 0 0 20px rgba(0,255,136,0.6); font-family: monospace;">-14:59</div>
-                        
-                        <p id="rashdul-instruksi" style="color: #fff; font-size: 1.3em; max-width: 90%; line-height: 1.5;">
+                    
+                    <div id="rashdul-takeover" class="takeover-overlay takeover-rashdul">
+                        <div class="takeover-icon">☀️ 🕋</div>
+                        <h2 class="takeover-title" style="color: #ffd700;">Momentum Kalibrasi Kiblat</h2>
+                        <h2 class="takeover-title" style="color: #ffd700;">Rashdul Qiblah Global (Istiwa A'dham)</h2>
+                        <div id="rashdul-countdown" class="takeover-countdown" style="color: #00ff88; text-shadow: 0 0 20px rgba(0,255,136,0.6);">-14:59</div>
+                        <p id="rashdul-instruksi" class="takeover-desc">
                             Matahari saat ini sedang bergerak menuju titik tepat di atas Ka'bah.<br>
                             <span style="color: #00ff88;">Siapkan benda tegak lurus (tongkat/bandul).</span> Saat waktu habis, bayangan benda tersebut akan mengarah lurus ke Kiblat.
                         </p>
                     </div>
 
-                    <div id="gerhana-takeover" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(30, 0, 0, 0.95); z-index: 101; flex-direction: column; justify-content: center; align-items: center; text-align: center; border-radius: 15px; border: 3px solid #ff4444; box-shadow: 0 0 30px rgba(255, 68, 68, 0.4); backdrop-filter: blur(10px); padding: 20px;">
-                        
-                        <div id="gerhana-ikon" style="font-size: 3.5em; margin-bottom: 5px; animation: pulse 2s infinite;">🌘</div>
-                        <h2 id="gerhana-judul" style="color: #ff4444; font-size: 2.2em; margin: 0 0 10px 0; text-transform: uppercase;">Peringatan Gerhana</h2>
-                        
-                        <div id="gerhana-countdown" style="font-size: 5em; font-weight: bold; color: #ffd700; margin: 15px 0; text-shadow: 0 0 20px rgba(255,215,0,0.6); font-family: monospace;">-00:00</div>
-                        
-                        <p style="color: #fff; font-size: 1.3em; max-width: 90%; line-height: 1.5;">
+                    <div id="gerhana-takeover" class="takeover-overlay takeover-gerhana">
+                        <div id="gerhana-ikon" class="takeover-icon">🌘</div>
+                        <h2 id="gerhana-judul" class="takeover-title" style="color: #ff4444;">Peringatan Gerhana</h2>
+                        <div id="gerhana-countdown" class="takeover-countdown" style="color: #ffd700; text-shadow: 0 0 20px rgba(255,215,0,0.6);">-00:00</div>
+                        <p class="takeover-desc">
                             Mari perbanyak zikir, takbir, sedekah, dan bersiap melaksanakan <br>
                             <span id="gerhana-nama-shalat" style="color: #ffd700; font-weight: bold; font-size: 1.2em;">Shalat Sunnah Gerhana</span>
                         </p>
                     </div>
 
-                    <div id="loading-overlay" style="display: none;">
+                    <div id="loading-overlay">
                         <div class="spinner"></div>
                         <h2 style="font-size: 3vmin; margin-bottom: 1vh; color: #ffd700;">Memuat Kalender...</h2>
                         <p id="loading-text" style="font-size: 1.8vmin; color: #dddddd; max-width: 90%; line-height: 1.4; text-align: center;"></p>
@@ -161,28 +133,19 @@
                         <div id="cal-jawa-title"></div>
                         <div id="cal-jawa-info"></div>
                     </div>
-                    <!-- <div class="calendar-header" style="display: flex; align-items: center; justify-content: center; gap: 15px; padding-bottom: 10px;">
-                        <img src="/static/images/AMaL2.png" alt="Logo AMaL" style="max-height: 8vh; width: auto; filter: invert(100%); opacity: 0.9;">
-                        <div style="text-align: left;">
-                            <div id="cal-masehi-title" >Maret 2026</div>
-                            <div id="cal-hijri-title">Ramadhan - Syawal 1447 H</div>
-                            <div id="cal-jawa-title" style="font-size: 1.8vmin; color: #f59e0b; margin-top: 4px; font-weight: bold;"></div>
-                            <div id="cal-jawa-info" style="font-size: 1.3vmin; color: #aaa; margin-top: 2px;"></div>
-                        </div>
-                    </div> -->
                     
                     <div class="calendar-weekdays">
                         <div>Ahad</div><div>Senin</div><div>Selasa</div><div>Rabu</div><div>Kamis</div><div>Jumat</div><div>Sabtu</div>
                     </div>
 
-                    <div id="calendar-grid" class="calendar-grid">
-                        </div>
+                    <div id="calendar-grid" class="calendar-grid"></div>
                 </div>
 
-                <div id="info-display-container">
-                    </div>
+                <div id="info-display-container"></div>
             </div>
-        </div> <div class="jadwal-container-horizontal">
+        </div> 
+        
+        <div class="jadwal-container-horizontal">
             <div class="kartu" id="kartu-Imsak"><span class="title">Imsak</span><span class="nama-shalat">Imsak</span><h2 id="Imsak">--:--</h2><span class="selisih"></span></div>
             <div class="kartu" id="kartu-Subuh"><span class="title">Subuh</span><span class="nama-shalat">Subuh</span><h2 id="Subuh">--:--</h2><span class="selisih"></span></div>
             <div class="kartu" id="kartu-Terbit"><span class="title">Terbit</span><span class="nama-shalat">Terbit</span><h2 id="Terbit">--:--</h2><span class="selisih"></span></div>
@@ -192,27 +155,29 @@
             <div class="kartu" id="kartu-Isya"><span class="title">Isya</span><span class="nama-shalat">Isya</span><h2 id="Isya">--:--</h2><span class="selisih"></span></div>
         </div>
         
-    </div> <div class="footer-ticker">
+    </div> 
+    
+    <div class="footer-ticker">
         <div class="ticker-wrapper">
             <div class="ticker-content" id="running-text-1">Memuat informasi...</div>
             <div class="ticker-content" id="running-text-2">Memuat informasi...</div>
         </div>
     </div>
 
-    <div id="fullscreen-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; background: #000; color: #fff; text-align: center; font-family: sans-serif;">
-        <div id="overlay-content" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%;">
-            </div>
+    <div id="fullscreen-overlay">
+        <div id="overlay-content"></div>
     </div>
 
     <div id="layar-blackout"></div>
 
-    {% raw %} <template id="tmpl-slide-rashdul">
-        <div style="text-align: center; padding: 10px 30px;">
-            <div style="font-size: 3em; margin-bottom: 5px;">🔭 🕋</div>
-            <h2 style="color: #ffd700; font-size: 2em; margin: 0;">INFO RASHDUL QIBLAH</h2>
-            <h3 style="color: #00ff88; font-size: 1.5em; margin: 5px 0 15px 0;">{{TGL}} - Pukul {{JAM}} WIB</h3>
+    {% raw %}
+    <template id="tmpl-slide-rashdul">
+        <div class="slide-box tema-rashdul">
+            <div class="slide-icon">🔭 🕋</div>
+            <h2 class="slide-title">INFO RASHDUL QIBLAH</h2>
+            <h3 class="slide-subtitle">{{TGL}} - Pukul {{JAM}} WIB</h3>
             
-            <div style="background: rgba(0,0,0,0.5); border-left: 5px solid #ffd700; padding: 15px; text-align: left; border-radius: 8px; font-size: 1.1em; line-height: 1.6; color: #fff;">
+            <div class="slide-desc-box">
                 <strong>PETUNJUK TEKNIS KALIBRASI:</strong><br>
                 1. Siapkan benda tegak lurus (tongkat/bandul/tiang).<br>
                 2. Letakkan di area datar yang terkena sinar matahari.<br>
@@ -223,12 +188,12 @@
     </template>
 
     <template id="tmpl-slide-gerhana">
-        <div style="text-align: center; padding: 10px 30px;">
-            <div style="font-size: 3em; margin-bottom: 5px;">{{IKON}}</div>
-            <h2 style="color: #ff4444; font-size: 2em; margin: 0; text-transform: uppercase;">INFO GERHANA {{JENIS}}</h2>
-            <h3 style="color: #ffd700; font-size: 1.5em; margin: 5px 0 15px 0;">{{TGL}} - Pukul {{JAM}} WIB</h3>
+        <div class="slide-box tema-gerhana">
+            <div class="slide-icon">{{IKON}}</div>
+            <h2 class="slide-title">INFO GERHANA {{JENIS}}</h2>
+            <h3 class="slide-subtitle">{{TGL}} - Pukul {{JAM}} WIB</h3>
             
-            <div style="background: rgba(0,0,0,0.5); border-left: 5px solid #ff4444; padding: 15px; text-align: left; border-radius: 8px; font-size: 1.1em; line-height: 1.6; color: #fff;">
+            <div class="slide-desc-box">
                 <strong>ANJURAN IBADAH:</strong><br>
                 Berdasarkan sunnah Rasulullah SAW, mari kita persiapkan diri untuk:<br>
                 • Memperbanyak Zikir, Istighfar, dan Takbir.<br>
@@ -239,54 +204,61 @@
     </template>
 
     <template id="tmpl-slide-hilal">
-        <div style="display: flex; width: 100%; height: 100%; background: #121212; border-radius: 15px; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.5);">
-            <div style="width: 85%; background: #000; display: flex; align-items: center; justify-content: center; border-right: 2px solid #333;">
-                <img src="{{IMG_URL}}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+        <div class="hilal-slide-wrapper">
+            <div class="hilal-slide-left">
+                <img src="{{IMG_URL}}">
             </div>
-            <div style="width: 15%; padding: 15px; display: flex; flex-direction: column; justify-content: flex-start; color: white;">
-                <div style="text-align: center; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px;">
-                    <div style="font-size: 1.5em; margin-bottom: 2px;">🔭 🌒</div>
-                    <h2 style="color: #ffd700; margin: 0; font-size: 1.2em;">RUKYATUL HILAL</h2>
-                    <h4 style="color: #aaa; margin: 2px 0 0 0; font-size: 0.8em; font-weight: normal;">{{TGL_PENGAMATAN}}</h4>
+            <div class="hilal-slide-right">
+                <div class="hilal-header">
+                    <div class="slide-icon" style="font-size: 1.5em; margin-bottom: 2px;">🔭 🌒</div>
+                    <h2>RUKYATUL HILAL</h2>
+                    <h4>{{TGL_PENGAMATAN}}</h4>
                 </div>
-                <div style="display: flex; gap: 8px; margin-bottom: 15px;">
-                    <div style="flex: 1; background: rgba(0,0,0,0.4); padding: 8px 5px; border-radius: 8px; text-align: center; border-top: 2px solid #0fbcf9;">
-                        <div style="font-size: 0.6em; color: #aaa;">Tinggi</div>
-                        <div style="font-size: 1.1em; font-weight: bold; color: #0fbcf9;">{{TINGGI}}°</div>
+                <div class="hilal-metrics">
+                    <div class="hilal-metric-box">
+                        <div class="hilal-metric-label">Tinggi</div>
+                        <div class="hilal-metric-value">{{TINGGI}}°</div>
                     </div>
-                    <div style="flex: 1; background: rgba(0,0,0,0.4); padding: 8px 5px; border-radius: 8px; text-align: center; border-top: 2px solid #0fbcf9;">
-                        <div style="font-size: 0.6em; color: #aaa;">Elongasi</div>
-                        <div style="font-size: 1.1em; font-weight: bold; color: #0fbcf9;">{{ELONGASI}}°</div>
+                    <div class="hilal-metric-box">
+                        <div class="hilal-metric-label">Elongasi</div>
+                        <div class="hilal-metric-value">{{ELONGASI}}°</div>
                     </div>
                 </div>
-                <div style="font-size: 0.7em; color: #aaa; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; text-align: center;">Hasil 5 Kriteria</div>
-                <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 10px; border-radius: 6px; border-left: 4px solid {{C_LOK_MABIMS}};">
-                        <div style="font-size: 0.65em; line-height: 1.2; color: #ccc;">Lokal<br><strong style="color:white; font-size: 1.1em;">MABIMS</strong></div>
-                        <div style="font-size: 0.75em; font-weight: bold; color: {{C_LOK_MABIMS}};">{{I_LOK_MABIMS}} {{S_LOK_MABIMS}}</div>
+                <div class="hilal-card-title">Hasil 5 Kriteria</div>
+                <div class="hilal-card-container">
+                    
+                    <div class="hilal-card" style="border-left-color: {{C_LOK_MABIMS}};">
+                        <div class="hilal-card-source">Lokal<br><strong>MABIMS</strong></div>
+                        <div class="hilal-card-status" style="color: {{C_LOK_MABIMS}};">{{I_LOK_MABIMS}} {{S_LOK_MABIMS}}</div>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 10px; border-radius: 6px; border-left: 4px solid {{C_LOK_WH}};">
-                        <div style="font-size: 0.65em; line-height: 1.2; color: #ccc;">Lokal<br><strong style="color:white; font-size: 1.1em;">W. Hilal</strong></div>
-                        <div style="font-size: 0.75em; font-weight: bold; color: {{C_LOK_WH}};">{{I_LOK_WH}} {{S_LOK_WH}}</div>
+                    
+                    <div class="hilal-card" style="border-left-color: {{C_LOK_WH}};">
+                        <div class="hilal-card-source">Lokal<br><strong>W. Hilal</strong></div>
+                        <div class="hilal-card-status" style="color: {{C_LOK_WH}};">{{I_LOK_WH}} {{S_LOK_WH}}</div>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 10px; border-radius: 6px; border-left: 4px solid {{C_NAS_MABIMS}};">
-                        <div style="font-size: 0.65em; line-height: 1.2; color: #ccc;">Nasional<br><strong style="color:white; font-size: 1.1em;">MABIMS</strong></div>
-                        <div style="font-size: 0.75em; font-weight: bold; color: {{C_NAS_MABIMS}};">{{I_NAS_MABIMS}} {{S_NAS_MABIMS}}</div>
+                    
+                    <div class="hilal-card" style="border-left-color: {{C_NAS_MABIMS}};">
+                        <div class="hilal-card-source">Nasional<br><strong>MABIMS</strong></div>
+                        <div class="hilal-card-status" style="color: {{C_NAS_MABIMS}};">{{I_NAS_MABIMS}} {{S_NAS_MABIMS}}</div>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 10px; border-radius: 6px; border-left: 4px solid {{C_NAS_WH}};">
-                        <div style="font-size: 0.65em; line-height: 1.2; color: #ccc;">Nasional<br><strong style="color:white; font-size: 1.1em;">W. Hilal</strong></div>
-                        <div style="font-size: 0.75em; font-weight: bold; color: {{C_NAS_WH}};">{{I_NAS_WH}} {{S_NAS_WH}}</div>
+                    
+                    <div class="hilal-card" style="border-left-color: {{C_NAS_WH}};">
+                        <div class="hilal-card-source">Nasional<br><strong>W. Hilal</strong></div>
+                        <div class="hilal-card-status" style="color: {{C_NAS_WH}};">{{I_NAS_WH}} {{S_NAS_WH}}</div>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 10px; border-radius: 6px; border-left: 4px solid {{C_KHGT}};">
-                        <div style="font-size: 0.65em; line-height: 1.2; color: #ccc;">Global<br><strong style="color:white; font-size: 1.1em;">KHGT</strong></div>
-                        <div style="font-size: 0.75em; font-weight: bold; color: {{C_KHGT}};">{{I_KHGT}} {{S_KHGT}}</div>
+                    
+                    <div class="hilal-card" style="border-left-color: {{C_KHGT}};">
+                        <div class="hilal-card-source">Global<br><strong>KHGT</strong></div>
+                        <div class="hilal-card-status" style="color: {{C_KHGT}};">{{I_KHGT}} {{S_KHGT}}</div>
                     </div>
+
                 </div>
             </div>
         </div>
     </template>
-    {% endraw %}  ```
+    {% endraw %}
 
+    <script src="/static/js/utils.js"></script>
     <script src="/static/js/kalender_jawa.js"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}?v={{ v }}"></script>
 </body>

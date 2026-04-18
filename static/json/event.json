@@ -7,13 +7,13 @@
         "10 Muharram": "Hari Asyura",
         "11 Dzulhijjah": "Hari Tasyrik ke-1",
         "12 Dzulhijjah": "Hari Tasyrik ke-2",
+        "12 Rabi'ul Awwal": "Maulid Nabi",
         "13 Dzulhijjah": "Hari Tasyrik ke-3",
         "17 Ramadhan": "Nuzulul Qur'an",
         "27 Rajab": "Isra' Mi'raj",
-        "9 Dzulhijjah": "Hari Arafah",
-        "9 Muharram": "Hari Tasu'a",
         "8 Dzulhijjah": "Hari Tarwiyah",
-        "12 Rabi'ul Awwal": "Maulid Nabi"
+        "9 Dzulhijjah": "Hari Arafah",
+        "9 Muharram": "Hari Tasu'a"
     },
     "insidentil_spesifik": {
         "2026-02-27": "Imlek 2577",
@@ -42,7 +42,7 @@
         "22 Desember": "Hari Ibu Nasional",
         "22 Oktober": "Hari Santri Nasional",
         "25 Desember": "Hari Natal",
-        "28 Oktober": "Hari Sumpah Pemuda",
-        "25 November": "Hari Guru"
+        "25 November": "Hari Guru",
+        "28 Oktober": "Hari Sumpah Pemuda"
     }
 }

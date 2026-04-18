@@ -1,5 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
-        // Ambil semua tombol menu dan semua panel konten
+    let offsetAdmin = 0;
+    // Sinkronisasi ringan untuk Admin
+    fetch('/api/sync_waktu').then(r=>r.json()).then(d => {
+        offsetAdmin = d.server_time - Date.now();
+    }).catch(e=>console.log("Admin sync gagal"));
+
+    function getWaktuAdminAkurat() {
+        return new Date(Date.now() + offsetAdmin);
+    }
+
+    // Ambil semua tombol menu dan semua panel konten
     // LOGIKA PANEL 1: NAVIGASI TAB
     const menuLinks = document.querySelectorAll('.nav-menu a');
     const panels = document.querySelectorAll('.panel, .admin-panel');
@@ -1442,7 +1452,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fungsi Skenario Cepat (Preset)
     window.setSkenario = async function(jenis) {
         // let targetDate = new Date(); // Default hari ini
-        let targetDate = AmalUtils.getAccurateTime(); // Menggunakan jam server
+        let targetDate = getWaktuAdminAkurat(); // Menggunakan jam server
         let speed = 5;
 
         try {
@@ -1504,7 +1514,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const dMei = new Date(json.peristiwa.mei.replace(' ', 'T'));
                     const dJuli = new Date(json.peristiwa.juli.replace(' ', 'T'));
                     // const now = new Date();
-                    const now = AmalUtils.getAccurateTime();
+                    const now = getWaktuAdminAkurat();
                     
                     targetDate = (dMei > now) ? dMei : dJuli;
                     if (dMei < now && dJuli > now) targetDate = dJuli;
@@ -2278,7 +2288,6 @@ async function handleDeleteQari(qariName) {
 
 // Panggil saat halaman dimuat
 document.addEventListener('DOMContentLoaded', () => {
-    AmalUtils.syncServerTime();
     loadQariList();
     
     const btnSaveAudio = document.getElementById('btn-save-audio');

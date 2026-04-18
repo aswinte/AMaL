@@ -9,7 +9,7 @@ from global_land_mask import globe
 from hijridate import Gregorian as HijriGregorian
 
 # --- INISIALISASI SKYFIELD ---
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 eph_path = os.path.join(BASE_DIR, 'de421.bsp')
 if not os.path.exists(eph_path):
     print("Mengunduh data ephemeris (hanya sekali)...")
@@ -19,7 +19,7 @@ ts = load.timescale()
 # --- FUNGSI BANTUAN DASAR ---
 def load_kriteria_config():
     # --- FUNGSI LOAD KRITERIA DARI HISTORY CONFIG ---
-    config_path = os.path.join(os.path.dirname(__file__), ('static'), ('json'), 'config_kriteria.json')
+    config_path = os.path.join(BASE_DIR, 'static', 'json', 'config_kriteria.json')
     
     # Fallback default jika file tidak ditemukan
     default_res = {
@@ -114,7 +114,7 @@ def core_hitung_hilal(date_dt, lat, lon, eph_obj, ts_obj):
     
     return alt_geo, elong_geo, t_sunset
 
-# --- FUNGSI ASLI (DIPERBARUI) ---
+# --- FUNGSI ASLI (DIPERBARUI menggunakan core_hitung_hilal, tetap ada untuk kompatibilitas) ---
 def get_hilal_data(date_dt, lat, lon):
     """Fungsi wrapper untuk kompatibilitas kode lama (menggunakan global eph & ts)"""
     global eph, ts 
@@ -225,7 +225,7 @@ def npz_scan_khgt(npz_data, k_khgt, ijtima_unix, batas_utc_unix, fajar_nz_unix):
 # MESIN UTAMA AMaL ENGINE V3.0 (HYBRID DRIVEN)
 # =========================================================
 def generate_adaptif(tahun, lat_lokal, lon_lokal, kota, force_rebuild=False):
-    from hilal_engine import generate_peta_kontur, CACHE_DIR
+    from .hilal_engine import generate_peta_kontur, CACHE_DIR
 
     nama_file = f"kalender_jangkar_{tahun}.json"
     file_path = os.path.join(BASE_DIR, nama_file)
@@ -246,14 +246,14 @@ def generate_adaptif(tahun, lat_lokal, lon_lokal, kota, force_rebuild=False):
         else: 
             print(f"[*] Versi/Kriteria sama ({metadata_lama.get('versi_algoritma')}). Tidak ada perubahan data.")
             
-    # 2 Periksa apakah koordinat berubah
+    # 2 Periksa apakah kota atau koordinat berubah
     if data_lama and not force_rebuild:
         loc = data_lama.get("lokasi_masjid", {})
         if loc.get("lat") == lat_lokal and loc.get("lon") == lon_lokal:
             print(f"[*] Lokasi sama {loc.get('kota')} ({lat_lokal}, {lon_lokal}). Tidak ada perubahan data.")
             return data_lama
         else:
-            print(f"[*] Perubahan lokasi terdeteksi dari {loc.get('kota')} ke {kota}. Mengupdate data LOKAL saja...")
+            print(f"[*] Perubahan lokasi terdeteksi dari {loc.get('kota')} ({loc.get("lat")}, {loc.get("lon")}) ke {kota} ({lat_lokal}, {lon_lokal}). Mengupdate data LOKAL saja...")
 
     # 3. Persiapan Kriteria & Ijtima
     k_mabims = config_aktif["kriteria"]["MABIMS"]
