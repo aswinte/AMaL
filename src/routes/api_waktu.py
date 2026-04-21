@@ -23,17 +23,6 @@ api_waktu_bp = Blueprint('api_waktu', __name__)
 is_hilal_generating = False
 is_maintenance_running = False
 
-# ========================================================
-# Pindahkan rute-rute (1 sampai 8) ke bawah garis ini.
-# Ingat: ganti @app.route menjadi @api_waktu_bp.route
-# ========================================================
-
-# Contoh:
-# @api_waktu_bp.route('/get_data')
-# def get_data():
-#     tgl_simulasi = request.args.get('date')
-#     return jsonify(get_daily_data(tgl_simulasi))
-
 # GET DATA
 @api_waktu_bp.route('/get_data')
 def get_data():

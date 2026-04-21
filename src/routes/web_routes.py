@@ -17,8 +17,6 @@ web_bp = Blueprint('web', __name__)
 # ==========================================
 @web_bp.route('/')
 def index():
-    # Salin isi fungsi index() dari app.py ke sini...
-    # Pastikan load_config diimpor jika diperlukan, atau
     # baca config.json langsung dengan os.path.join(BASE_DIR, 'config.json')
     from src.services.astronomy import load_config
     
@@ -37,8 +35,6 @@ def index():
 # ==========================================
 @web_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    # Salin isi fungsi login() dari app.py ke sini...
-    # (Pastikan global_active_session, load_admin_data, catat_log dll sudah diimpor)
     global global_active_session
 
     if request.method == 'POST':

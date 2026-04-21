@@ -215,7 +215,7 @@ body {
 
     background: linear-gradient(
         to left,
-        rgba(255, 215, 0, 0.9),
+        rgba(255, 215, 0, 1)50%,
         rgba(255, 215, 0, 0.4),
         transparent
     );

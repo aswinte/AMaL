@@ -263,7 +263,8 @@ def hitung_arah_kiblat(lat, lon):
 def cari_rashdul_harian(lat, lon, tz_offset, tgl, arah_kiblat):
     try:
         eph_path = os.path.join(BASE_DIR, 'de421.bsp')
-        if not os.path.exists(eph_path): return None
+        if not os.path.exists(eph_path): 
+            return None
         eph = load(eph_path)
         ts = load.timescale()
         bumi, matahari = eph['earth'], eph['sun']

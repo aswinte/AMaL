@@ -838,7 +838,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // if (!UI.jam) return;
         if (UI.jam) {
-            UI.jam.innerHTML = `${h}.${m}<span class="detik">.${s}</span>`;
+            UI.jam.innerHTML = `${h}:${m}<span class="detik">:${s}</span>`;
         }
 
         // --- LOGIKA ALERT RASHDUL QIBLAH HARIAN ---
@@ -883,6 +883,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
+        renderRashdul(waktuRashdulHariIni);
         // ------------------------------------------
 
         if (UI.tglMasehi) {
@@ -1319,6 +1320,20 @@ document.addEventListener('DOMContentLoaded', () => {
         renderRunningText(data);
 
         finalizeRender(callback);
+
+        // === DATA RASHDUL ===
+        if (data.lokasi.rashdul_harian) {
+            const rh = data.lokasi.rashdul_harian;
+            waktuRashdulHariIni = rh;
+            console.log("data Rashdul Hari ini: " + waktuRashdulHariIni);
+        }
+        else {
+            waktuRashdulHariIni = null; // Reset ke null jika data tidak ditemukan
+            console.log("data tidak ada");
+        }
+
+        console.log("applayDailyData selesai");
+
     }
 
     function applyState(data) {
@@ -1370,7 +1385,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const kabahEl = document.getElementById('ikon-kabah-rashdul');
         const teksKiblat = document.getElementById('teks-kiblat');
-        const teksWaktuR = document.getElementById('teks-waktu-rashdul');
+        // const teksWaktuR = document.getElementById('teks-waktu-rashdul');
 
         // === TEKS KIBLAT ===
         if (teksKiblat) {
@@ -1383,13 +1398,66 @@ document.addEventListener('DOMContentLoaded', () => {
                 `rotate(${rotasiCSS}deg) translate(7vmin, 0) rotate(-${rotasiCSS}deg)`;
         }
 
-        // === TEKS RASHDUL (TANPA VISUAL LAMA) ===
+        // // === TEKS RASHDUL (TANPA VISUAL LAMA) ===
+        // if (data.lokasi.rashdul_harian) {
+        //     const rh = data.lokasi.rashdul_harian;
+        //     waktuRashdulHariIni = rh.waktu;
+
+        //     if (teksWaktuR) {
+        //         teksWaktuR.innerText = `Rashdul Qiblah harian pukul ${rh.waktu}`;
+        //     }
+        // } else {
+        //     if (teksWaktuR) {
+        //         teksWaktuR.innerText = "Tidak terjadi hari ini";
+        //     }
+        // }
+    }
+
+    function renderKiblat1(data) { // gabung kiblat dan rashdul
+        const kiblatUtara = data.lokasi.kiblat;
+        const rotasiCSS = kiblatUtara - 90;
+        const kabahEl = document.getElementById('ikon-kabah-rashdul');
+        const teksKiblat = document.getElementById('teks-kiblat');
+        const teksWaktuR = document.getElementById('teks-waktu-rashdul');
+
+        if (teksKiblat) {
+            teksKiblat.innerText = `Arah Kiblat: ${parseFloat(kiblatUtara).toFixed(1)}°`;
+        }
+
+        if (kabahEl) {
+            kabahEl.style.transform = `rotate(${rotasiCSS}deg) translate(7vmin, 0) rotate(-${rotasiCSS}deg)`;
+        }
+
         if (data.lokasi.rashdul_harian) {
             const rh = data.lokasi.rashdul_harian;
-            waktuRashdulHariIni = rh.waktu;
+            const waktuRashdul = rh.waktu;
+            const tipeRashdul = rh.tipe; // "bayangan_menuju" atau "bayangan_menjauh"
+
+            // Kalkulasi selisih menit
+            const sekarang = getWaktuSekarang();
+            const menitSekarang = (sekarang.getHours() * 60) + sekarang.getMinutes();
+            const [jamR, menitR] = waktuRashdul.split(':').map(Number);
+            const menitRashdul = (jamR * 60) + menitR;
+            const selisih = menitSekarang - menitRashdul;
 
             if (teksWaktuR) {
-                teksWaktuR.innerText = `Rashdul Qiblah harian pukul ${rh.waktu}`;
+                // Cek jika masuk dalam rentang 5 menit sebelum/sesudah
+                if (selisih >= -5 && selisih <= 5) {
+                    if (tipeRashdul === "bayangan_menuju") {
+                        teksWaktuR.innerText = "Bayangan menunjuk arah Kiblat sekarang!";
+                    } else if (tipeRashdul === "bayangan_menjauh") {
+                        teksWaktuR.innerText = "Matahari searah Kiblat sekarang!";
+                    }
+                    
+                    // Memberi penanda visual agar menarik perhatian
+                    teksWaktuR.style.color = "#FFD700"; // Warna emas/kuning
+                    teksWaktuR.style.fontWeight = "bold";
+                } else {
+                    // Tampilan normal jika di luar rentang waktu
+                    teksWaktuR.innerText = `Rashdul Qiblah harian pukul ${waktuRashdul}`;
+                    teksWaktuR.style.color = ""; 
+                    teksWaktuR.style.fontWeight = "";
+                }
             }
         } else {
             if (teksWaktuR) {
@@ -1408,8 +1476,9 @@ document.addEventListener('DOMContentLoaded', () => {
         renderSunRay(plan);
         renderShadow(plan, data);
 
-        //renderRashdul(plan, kiblat, data.lokasi.rashdul_harian);
+        // renderRashdul(data.lokasi.rashdul_harian);
     }
+
 
     function altAzToXY(alt, az, radiusMax) {
         const r = radiusMax * ((90 - alt) / 90);
@@ -1449,16 +1518,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderShadow(plan, data) {
         const shadow = document.getElementById('shadow-line');
-        if (!shadow) return;
-
-        let azShadow = (plan.matahari + 180) % 360;
+        const dome = document.getElementById('sky-dome'); // Perlu referensi ke dome
+        if (!shadow || !dome) return;
 
         if (!plan.matahari_terbit) {
             shadow.style.opacity = 0;
             return;
         }
 
+        // 1. Hitung Rotasi (Berlawanan arah matahari)
+        let azShadow = (plan.matahari + 180) % 360;
         const rot = azShadow - 90;
+
+        // 2. Hitung Panjang (Sama seperti logika SunRay)
+        const R = dome.clientWidth / 2;
+        const alt = Math.max(0, plan.alt_matahari || 0);
+        
+        // Logika: Semakin rendah matahari (alt dekat 0), bayangan semakin panjang
+        // Menggunakan rumus yang sama agar sinkron dengan titik matahari di dome
+        const r = R * ((90 - alt) / 90);
+        const percent = (r / R) * 50;
+
+        // 3. Terapkan Style
+        shadow.style.opacity = 0.5; // Sesuaikan opasitas bayangan
+        shadow.style.width = `${percent}%`; // Panjang mengikuti posisi
         shadow.style.transform = `translateY(-50%) rotate(${rot}deg)`;
     }
 
@@ -1488,206 +1571,158 @@ document.addEventListener('DOMContentLoaded', () => {
         ray.style.width = `${percent}%`;
         ray.style.transform = `translateY(-50%) rotate(${rot}deg)`;
     }
-    
-    function isRashdulMoment(plan, kiblat, tipe) {
-        const sunAz = plan.matahari;
 
-        let targetAz;
+    // rashdul qiblah
+    function renderRashdul(rashdulHarian) {
+        const teksWaktuR = document.getElementById('teks-waktu-rashdul');
+        if (!teksWaktuR) return;
 
-        if (tipe === "bayangan_menuju") {
-            targetAz = (kiblat + 180) % 360;
-        } else {
-            targetAz = kiblat;
-        }
+        if (rashdulHarian) {
+            const waktuRashdul = rashdulHarian.waktu;
+            const tipeRashdul = rashdulHarian.tipe;
 
-        let diff = Math.abs(sunAz - targetAz);
-        if (diff > 180) diff = 360 - diff;
+            // Kalkulasi selisih waktu
+            const sekarang = getWaktuSekarang();
+            const menitSekarang = (sekarang.getHours() * 60) + sekarang.getMinutes();
+            const [jamR, menitR] = waktuRashdul.split(':').map(Number);
+            const menitRashdul = (jamR * 60) + menitR;
+            const selisih = menitSekarang - menitRashdul;
 
-        return diff < 5; // toleransi
-    }
+            // Logika Teks Berdasarkan Selisih 5 Menit
+            if (selisih >= -5 && selisih <= 5) {
+                if (tipeRashdul === "bayangan_menuju") {
+                    teksWaktuR.innerText = "Bayangan menunjuk arah Kiblat sekarang!";
+                } else {
+                    teksWaktuR.innerText = "Matahari searah Kiblat sekarang!";
+                }
+                // teksWaktuR.classList.add('highlight-rashdul'); // Gunakan CSS class agar lebih rapi
+                teksWaktuR.classList.add('teks-sedang-rashdul'); // Gunakan CSS class agar lebih rapi
 
-    function isNearRashdulTime(rh) {
-        if (!rh || !rh.waktu) return false;
-
-        const now = getWaktuSekarang();
-        const [h, m] = rh.waktu.split(':').map(Number);
-
-        const target = new Date(now);
-        target.setHours(h, m, 0, 0);
-
-        const diff = Math.abs(now - target) / 60000; // menit
-
-        return diff < 5; // ±5 menit
-    }
-
-    function getDeltaRashdul(plan, kiblat, tipe) {
-        let target =
-            tipe === "bayangan_menuju"
-                ? (kiblat + 180) % 360
-                : kiblat;
-
-        let delta = target - plan.matahari;
-
-        // normalisasi ke -180..180
-        if (delta > 180) delta -= 360;
-        if (delta < -180) delta += 360;
-
-        return delta;
-    }    
-
-    function derajatKeMenit(delta) {
-        return delta * 4; // 1° = 4 menit
-    }
-
-    function parseJamMenit(str) {
-        const [jam, menit] = str.split(':').map(Number);
-        return jam * 60 + menit;
-    }
-
-    function formatJamMenit(totalMenit) {
-        totalMenit = (totalMenit + 1440) % 1440; // wrap 24 jam
-
-        const jam = Math.floor(totalMenit / 60);
-        const menit = Math.round(totalMenit % 60);
-
-        return `${String(jam).padStart(2,'0')}:${String(menit).padStart(2,'0')}`;
-    }
-
-    function renderRashdul(plan, kiblat, rh) {
-        if (!plan || typeof plan.matahari !== "number") return;
-
-        UI.dome.classList.remove('rashdul-menuju', 'rashdul-menjauh');
-
-        if (!rh || !rh.waktu) return;
-
-        const now = getWaktuSekarang();
-        const nowMenit = now.getHours() * 60 + now.getMinutes();
-        const rashdulMenit = parseJamMenit(rh.waktu);
-
-        const deltaMenit = nowMenit - rashdulMenit;
-        const selisih = Math.abs(deltaMenit);
-
-        const arah = deltaMenit > 0 ? "lewat" : "menuju";
-
-        // === DETEKSI VISUAL BERBASIS AZIMUTH ===
-        const isRashdul =
-            isRashdulMoment(plan, kiblat, rh.tipe) &&
-            isNearRashdulTime(rh);
-
-        if (isRashdul) {
-            UI.dome.classList.add(
-                rh.tipe === "bayangan_menuju"
-                    ? 'rashdul-menuju'
-                    : 'rashdul-menjauh'
-            );
-        }
-
-        // === TEKS UI ===
-        if (!UI.teksWaktuR) return;
-
-        const batasMenit = 60;
-
-        if (selisih < batasMenit) {
-            if (isRashdul) {
-                UI.teksWaktuR.innerText =
-                    rh.tipe === "bayangan_menuju"
-                        ? "🌑 Bayangan menunjuk arah Kiblat sekarang!"
-                        : "🌞 Matahari searah Kiblat sekarang!";
             } else {
-                UI.teksWaktuR.innerText =
-                    `${selisih} menit ${arah} Rashdul (${rh.waktu})`;
+                teksWaktuR.innerText = `Rashdul Qiblah harian pukul ${waktuRashdul}`;
+                // teksWaktuR.classList.remove('highlight-rashdul');
+                teksWaktuR.classList.remove('teks-sedang-rashdul');
             }
         } else {
-            UI.teksWaktuR.innerText = "";
+            teksWaktuR.innerText = "Tidak terjadi hari ini";
         }
     }
 
-    // function renderRashdul(plan, kiblat, rh) {
-    //     if (!plan || typeof plan.matahari !== "number") return;
+    // // rashdul qiblah
+    // function isRashdulMoment(plan, kiblat, tipe) {
+    //     const sunAz = plan.matahari;
 
-    //     UI.dome.classList.remove('rashdul-menuju', 'rashdul-menjauh');
+    //     let targetAz;
 
-    //     let isRashdul = false;
-        
-    //     if (rh) {
-    //         isRashdul =
-    //             isRashdulMoment(plan, kiblat, rh.tipe) &&
-    //             isNearRashdulTime(rh);
+    //     if (tipe === "bayangan_menuju") {
+    //         targetAz = (kiblat + 180) % 360;
+    //     } else {
+    //         targetAz = kiblat;
     //     }
 
-    //     if (isRashdul && rh) {
-    //         UI.dome.classList.add(
-    //             rh.tipe === "bayangan_menuju"
-    //                 ? 'rashdul-menuju'
-    //                 : 'rashdul-menjauh'
-    //         );
-    //     }
+    //     let diff = Math.abs(sunAz - targetAz);
+    //     if (diff > 180) diff = 360 - diff;
 
-    //     const teksWaktuR = document.getElementById('teks-waktu-rashdul');
-
-    //     if (teksWaktuR) {
-
-    //         if (!rh) {
-    //             teksWaktuR.innerText = "";
-    //             return;
-    //         }
-
-    //         // waktu rashdul asli
-    //         const waktuRashdul = rh.waktu;
-
-    //         const batasMenit = 60;
-    //         const delta = getDeltaRashdul(plan, kiblat, rh.tipe);
-    //         //const deltaMenit = derajatKeMenit(delta); // waktu berdasar derajat
-    //         const deltaMenit = getWaktuSekarang() - datetime.strrptime(waktuRashdul, "%H:%M"); // waktu berdasar data
-
-    //         const arah = deltaMenit > 0 ? "lewat" : "menuju";
-    //         const selisihMenit = Math.abs(deltaMenit).toFixed(0);
-
-    //         // estimasi waktu sekarang relatif ke rashdul
-    //         const rashdulMenit = parseJamMenit(waktuRashdul);
-    //         const estimasiSekarang = formatJamMenit(
-    //             rashdulMenit - deltaMenit
-    //         );
-
-    //         // FILTER RANGE
-    //         // if (Math.abs(deltaMenit) > batasMenit) {
-    //         //     teksWaktuR.innerText = "";
-    //         //     return;
-    //         // }
-
-    //         if (Math.abs(deltaMenit)< batasMenit) {
-    //             if (isRashdul) {
-    //                 teksWaktuR.innerText =
-    //                     rh.tipe === "bayangan_menuju"
-    //                         ? "🌑 Bayangan menunjuk arah Kiblat sekarang!"
-    //                         : "🌞 Matahari searah Kiblat sekarang!";
-    //             } else {
-    //                 teksWaktuR.innerText =
-    //                     `${deltaMenit} menit ${arah} Rashdul (${waktuRashdul})`;
-    //             };
-    //             return;
-    //         }
-
-    //         // if (isRashdul) {
-    //         //     teksWaktuR.innerText =
-    //         //         rh.tipe === "bayangan_menuju"
-    //         //             ? "🌑 Bayangan menunjuk arah Kiblat sekarang!"
-    //         //             : "🌞 Matahari searah Kiblat sekarang!";
-    //         // } else {
-    //         //     teksWaktuR.innerText =
-    //         //         `${selisihMenit} menit ${arah} Rashdul (${waktuRashdul})`;
-    //         // }
-
-    //         console.log("Selisih:", delta, "Menit:", deltaMenit);
-    //     }
-
-    //     console.log("AZ SUN:", plan.matahari, "KIBLAT:", kiblat);
-    //     console.log("RH:", rh);
-    //     console.log("Rashdul aktif:", isRashdul);
-    //     console.log("EL teksWaktuR:", UI.teksWaktuR);
+    //     return diff < 5; // toleransi
     // }
 
-    // ----------------------------------------------------------
+    // function isNearRashdulTime(rh) {
+    //     if (!rh || !rh.waktu) return false;
+
+    //     const now = getWaktuSekarang();
+    //     const [h, m] = rh.waktu.split(':').map(Number);
+
+    //     const target = new Date(now);
+    //     target.setHours(h, m, 0, 0);
+
+    //     const diff = Math.abs(now - target) / 60000; // menit
+
+    //     return diff < 5; // ±5 menit
+    // }
+
+    // function getDeltaRashdul(plan, kiblat, tipe) {
+    //     let target =
+    //         tipe === "bayangan_menuju"
+    //             ? (kiblat + 180) % 360
+    //             : kiblat;
+
+    //     let delta = target - plan.matahari;
+
+    //     // normalisasi ke -180..180
+    //     if (delta > 180) delta -= 360;
+    //     if (delta < -180) delta += 360;
+
+    //     return delta;
+    // }    
+
+    // function derajatKeMenit(delta) {
+    //     return delta * 4; // 1° = 4 menit
+    // }
+
+    // function parseJamMenit(str) {
+    //     const [jam, menit] = str.split(':').map(Number);
+    //     return jam * 60 + menit;
+    // }
+
+    // function formatJamMenit(totalMenit) {
+    //     totalMenit = (totalMenit + 1440) % 1440; // wrap 24 jam
+
+    //     const jam = Math.floor(totalMenit / 60);
+    //     const menit = Math.round(totalMenit % 60);
+
+    //     return `${String(jam).padStart(2,'0')}:${String(menit).padStart(2,'0')}`;
+    // }
+
+    // function renderRashdul1(plan, kiblat, rh) {
+    //     if (!plan || typeof plan.matahari !== "number") return;
+
+    //     // UI.dome.classList.remove('rashdul-menuju', 'rashdul-menjauh');
+
+    //     // if (!rh || !rh.waktu) return;
+
+    //     const now = getWaktuSekarang();
+    //     const nowMenit = now.getHours() * 60 + now.getMinutes();
+    //     const rashdulMenit = parseJamMenit(rh.waktu);
+
+    //     const deltaMenit = nowMenit - rashdulMenit;
+    //     const selisih = Math.abs(deltaMenit);
+
+    //     // const arah = deltaMenit > 0 ? "lewat" : "menuju";
+
+    //     // === DETEKSI VISUAL BERBASIS AZIMUTH ===
+    //     const isRashdul =
+    //         isRashdulMoment(plan, kiblat, rh.tipe) &&
+    //         isNearRashdulTime(rh);
+
+    //     // if (isRashdul) {
+    //     //     UI.dome.classList.add(
+    //     //         rh.tipe === "bayangan_menuju"
+    //     //             ? 'rashdul-menuju'
+    //     //             : 'rashdul-menjauh'
+    //     //     );
+    //     // }
+
+    //     // === TEKS UI ===
+    //     if (!UI.teksWaktuR) return;
+
+    //     const batasMenit = 5;
+
+    //     if (selisih < batasMenit) {
+    //         if (isRashdul) {
+    //             UI.teksWaktuR.innerText =
+    //                 rh.tipe === "bayangan_menuju"
+    //                     ? "🌑 Bayangan menunjuk arah Kiblat sekarang!"
+    //                     : "🌞 Matahari searah Kiblat sekarang!";
+    //         } else {
+    //             UI.teksWaktuR.innerText =
+    //                 `${selisih} menit ${arah} Rashdul (${rh.waktu})`;
+    //         }
+    //     } else {
+    //         UI.teksWaktuR.innerText = "";
+    //     }
+    // }
+
+    // // ----------------------------------------------------------
 
     function renderJadwal(data) {
         for (const [key, value] of Object.entries(data.jadwal)) {
