@@ -20,7 +20,7 @@ def init_smart_audio():
         print("[AMaL Debug] Mode Linux Headless terdeteksi. Memaksa SDL_AUDIODRIVER=alsa")
         os.environ['SDL_AUDIODRIVER'] = 'alsa'
 
-    freq, size, chan, buf = 44100, -16, 2, 2048
+    freq, size, chan, buf = 44100, -16, 2, 4096
 
     if is_linux:
         jalur_prioritas = [
@@ -114,6 +114,7 @@ def audio_background_worker():
                     except:
                         cache_durasi_tarhim = 0
                         tarhim_aktif = False # Matikan paksa jika file MP3 korup/rusak
+                        print(f"[AMaL Audio] File Tarhim tidak dapat dibaca! Non-aktifkan Tarhim.")
                 
                 durasi_tarhim = cache_durasi_tarhim
             else:

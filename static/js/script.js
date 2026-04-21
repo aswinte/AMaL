@@ -1397,20 +1397,6 @@ document.addEventListener('DOMContentLoaded', () => {
             kabahEl.style.transform =
                 `rotate(${rotasiCSS}deg) translate(7vmin, 0) rotate(-${rotasiCSS}deg)`;
         }
-
-        // // === TEKS RASHDUL (TANPA VISUAL LAMA) ===
-        // if (data.lokasi.rashdul_harian) {
-        //     const rh = data.lokasi.rashdul_harian;
-        //     waktuRashdulHariIni = rh.waktu;
-
-        //     if (teksWaktuR) {
-        //         teksWaktuR.innerText = `Rashdul Qiblah harian pukul ${rh.waktu}`;
-        //     }
-        // } else {
-        //     if (teksWaktuR) {
-        //         teksWaktuR.innerText = "Tidak terjadi hari ini";
-        //     }
-        // }
     }
 
     function renderKiblat1(data) { // gabung kiblat dan rashdul
