@@ -77,7 +77,7 @@ const AmalUtils = {
                         <path d="${sweep}" fill="white" />
                     </mask>
                 </defs>
-                <image href="/static/images/moon200.png" width="100" height="100" opacity="0.28" />
+                <image href="/static/images/moon200.png" width="100" height="100" opacity="0.23" />
                 <image href="/static/images/moon200.png" width="100" height="100" mask="url(#${uniqueId})" />
             </svg>
         `;

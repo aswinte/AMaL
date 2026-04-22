@@ -331,6 +331,7 @@ def generate_laporan_harian(date_dt, lat_lokal, lon_lokal, kota, t_ijtima_terdek
     #     data_kalender = json.load(f)
 
     perlu_generate = False
+    data_existing = None
     
     # Cek berkas yang sudah ada
     # 1.a Cek keberadaan berkas
@@ -339,12 +340,24 @@ def generate_laporan_harian(date_dt, lat_lokal, lon_lokal, kota, t_ijtima_terdek
         perlu_generate = True
     else:
         # 1.b Cek apakah parameter di dalam berkas masih sama
-        with open(file_kalender, 'r') as f:
-            data_existing = json.load(f)
-            loc = data_existing.get("lokasi_masjid", {})
-            if loc.get("lat") != lat_lokal and loc.get("lon") != lon_lokal and loc.get('kota') != kota:
-                print(f"[*] Lokasi sama {kota} ({lat_lokal}, {lon_lokal}). Tidak ada perubahan data.")
-                perlu_generate = True
+        try:
+            with open(file_kalender, 'r') as f:
+                data_existing = json.load(f)
+                loc = data_existing.get("lokasi_masjid", {})
+                
+                # Gunakan 'or': Jika salah satu saja (lat, lon, atau nama kota) berubah, maka generate ulang
+                if (loc.get("lat") != lat_lokal or 
+                    loc.get("lon") != lon_lokal or 
+                    loc.get("kota") != kota):
+                    
+                    print(f"[*] Perubahan lokasi terdeteksi: {kota} ({lat_lokal}, {lon_lokal})")
+                    perlu_generate = True
+                else:
+                    print(f"[*] Lokasi tetap {kota}. Menggunakan data kalender yang sudah ada.")
+                    perlu_generate = False
+        except Exception as e:
+            print(f"[!] Gagal membaca berkas lama: {e}")
+            perlu_generate = True
 
     # 2. Jika perlu generate ulang, jika tidak gunakan data yang sudah ada
     if perlu_generate:

@@ -245,7 +245,7 @@ def calculate_prayer_times_core(lat, lon, tz_offset, date_target):
         "jumat_config": jumat_cfg
     }
 
-# Fungsi untuk menghitung arah kiblat
+# Fungsi untuk menghitung arah kiblat 
 def hitung_arah_kiblat(lat, lon):
     lat_kabah = math.radians(21.4225)
     lon_kabah = math.radians(39.8262)
@@ -275,6 +275,7 @@ def cari_rashdul_harian(lat, lon, tz_offset, tgl, arah_kiblat):
         # PERBAIKAN: Gunakan Vectorized Time Array
         # Buat daftar menit dari 0 sampai 660 (11 jam)
         menit_array = list(range(0, 11 * 60)) 
+        detik_array = list(range(0, 11 * 3600, 10)) # Langkah 10 detik
         
         # Masukkan array menit langsung ke ts.utc()
         t_array = ts.utc(tgl.year, tgl.month, tgl.day, jam_mulai_utc, menit_array)

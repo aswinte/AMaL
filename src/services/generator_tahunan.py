@@ -9,7 +9,7 @@ from global_land_mask import globe
 from hijridate import Gregorian as HijriGregorian
 
 # --- INISIALISASI SKYFIELD ---
-BASE_DIR = os.path.dirname(f" os.path.dirname(os.path.dirname(os.path.abspath(__file__)))")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 eph_path = os.path.join(BASE_DIR, 'de421.bsp')
 if not os.path.exists(eph_path):
     print("Mengunduh data ephemeris (hanya sekali)...")

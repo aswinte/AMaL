@@ -130,7 +130,7 @@ body {
 .kompas-pusat { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 0.5vmin; height: 0.5vmin; background: #00ff88; border-radius: 50%; z-index: 5; box-shadow: 0 0 5px #00ff88; }
 /* elemen tengah kompas matahari bulan dan bayangan  */
 .kompas-elemen-tengah { position: absolute; top: 50%; left: 50%; transform-origin: 0 0; }
-.kompas-elemen-absolut { position: absolute; top: 0; left: 0; transform: translate(-50%, -50%); }
+.kompas-elemen-absolut { position: absolute; top: 0; left: 0; transform: translate(-80%, -80%); }
 /* -------------------------------------------------*/
 /* gant ini */
 /* container utama */
@@ -174,6 +174,8 @@ body {
     position: absolute;
     color: rgba(255,255,255,0.5);
     font-size: 1.2vmin;
+    /* font-style: italic; */
+    font-weight: bold;
     transform: translate(-50%, -50%);
 }
 
@@ -181,6 +183,12 @@ body {
 .S { top: 95%; left: 50%; }
 .E { top: 50%; left: 95%; }
 .W { top: 50%; left: 5%; }
+
+/* .N { top: -5%; left: 50%; }
+.S { top: 105%; left: 50%; }
+.E { top: 50%; left: 105%; }
+.W { top: 50%; left: -5%; } */
+
 /* obyek langit */
 .sky-object {
     position: absolute;
@@ -238,8 +246,9 @@ body {
     opacity: 1;
     z-index: 10;
 }
+
 /* efek glow saat rashdul */
-.rashdul-active #sun-ray {
+/* .rashdul-active #sun-ray {
     background: linear-gradient(
         to left,
         rgba(255, 255, 0, 1),
@@ -261,8 +270,9 @@ body {
 }
 .rashdul-menuju #shadow-line {
     box-shadow: 0 0 12px cyan;
-}
-.rashdul-active #ikon-kabah-rashdul {
+} */
+
+/* .rashdul-active #ikon-kabah-rashdul {
     filter: drop-shadow(0 0 12px gold);
 }
 @keyframes glowPulse {
@@ -272,11 +282,15 @@ body {
 }
 .rashdul-active #ikon-kabah-rashdul {
     animation: pulse 1.5s infinite;
-}
+} */
+
+.ikon-kabah { position: absolute; top: 50%; left: 50%; transform-origin: 0 0; z-index: 6;}
+
 /* fix agar tidak konflik */
 #sky-dome * {
     pointer-events: none;
 }
+
 /* ---------------------------- */
 
 .teks-kiblat-container { margin-top: 5px; text-align: center; }
@@ -300,7 +314,7 @@ body {
    ========================================== */
 .sidebar-footer { margin-top: auto; border-top: 2px solid rgba(255,255,255,0.15); padding-top: 1vh; width: 100%; display: flex; align-items: center; justify-content: center; gap: 2px; }
 .sidebar-footer img { max-height: 4vh; width: auto; flex-shrink: 0; filter: invert(100%); opacity: 0.9; }
-.sidebar-footer-teks { text-align: left; }
+.sidebar-footer-teks { text-align: center; }
 .sidebar-footer-teks .judul { margin: 0; font-size: 1.4vmin; font-weight: bold; color: #77da05; letter-spacing: 1px; }
 .sidebar-footer-teks .sub { margin: 2px 0 0 0; font-size: 1vmin; color: #aaa; }
 .sidebar-footer-teks .lisensi { margin: 4px 0 0 0; font-size: 1vmin; color: #3b82f6; font-family: monospace; }
