@@ -254,6 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td style="padding: 12px; text-align: right; font-size: 18px; color: #ffd700;" dir="rtl">${item.arab || '-'}</td>
                 <td style="padding: 12px; color: #ddd;">${item.arti}</td>
                 <td style="padding: 12px; color: #888; font-size: 13px;">${item.sumber}</td>
+                <td style="padding: 12px; color: #888; font-size: 13px; text-align: left;">${item.aktif === false ? 'Sembunyi' : 'Aktif'}</td>
                 <td style="padding: 12px; text-align: center;">
                     <button onclick="editKutipan(${index})" style="background: transparent; border: 1px solid #00ff88; color: #00ff88; padding: 5px 8px; border-radius: 4px; cursor: pointer; margin-right: 5px; font-size: 12px;">Edit</button>
                     <button onclick="hapusKutipan(${index})" style="background: #ef4444; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">Hapus</button>
