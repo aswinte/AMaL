@@ -1402,7 +1402,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // === IKON KABAH ===
         if (kabahEl) {
             kabahEl.style.transform =
-                `rotate(${rotasiCSS}deg) translate(7vmin, 0) rotate(-${rotasiCSS}deg)`;
+                `rotate(${rotasiCSS}deg) translate(7vmin, 0) rotate(-${rotasiCSS}deg) `;
         }
     }
 
@@ -1430,30 +1430,143 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    // function renderSkyDome(plan) {
+    //     const dome = document.getElementById('sky-dome');
+    //     if (!dome) return;
+
+    //     const R = dome.clientWidth / 2;
+
+    //     const sun = document.getElementById('obj-sun');
+    //     const moon = document.getElementById('obj-moon');
+
+    //     // === MATAHARI ===
+    //     let altSun = Math.max(0, plan.alt_matahari || 0);
+    //     let posSun = altAzToXY(altSun, plan.matahari, R);
+
+    //     sun.style.left = `${50 + (posSun.x / R) * 50}%`;
+    //     sun.style.top  = `${50 + (posSun.y / R) * 50}%`;
+    //     sun.style.opacity = plan.matahari_terbit ? 1 : 0.15;
+
+    //     // === BULAN ===
+    //     let altMoon = Math.max(0, plan.alt_bulan || 0);
+    //     let posMoon = altAzToXY(altMoon, plan.bulan, R);
+
+    //     moon.style.left = `${50 + (posMoon.x / R) * 50}%`;
+    //     moon.style.top  = `${50 + (posMoon.y / R) * 50}%`;
+    //     moon.style.opacity = plan.bulan_terbit ? 1 : 0.15;
+    // }
+
+    // Fungsi untuk mencampur dua warna (HEX) berdasarkan persentase (0-1)
+    function interpolateColor(color1, color2, factor) {
+        const r1 = parseInt(color1.substring(1, 3), 16);
+        const g1 = parseInt(color1.substring(3, 5), 16);
+        const b1 = parseInt(color1.substring(5, 7), 16);
+
+        const r2 = parseInt(color2.substring(1, 3), 16);
+        const g2 = parseInt(color2.substring(3, 5), 16);
+        const b2 = parseInt(color2.substring(5, 7), 16);
+
+        const r = Math.round(r1 + factor * (r2 - r1));
+        const g = Math.round(g1 + factor * (g2 - g1));
+        const b = Math.round(b1 + factor * (b2 - b1));
+
+        return `rgb(${r}, ${g}, ${b})`;
+    }
     function renderSkyDome(plan) {
         const dome = document.getElementById('sky-dome');
-        if (!dome) return;
+        const sun = document.getElementById('obj-sun');
+        const moon = document.getElementById('obj-moon');
+        const sunRay = document.getElementById('sun-ray');
+        if (!dome || !sun || !moon) return;
 
         const R = dome.clientWidth / 2;
 
-        const sun = document.getElementById('obj-sun');
-        const moon = document.getElementById('obj-moon');
+        // ===  matahari === //
+        let altSun = plan.alt_matahari || 0;
+        let azSun = plan.matahari || 0;
+        let posSun = altAzToXY(Math.max(0, altSun), azSun, R);
+        let sunXPercent = 50 + (posSun.x / R) * 50;
+        let sunYPercent = 50 + (posSun.y / R) * 50;
 
-        // === MATAHARI ===
-        let altSun = Math.max(0, plan.alt_matahari || 0);
-        let posSun = altAzToXY(altSun, plan.matahari, R);
-
-        sun.style.left = `${50 + (posSun.x / R) * 50}%`;
-        sun.style.top  = `${50 + (posSun.y / R) * 50}%`;
+        sun.style.left = `${sunXPercent}%`;
+        sun.style.top  = `${sunYPercent}%`;
         sun.style.opacity = plan.matahari_terbit ? 1 : 0.15;
 
-        // === BULAN ===
-        let altMoon = Math.max(0, plan.alt_bulan || 0);
-        let posMoon = altAzToXY(altMoon, plan.bulan, R);
+        // ===  bulan === //
+        let altMoon = plan.alt_bulan || 0;
+        let azMoon = plan.bulan || 0;
+        let posMoon = altAzToXY(Math.max(0, altMoon), azMoon, R);
+        let moonXPercent = 50 + (posMoon.x / R) * 50;
+        let moonYPercent = 50 + (posMoon.y / R) * 50;
 
-        moon.style.left = `${50 + (posMoon.x / R) * 50}%`;
-        moon.style.top  = `${50 + (posMoon.y / R) * 50}%`;
+        moon.style.left = `${moonXPercent}%`;
+        moon.style.top  = `${moonYPercent}%`;
         moon.style.opacity = plan.bulan_terbit ? 1 : 0.15;
+        const tglAngka = hijriahDasar.split(' ')[0];
+        const moonIcon = AmalUtils.getMoonPhaseIcon(tglAngka, "1.3vmin", "sky"); 
+
+        if (moon.innerHTML !== moonIcon) {
+            moon.innerHTML = moonIcon;
+        }
+
+        // Di dalam fungsi renderSkyDome, setelah mengatur posisi moon
+        if (plan.alt_matahari > 0) {
+            // Siang hari: Beri kontras tinggi agar tidak "tenggelam" di warna biru
+            moon.style.filter = "brightness(2) drop-shadow(0 0 8px white)";
+            moon.style.opacity = "0.7"; // Jangan terlalu transparan
+        } else {
+            // Malam hari: Kembali ke tampilan normal yang lembut
+            moon.style.filter = "brightness(1.2) drop-shadow(0 0 10px rgba(200,220,255,0.4))";
+            moon.style.opacity = "1";
+        }
+
+        // --- LOGIKA INTERPOLASI WARNA ---
+        let finalSkyColor;
+        let glowColor = "rgba(255, 215, 0, 0)"; // Default transparan
+
+        // const colorDay    = "#4A90E2"; // Biru Siang
+        const colorDay    = "#6aacf7"; // Biru Siang
+        const colorGolden = "#F9A825"; // Kuning/Oranye Golden Hour
+        const colorNight  = "#0A0F1A"; // Hitam Malam
+
+        if (altSun > 12) {
+            // Full Siang
+            finalSkyColor = colorDay;
+        } 
+        else if (altSun > 0) {
+            // Transisi Siang ke Golden Hour (Altitude 0 sampai 12)
+            // factor 1 = Full Golden, factor 0 = Full Siang
+            let factor = 1 - (altSun / 12); 
+            finalSkyColor = interpolateColor(colorDay, colorGolden, factor);
+            
+            // Tambahkan pendaran cahaya (glow) saat matahari rendah
+            glowColor = `rgba(255, 215, 0, ${factor * 0.6})`;
+        } 
+        else if (altSun > -6) {
+            // Transisi Golden Hour ke Malam (Twilight)
+            let factor = 1 - (Math.abs(altSun) / 6);
+            finalSkyColor = interpolateColor(colorNight, colorGolden, factor);
+        } 
+        else {
+            // Malam
+            finalSkyColor = colorNight;
+        }
+
+        // Terapkan ke Background Langit
+        dome.style.background = `radial-gradient(circle at ${sunXPercent}% ${sunYPercent}%, ${glowColor} 0%, ${finalSkyColor} 70%)`;
+
+        // // --- LOGIKA BERKAS CAHAYA (SUN RAY) ---
+        // if (sunRay) {
+        //     // Muncul hanya saat altitude 0 - 10 derajat
+        //     let rayOpacity = 0;
+        //     if (altSun > 0 && altSun < 10) {
+        //         rayOpacity = (10 - altSun) / 10; 
+        //     }
+        //     sunRay.style.opacity = rayOpacity;
+        //     // sunRay.style.left = `${sunXPercent}%`;
+        //     // sunRay.style.top = `${sunYPercent}%`;
+        //     sunRay.style.transform = `rotate(${azSun + 180}deg)`;
+        // }
     }
 
     function renderShadow(plan, data) {
@@ -1512,6 +1625,57 @@ document.addEventListener('DOMContentLoaded', () => {
         ray.style.width = `${percent}%`;
         ray.style.transform = `translateY(-50%) rotate(${rot}deg)`;
     }
+
+        // function renderSunRay(plan) {
+        //     const ray = document.getElementById('sun-ray');
+        //     const dome = document.getElementById('sky-dome');
+            
+        //     if (!ray || !dome) return;
+
+        //     const alt = plan.alt_matahari || 0;
+        //     const az = plan.matahari || 0;
+
+        //     // 1. Pastikan matahari di atas ufuk
+        //     if (alt <= 0) {
+        //         ray.style.opacity = 0;
+        //         return;
+        //     }
+
+        //     const rect = dome.getBoundingClientRect();
+        //     // const R = dome.clientWidth / 2;
+        //     const R = rect.width / 2;
+        //     const posSun = altAzToXY(alt, az, R);
+        //     // Hitung posisi absolut dalam piksel
+        //     const sunX = R + posSun.x;
+        //     const sunY = R + posSun.y;
+
+        //     // Lebar ray (jarak dari matahari ke pusat dome)
+        //     const distanceToCenter = Math.sqrt(posSun.x ** 2 + posSun.y ** 2);
+
+        //     // 2. Panjang Berkas
+        //     // r adalah jarak matahari dari pusat. Persentase lebar ray menuju pusat.
+        //     const r = R * ((90 - alt) / 90);
+        //     const percent = (r / R) * 50;
+
+        //     // 3. Logika Opacity (Kita buat lebih longgar agar selalu tampak)
+        //     // Jika ingin efek kuning, opacity tinggi saat altitude rendah.
+        //     let intensity = 0.5 + (0.5 * (1 - alt / 90)); 
+
+        //     // 4. Koreksi Rotasi
+        //     // Pakai az - 90 jika sistem koordinat Anda Utara = 0.
+        //     // Tambahkan 180 jika ray harus menunjuk ke arah tengah lingkaran.
+        //     const rot = az - 90 + 180;
+
+        //     // 5. Terapkan Style
+        //     ray.style.opacity = intensity;
+        //     ray.style.height = `${1 + 5 * (alt / 90)}px`;
+        //     ray.style.width = `${percent}%`;
+        //     ray.style.left = `${50 + (posSun.x / R) * 50}%`;
+        //     ray.style.top  = `${50 + (posSun.y / R) * 50}%`;
+            
+        //     // PENTING: Urutan rotate dulu baru translate atau sebaliknya bisa krusial
+        //     ray.style.transform = `rotate(${rot}deg) translateY(-50%)`;
+        // }
 
     // rashdul qiblah dipanggil pada updateClock
 
