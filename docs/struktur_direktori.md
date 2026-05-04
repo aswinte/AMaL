@@ -1,4 +1,4 @@
-
+```
 /amal-masjid
 ├── /data                       # Folder untuk data mentah dan transit
 │   ├── /quran_base             # Berkas mentah ayat Quran (.txt, .js)

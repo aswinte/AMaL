@@ -8,16 +8,27 @@ Perangkat keras yang dibutuhkan adalah sebagai berikut.
 
 **catatan:**
 * Jika menggunakan raspberry pi agar perangkat dapat mengatur dan menyimpan waktu secara luring, perangkat harus dilengkapi dengan RTC
-## Me
 
-## Menggunakan Raspberry Pi
-1. Undul git AMaL
+## Menggunakan Raspberry Pi dengan DietPi
+**AMaL** telah diujicoba pada perangkat Raspberry Pi 4 dengan OS [DietPi](https://dietpi.com/) yang telah dipasangi RTC. Instalasi DietPi pada Raspberry Pi 4 menggunakan [Raspberry Pi Imager](https://www.raspberrypi.com/software/).
+
+1. Install `DietPi` pada `Raspberry Pi 4` dengan menggunakan `Raspberry Pi Imager`. 
+2. Setting `DietPi` sebagai kiosk.
+3. Kloning repositori **AMaL** dari [GitHub](https://github.com/aswinte/AMaL).
+    ```bash
+   git clone [https://github.com/aswinte/AMaL.git](https://github.com/aswinte/AMaL.git)
+4. jalankan skrip instalasi.
+    ```bash
+    cd AMaL
+    chmod +x install.sh
+    ./install.sh
 
 ## Memjadikan AMaL sebagai service yang otomatis menyala
 1. Buat berkas layanan
 ```bash
 sudo nano /etc/systemd/system/amal.service
 ```
+
 2. Salin kode berikut
 ```bash
 [Unit]
@@ -35,6 +46,7 @@ RestartSec=5
 [Install]
 WantedBy=multi-user.target
 ```
+
 3. aktifkan danjalankan service
 ```bash
 sudo systemctl daemon-reload

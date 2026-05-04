@@ -1140,7 +1140,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 selisihEl.innerText = formatSelisih(shalatSelanjutnya.waktu - now, false);
             } else {
-                titleEl.innerText = nama;
+                // titleEl.innerText = nama;
+                titleEl.innerText = "";
                 selisihEl.innerText = "";
             }
         });

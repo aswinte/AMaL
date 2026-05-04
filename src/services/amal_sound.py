@@ -23,13 +23,6 @@ class SoundEngine:
         with open(path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=4)
 
-    # def get_status(self):
-    #     """Membaca posisi terakhir, default ke Al-Fatihah 1 jika kosong"""
-    #     return self._load_json(self.status_path, {
-    #         "surat": "001",
-    #         "ayat": "001"
-    #     })
-    
     def get_status(self):
         """Membaca posisi terakhir, jika tidak ada maka buat berkas baru dengan default Al-Fatihah 1"""
         # Cek apakah file ada
@@ -132,34 +125,62 @@ class SoundEngine:
                 })
                 total_durasi += data_ayat["durasi"]
 
+            # # Evaluasi Waktu (Apakah sudah mencapai 10 menit?)
+            # if total_durasi >= target_detik:
+            #     # --- ADAB 3: The 3-Minute Rule (Toleransi Tamat) ---
+            #     sisa_ayat = total_ayat_di_surat - int(curr_ayat)
+                
+            #     # Hitung durasi sisa ayat di surat ini
+            #     estimasi_sisa_durasi = 0
+            #     for a in range(int(curr_ayat) + 1, total_ayat_di_surat + 1):
+            #         a_str = str(a).zfill(3)
+            #         estimasi_sisa_durasi += data_surat["ayahs"].get(a_str, {}).get("durasi", 0)
+
+            #     # Jika sisa durasi sangat singkat, JANGAN BERHENTI. Teruskan sampai tamat.
+            #     if estimasi_sisa_durasi > 0 and estimasi_sisa_durasi <= toleransi_detik:
+            #         pass # Biarkan looping lanjut sampai akhir surat
+            #     else:
+            #         selesai_kumpul = True # Stop pengumpulan di sini!
+
+            # # Majukan ke ayat berikutnya
+            # if not selesai_kumpul:
+            #     next_ayat_int = int(curr_ayat) + 1
+            #     if next_ayat_int > total_ayat_di_surat:
+            #         # Pindah ke Surat Berikutnya
+            #         curr_surat = str(int(curr_surat) + 1).zfill(3)
+            #         curr_ayat = "001"
+            #         if int(curr_surat) > 114:
+            #             curr_surat = "001" # Reset ke Al-Fatihah (Khatam)
+            #     else:
+            #         curr_ayat = str(next_ayat_int).zfill(3)
+
             # Evaluasi Waktu (Apakah sudah mencapai 10 menit?)
             if total_durasi >= target_detik:
-                # --- ADAB 3: The 3-Minute Rule (Toleransi Tamat) ---
-                sisa_ayat = total_ayat_di_surat - int(curr_ayat)
-                
-                # Hitung durasi sisa ayat di surat ini
+                # Hitung estimasi sisa durasi di surat ini
                 estimasi_sisa_durasi = 0
                 for a in range(int(curr_ayat) + 1, total_ayat_di_surat + 1):
                     a_str = str(a).zfill(3)
                     estimasi_sisa_durasi += data_surat["ayahs"].get(a_str, {}).get("durasi", 0)
 
-                # Jika sisa durasi sangat singkat, JANGAN BERHENTI. Teruskan sampai tamat.
-                if estimasi_sisa_durasi > 0 and estimasi_sisa_durasi <= toleransi_detik:
-                    pass # Biarkan looping lanjut sampai akhir surat
-                else:
-                    selesai_kumpul = True # Stop pengumpulan di sini!
+                # Jika sisa durasi masih lama (lewat batas toleransi), tandai selesai
+                if estimasi_sisa_durasi > toleransi_detik or estimasi_sisa_durasi == 0:
+                    selesai_kumpul = True 
 
-            # Majukan ke ayat berikutnya
-            if not selesai_kumpul:
-                next_ayat_int = int(curr_ayat) + 1
-                if next_ayat_int > total_ayat_di_surat:
-                    # Pindah ke Surat Berikutnya
-                    curr_surat = str(int(curr_surat) + 1).zfill(3)
-                    curr_ayat = "001"
-                    if int(curr_surat) > 114:
-                        curr_surat = "001" # Reset ke Al-Fatihah (Khatam)
-                else:
-                    curr_ayat = str(next_ayat_int).zfill(3)
+            # --- PERUBAHAN DI SINI ---
+            # Kita majukan ayat DAHULU, baru cek apakah loop harus berhenti
+            next_ayat_int = int(curr_ayat) + 1
+            if next_ayat_int > total_ayat_di_surat:
+                curr_surat = str(int(curr_surat) + 1).zfill(3)
+                curr_ayat = "001"
+                if int(curr_surat) > 114:
+                    curr_surat = "001" 
+            else:
+                curr_ayat = str(next_ayat_int).zfill(3)
+
+            # Jika sudah ditandai selesai_kumpul, hentikan loop SEKARANG
+            # Posisi curr_surat dan curr_ayat sudah berada di titik "selanjutnya"
+            if selesai_kumpul:
+                break 
 
         # PERBAIKAN 2: Variabel cetak log sudah dibenarkan
         print(f"Status Bookmark Akhir = Surat: {curr_surat}, Ayat: {curr_ayat}")

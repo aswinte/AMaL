@@ -499,8 +499,8 @@ body {
     background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(18,18,18,0) 80%);
 }
 .kartu h2 { font-size: 3vmin; margin: 0; }
-.kartu .title { font-size: 1.2vmin; opacity: 0.6; }
-.kartu .selisih { font-size: 1.8vmin; opacity: 0.6;}
+.kartu .title { font-size: 1.2vmin; opacity: 0.8; font-weight: bold; }
+.kartu .selisih { font-size: 1.8vmin; opacity: 0.8; font-weight: bold; font-style: italic;}
 
 .kartu.active { background: linear-gradient(135deg, #004d40, #00c853) !important; box-shadow: 0 0 15px rgba(0, 255, 136, 0.4); border-bottom-color: #00ff88 !important; transform: scale(1.02); opacity: 1 !important; filter: grayscale(0%) !important; }
 .kartu.next { background: linear-gradient(135deg, #9f7200, #eee595) !important; box-shadow: 0 0 15px rgba(239, 224, 141, 0.6); border-bottom-color: #f3e88d !important; color: #212121 !important; opacity: 1 !important; filter: grayscale(0%) !important; }

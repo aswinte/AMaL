@@ -12,7 +12,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 # Variabel global untuk maintenance
 is_maintenance_running = False
 
-# Pindahkan fungsi maintenance_worker() ke sini ...
 # (Penting: Di dalam fungsi ini ada pengecekan is_hilal_generating. 
 # Anda bisa menghapus pengecekan tersebut sementara, atau mengimpornya dari src.routes.api_waktu)
 

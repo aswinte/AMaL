@@ -50,10 +50,10 @@ Mesin pengumunan otomatis yang dinamis sebagai sarana komunikasi antara takmir d
 
 ### 🔭 3. Modul Edukasi Astronomi Islam
 Menjadikan anjungan masjid AMaL sebagai media edukasi sains bagi jemaah.
-* **Planetarium Mini Real-Time:** Visualisasi orbit Matahari ☀️ dan Bulan 🌙 yang bergerak secara presisi mengelilingi kompas kiblat sesuai posisinya di langit masjid saat itu.
-* **Edukasi Rashdul Qiblah:** Memberikan informasi dinamis peristiwa Istiwa A'zam (saat matahari tepat di atas Ka'bah) atau Rashdul Qiblah global dan Rashdul Qiblah lokal (saat bayangan matahari searah dengan arah kiblat) guna mengingatkan jemaah mengkalibrasi arah kiblat lokal.
+* **Planetarium Mini Real-Time:** Visualisasi posisi Matahari ☀️ dan Bulan 🌙 serta arah cahaya dan bayangan matahari yang bergerak secara presisi sesuai posisinya di langit masjid saat itu.
 * **Ilustrasi Fase Bulan Harian:** Menampilkan gambar fase bulan secara visual dan akurat setiap harinya.
-* **Edukasi Penentuan Awal Bulan:** Menampilkan hasil komputasi posisi hilal saat matahari terbenam menjelang hari Ijtima terdekat sebelum dan sesudahnya.
+* **Edukasi Rashdul Qiblah:** Memberikan informasi dinamis peristiwa Istiwa A'zam (saat matahari tepat di atas Ka'bah) atau Rashdul Qiblah global dan Rashdul Qiblah lokal (saat matahari atau bayangan matahari searah dengan arah kiblat) guna mengingatkan jemaah mengkalibrasi arah kiblat lokal.
+* **Edukasi Penentuan Awal Bulan:** Menampilkan hasil komputasi posisi hilal saat matahari terbenam menjelang hari Ijtima terdekat pada saat sebelum dan sesudahnya.
 * **Edukasi Gerhana:** Pengambilalihan layar (*takeover*) dengan informasi terkait sholat shunah kusuf dan khusuf menjelang terjadinya gerhana matahari atau bulan.
 
 ### ⚙️ 4. Sistem, Manajemen & Simulasi
@@ -63,6 +63,8 @@ Memberikan kemudahan administrator dan menjaga keawetan perangkat keras (*hardwa
 * **Fitur Simulasi (Mesin Waktu):** Administrator dapat memutar waktu sistem untuk melihat bagaimana tampilan AMaL pada waktu tertentu (misal: menguji tampilan menjelang gerhana, simulasi menjelang Rashdul Qiblah atau simulasi Ijtima).
 * **Panel Pengaturan (*Settings*):** Antarmuka khusus untuk mengatur informasi dan koordinat masjid, menyesuaikan kriteria kalender Hijriah, pengaturan masa tunggu Iqomah, hingga durasi waktu shalat untuk mematikan layar pada saat shalat dilaksanakan.
 * **Manajemen Pengguna:** Akses login berlapis untuk administrator dan operator harian (Takmir).
+
+**Catatan**: Menu `Pengaturan Jam` saat ini hanya berjalan pada OS Linux dan aplikasi dijalankan oleh pengguna yang dapat mengunakan perintah `sudo` tanpa *password*.  
 
 ---
 
@@ -88,24 +90,52 @@ Catatan: jika dipasang di Raspberry Pi maka diperlukan pemasangan RTC. **AMaL** 
 * Python 3.9+
 
 ### Langkah Instalasi
-1. Kloning repositori ini:
+1. Kloning repositori **AMaL**:
    ```bash
    git clone [https://github.com/aswinte/AMaL.git](https://github.com/aswinte/AMaL.git)
-   cd AMaL
-2. Buat virtual environment dan instal dependensi:
    ```
+
+2. Jalankan skrip instalasi:
+   ```bash
+   cd AMaL
+   chmod +x install.sh
+   ./install.sh
+   ```
+   
+
+   **atau** lakukan dengan cara manual berikut:
+
+   ```bash
+   cd AMaL
    python3 -m venv venv
    source venv/bin/activate  # Untuk Windows: venv\Scripts\activate
    pip install -r requirements.txt
-3. Jalankan aplikasi
    ```
-   python app.py
-4. Buka peramban dan akses http://localhost:5000.
+   
+3. Jalankan aplikasi
+   ```bash
+   python main.py
+   ```
+
+   Buka peramban dan akses http://localhost:5000 dari mesin lokal atau http://ip_mesin:5000 dari komputer lain.
+   
+4. Akses admin dapat dilakukan dari http://localhost:5000/admin atau http://ip_mesin:5000/admin
+
+6. Login admin default menggnakan `username: admin` dan `password: admin`. 
+
+**Catatan:** Pada saat pertama kali dijalankan, **Amal** akan mulai melakukan perhitungan posisi hilal untuk setiap pergantian bulan pada tahun berjalan. Proses ini akan membutuhkan waktu.
+
 ---
 ## 🤝 Kontribusi
+
 Kami sangat menunggu kontribusi dari komunitas! Jika Anda ingin menambahkan fitur, memperbaiki bug, atau menyempurnakan dokumentasi, silakan buat Pull Request.
+
 ---
+
 ## 📄 Lisensi
+
 Proyek ini didistribusikan di bawah lisensi GNU AGPLv3. Lihat berkas LICENSE untuk informasi lebih lanjut. Pada intinya, Anda bebas menggunakan, memodifikasi, dan mendistribusikan perangkat lunak ini, dengan syarat perbaikan/modifikasi yang Anda lakukan harus dikembalikan ke ranah publik/sumber terbuka dengan lisensi yang sama.
+
 ---
+
 **Keywords / Tags:** `Smart Kiosk Masjid`, `Jadwal Sholat Digital`, `Aplikasi Masjid Offline`, `Raspberry Pi Kiosk`, `Islamic Astronomy`, `Penghitung Arah Kiblat`, `Software Masjid Open Source`, `Jam Masjid Digital`, `Jadwal Shalat`, `Display Masjid`, `Jam Masjid Digital`, `TV Masjid`, `Kalender Hijriah`, `MABIMS`, `KGHT`, `Rukyatul Hilal`, `Imkanur Rukyat`, `Rasdhul Qiblah`.
