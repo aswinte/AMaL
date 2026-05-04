@@ -1,0 +1,21 @@
+# Web Framework
+flask
+
+# Astronomi & Perhitungan Waktu
+adhanpy
+skyfield
+hijridate
+global_land_mask
+
+# Visualisasi & Pemetaan (Hati-hati di RasPi, butuh lib sistem)
+numpy
+matplotlib
+cartopy
+scipy
+
+# Keamanan & Password
+werkzeug
+
+# audio
+mutagen
+pygame

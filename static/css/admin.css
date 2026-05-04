@@ -1,0 +1,528 @@
+/* =========================================================
+   admin.css - Gaya khusus untuk Area Manajemen (Backoffice)
+   ========================================================= */
+
+/* Variabel warna agar mudah diganti jika diperlukan */
+:root {
+    --primary: #00ff88;
+    --primary-dark: #00cc6a;
+    --bg-dark: #0f172a;        /* Biru dongker sangat gelap */
+    --bg-panel: #1e293b;       /* Biru dongker agak terang untuk kartu */
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --danger: #ef4444;
+}
+
+/* KHUSUS HALAMAN LOGIN */
+body.login-body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-container {
+    background-color: var(--bg-panel);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    width: 100%;
+    max-width: 350px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.logo-wrapper {
+        margin-bottom: 30px; /* Jarak antara logo dan formulir */
+}
+.logo-wrapper img {
+    max-width: 180px; /* Sesuaikan ukuran logo */
+    height: auto;
+    align-items: center;
+}
+
+.login-header { text-align: center; margin-bottom: 30px; }
+.login-header h2 { margin: 0; color: var(--primary); font-size: 28px; letter-spacing: 1px; }
+.login-header p { margin: 5px 0 0 0; color: var(--text-muted); font-size: 14px; }
+
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-muted); }
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    background-color: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    color: white;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: all 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.2);
+}
+
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--primary);
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+}
+
+.btn-login:hover { background-color: var(--primary-dark); }
+
+.error-message {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    text-align: center;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.login-footer { margin-top: 25px; text-align: center; }
+.login-footer a { color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color 0.3s; }
+.login-footer a:hover { color: var(--primary); }
+
+/* =========================================================
+   GAYA UNTUK DASHBOARD ADMIN (LAYOUT MENYAMPING)
+   ========================================================= */
+body.admin-body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background-color: var(--bg-dark);
+    color: var(--text-main); /* Mengubah semua teks dasar menjadi putih/terang */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Menyeragamkan font */
+    display: block; /* Timpa display:flex dari halaman login */
+}
+
+.admin-layout {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
+
+/* SIDEBAR KIRI */
+.sidebar {
+    width: 250px;
+    background-color: var(--bg-panel);
+    border-right: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.sidebar-header h2 { margin: 0; color: var(--primary); font-size: 22px; }
+.sidebar-header p { margin: 5px 0 0 0; color: var(--text-main); font-size: 14px; }
+
+.nav-menu {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+    flex: 1;
+}
+
+.nav-menu li a {
+    display: block;
+    padding: 15px 20px;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: all 0.3s;
+    border-left: 3px solid transparent;
+}
+
+.nav-menu li a:hover, .nav-menu li a.active {
+    background-color: rgba(0, 255, 136, 0.05);
+    color: var(--primary);
+    border-left-color: var(--primary);
+}
+
+.sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.btn-logout {
+    display: block;
+    text-align: center;
+    padding: 10px;
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background 0.3s;
+}
+.btn-logout:hover { background-color: rgba(239, 68, 68, 0.2); }
+
+/* KONTEN UTAMA KANAN */
+.main-content {
+    flex: 1;/* Urutan padding: atas kanan BAWAH kiri */
+    /* Kita perbesar padding BAWAH menjadi 100px atau 150px */
+    padding: 40px 40px 150px 40px;
+    overflow-y: auto; /* Bisa di-scroll jika isinya panjang */
+}
+
+.panel h1 {
+    margin-top: 0;
+    color: var(--text-main);
+    border-bottom: 2px solid rgba(255,255,255,0.1);
+    padding-bottom: 10px;
+}
+
+/* Menyesuaikan warna paragraf di dalam panel agar lebih kalem */
+.panel p {
+    color: var(--text-muted);
+    line-height: 1.6;
+    font-size: 15px;
+}
+
+/* =========================================================
+   MODE SMARTPHONE (RESPONSIVE MOBILE)
+   ========================================================= */
+@media screen and (max-width: 768px) {
+    /* 1. Ubah layout dari Kiri-Kanan menjadi Atas-Bawah */
+    .admin-layout {
+        flex-direction: column;
+    }
+
+    /* 2. Sidebar tidak lagi diam di kiri, tapi menjadi header di atas */
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 15px;
+        border-right: none;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    /* 3. Menu Navigasi diubah menjadi Tab yang bisa digeser (Swipe) ke samping */
+    .nav-menu {
+        display: flex;
+        overflow-x: auto;
+        white-space: nowrap;
+        gap: 5px;
+        margin: 10px 0 0 0;
+        padding-bottom: 10px;
+    }
+
+    .nav-menu li {
+        flex: 0 0 auto;
+    }
+
+    .nav-menu li a {
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        padding: 10px 15px;
+        border-radius: 8px;
+    }
+
+    .nav-menu li a.active, .nav-menu li a:hover {
+        border-left-color: transparent;
+        border-bottom-color: var(--primary);
+        background-color: rgba(0, 255, 136, 0.1);
+    }
+
+    /* 4. Kurangi jarak ruang kosong di konten utama */
+    .main-content {
+        padding: 15px;
+    }
+
+    /* 5. Ubah SEMUA Grid (Kolom) menjadi bertumpuk ke bawah (1 Kolom) */
+    .panel div[style*="display: grid"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* 6. Form input yang sejajar diubah menjadi atas-bawah agar jari mudah mengetik */
+    form[style*="display: flex"] {
+        flex-direction: column;
+    }
+    
+    form[style*="display: flex"] input, 
+    form[style*="display: flex"] select,
+    form[style*="display: flex"] button {
+        width: 100% !important;
+        margin-bottom: 8px;
+    }
+
+    /* 7. Perkecil sedikit font tabel agar muat di layar HP */
+    table {
+        font-size: 12px !important;
+    }
+
+    /* =========================================
+       8. SULAP TABEL MENJADI KARTU DI HP
+       ========================================= */
+    /* Paksa semua elemen tabel menjadi balok (block) penuh */
+    table, thead, tbody, th, td, tr {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    /* Sembunyikan baris judul kolom (Header) karena sudah tidak relevan di mode tumpuk */
+    thead {
+        display: none !important;
+    }
+
+    /* Ubah setiap baris data (tr) menjadi kotak kartu */
+    tbody tr {
+        margin-bottom: 15px;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+    /* Setiap sel data (td) ditumpuk ke bawah di dalam kartu */
+    tbody td {
+        text-align: left !important;
+        padding: 8px 5px !important;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+        /* Gunakan flexbox agar isi sel rapi */
+        display: flex !important; 
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    /* Hilangkan garis putus-putus pada sel terakhir (biasanya tombol aksi) */
+    tbody td:last-child {
+        border-bottom: none;
+        justify-content: flex-end !important; /* Dorong tombol Edit/Hapus ke kanan */
+    }
+
+    /* =========================================
+       9. MENCEGAH LAYAR TERGESER KE SAMPING
+       ========================================= */
+    
+    /* 1. Kunci layar utama agar tidak bisa melebar dari 100% */
+    body, html, .admin-layout, .main-content {
+        max-width: 100vw;
+        overflow-x: hidden !important;
+    }
+
+    /* 2. Paksa semua elemen menghitung padding ke dalam lebar (Box Sizing) */
+    * {
+        box-sizing: border-box !important;
+    }
+
+    /* 3. Jika ada teks panjang di dalam kartu tabel, paksa potong ke baris bawah */
+    tbody td {
+        flex-wrap: wrap;
+        word-break: break-word;
+        white-space: normal !important;
+    }
+
+    /* 4. Sesuaikan padding panel agar tidak terlalu memakan tempat di HP */
+    .panel > div {
+        padding: 12px !important;
+    }
+
+    /* 5. Pastikan tombol aksi (Edit/Hapus) tidak mendorong layar */
+    tbody td:last-child {
+        display: flex !important;
+        flex-wrap: wrap;
+        gap: 5px;
+        justify-content: flex-end !important;
+    }
+}
+
+/* =========================================
+   PRATINJAU KALENDER KIOSK (PANEL ADMIN)
+   ========================================= */
+.admin-cal-grid { 
+    display: grid; 
+    grid-template-columns: repeat(7, 1fr); 
+    gap: 8px; 
+}
+.admin-cal-header { 
+    text-align: center; 
+    font-weight: bold; 
+    color: #888; 
+    margin-bottom: 10px; 
+    font-size: 14px;
+}
+.admin-cal-day { 
+    background: #1e293b; 
+    border: 1px solid #334155; 
+    border-radius: 8px; 
+    padding: 8px; 
+    min-height: 80px; 
+    display: flex; 
+    flex-direction: column; 
+    font-size: 12px;
+}
+.admin-cal-day.ahad { 
+    border-top: 3px solid #ff4444; 
+}
+.admin-cal-day.jumat { 
+    border-top: 3px solid #00ff88; 
+}
+.admin-cal-day.today { 
+    border: 2px solid #00ff88; 
+    background: rgba(0, 255, 136, 0.1); 
+}
+.admin-tgl-masehi { 
+    font-size: 16px; 
+    font-weight: bold; 
+    color: white; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: flex-start;
+}
+.admin-pasaran { 
+    font-size: 10px; 
+    color: #aaa; 
+    font-weight: normal; 
+    margin-left: 5px; 
+}
+.admin-event { 
+    margin-top: auto; 
+    font-size: 10px; 
+    color: #3b82f6; 
+    background: rgba(59, 130, 246, 0.1); 
+    padding: 2px 4px; 
+    border-radius: 4px; 
+    margin-bottom: 2px; 
+}
+.admin-tgl-hijri { 
+    text-align: left; 
+    color: #ffd700; 
+    font-size: 11px; 
+    margin-top: 5px; 
+    font-weight: bold;
+}
+
+/* Status Badge untuk Metadata */
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.status-ok {
+    background: rgba(0, 255, 136, 0.1);
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+
+.status-warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    border: 1px solid #f59e0b;
+}
+
+/* Tombol Aksi Kecil di Tabel */
+.btn-action {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    border: none;
+    margin-right: 5px;
+    transition: 0.2s;
+}
+
+.btn-process { background: #3b82f6; color: white; }
+.btn-delete { background: var(--danger); color: white; }
+.btn-process:hover, .btn-delete:hover { opacity: 0.8; }
+
+.btn-active-now {
+    background: var(--primary);
+    color: #0f172a;
+    font-weight: bold;
+    cursor: default;
+}
+.btn-select {
+    background: transparent;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+}
+.btn-select:hover {
+    background: var(--primary);
+    color: #0f172a;
+}
+
+/* Progress Bar Upload */
+.progress-container {
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    margin-top: 15px;
+    overflow: hidden;
+    display: none; /* Sembunyikan default */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.progress-bar {
+    width: 0%;
+    height: 14px;
+    background-color: var(--primary);
+    transition: width 0.2s ease;
+}
+
+/* =========================================================
+   KELAS UTILITAS & KOMPONEN KARTU (Pengganti Inline Style)
+   ========================================================= */
+
+/* Kartu / Panel Box */
+.admin-card {
+    background: rgba(0,0,0,0.3);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+.admin-card-sm { padding: 15px; }
+
+/* Varian Garis Atas Kartu */
+.border-top-blue { border-top: 3px solid #3b82f6; }
+.border-top-green { border-top: 3px solid #10b981; }
+.border-top-yellow { border-top: 3px solid #eab308; }
+.border-top-purple { border-top: 3px solid #a855f7; }
+.border-top-red { border-top: 3px solid #ff4444; }
+
+/* Varian Garis Kiri Kartu (Highlight) */
+.border-left-green { border-left: 4px solid #00ff88; background: rgba(0,255,136,0.05); }
+.border-left-yellow { border-left: 4px solid #eab308; background: rgba(255,255,255,0.05); }
+.border-left-purple { border-left: 4px solid #a855f7; background: rgba(168, 85, 247, 0.1); }
+.border-left-blue { border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.1); }
+
+/* Teks dan Pesan Status */
+.text-success { color: #00ff88 !important; }
+.text-danger { color: #ef4444 !important; }
+.text-warning { color: #f59e0b !important; }
+.text-info { color: #3b82f6 !important; }
+.text-muted { color: #aaa !important; }
+
+/* Tombol Khusus Edit/Batal */
+.btn-warning { background-color: #f59e0b !important; color: #121212 !important; }
+.btn-secondary { background-color: #555 !important; color: white !important; }
+
+/* Layout Bantuan */
+.flex-row { display: flex; gap: 15px; align-items: center; }
+.flex-wrap { flex-wrap: wrap; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+.mt-1 { margin-top: 10px; }
+.mt-2 { margin-top: 20px; }

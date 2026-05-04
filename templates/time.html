@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seting Waktu Sistem Kiosk AMaL</title>
+    <style>
+        body { font-family: sans-serif; background-color: #121212; color: white; padding: 20px; }
+        .card { background-color: #1E1E1E; padding: 20px; border-radius: 8px; max-width: 450px; margin: auto; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        h2 { text-align: center; margin-top: 0; color: #EEEEEE; }
+        
+        /* Panel Perbandingan Waktu */
+        .waktu-panel { display: flex; justify-content: space-between; background-color: #2A2A2A; padding: 15px; border-radius: 6px; margin-bottom: 20px; }
+        .waktu-box { text-align: center; width: 48%; }
+        .waktu-label { font-size: 0.85em; color: #AAAAAA; margin-bottom: 5px; display: block; }
+        .waktu-value { font-size: 1.1em; font-weight: bold; font-family: monospace; color: #00FFFF; } /* Cyan untuk digital clock */
+        .waktu-value.server { color: #FF9800; } /* Oranye untuk Kiosk */
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #AAAAAA; font-size: 0.9em; }
+        input[type="datetime-local"] { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #555; background: #333; color: white; box-sizing: border-box; font-family: monospace; }
+        
+        button { width: 100%; padding: 12px; margin-top: 5px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 1em; transition: 0.2s; }
+        button:active { transform: scale(0.98); }
+        .btn-sync { background-color: #3399FF; color: white; }
+        .btn-sync:hover { background-color: #267DCC; }
+        .btn-manual { background-color: #4CAF50; color: white; }
+        .btn-manual:hover { background-color: #3E8E41; }
+        .btn-back { background-color: #d0b748; color: white; }
+        .btn-back:hover { background-color: #696a20; }
+        
+        .status { margin-top: 15px; font-size: 0.9em; text-align: center; min-height: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Manajemen Waktu (RTC)</h2>
+    
+    <div class="waktu-panel">
+        <div class="waktu-box" style="border-right: 1px solid #444;">
+            <span class="waktu-label">Waktu Kiosk (Pi)</span>
+            <span class="waktu-value server" id="jamServer">Memuat...</span>
+        </div>
+        <div class="waktu-box">
+            <span class="waktu-label">Waktu Anda (HP)</span>
+            <span class="waktu-value" id="jamLokal">Memuat...</span>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <button class="btn-sync" onclick="sinkronWaktuOtomatis()">🔄 Sinkronkan Kiosk ke Jam HP</button>
+    </div>
+
+    <hr style="border: 1px solid #333; margin: 20px 0;">
+
+    <div class="form-group">
+        <label>Atur Kiosk Secara Manual:</label>
+        <input type="datetime-local" id="waktuManual" step="1">
+        <button class="btn-manual" onclick="setWaktuManual()">💾 Simpan Jam Manual</button>
+    </div>
+
+    <hr style="border: 1px solid #333; margin: 20px 0;">
+
+    <div class="form-group">
+        <button class="btn-back" onclick="window.location.href='/admin'">Kembali ke Menu Admin</button>
+    </div>
+
+    <div id="statusPesan" class="status"></div>
+</div>
+
+<script>
+    // Format YYYY-MM-DD HH:MM:SS
+    function formatTanggal(dateObj) {
+        const pad = (n) => n.toString().padStart(2, '0');
+        const tahun = dateObj.getFullYear();
+        const bulan = pad(dateObj.getMonth() + 1);
+        const tanggal = pad(dateObj.getDate());
+        const jam = pad(dateObj.getHours());
+        const menit = pad(dateObj.getMinutes());
+        const detik = pad(dateObj.getSeconds());
+        return `${tahun}-${bulan}-${tanggal} ${jam}:${menit}:${detik}`;
+    }
+
+    // --- JAM BERDETAK REAL-TIME ---
+    
+    // 1. Update Jam HP (Lokal) setiap 1 detik
+    setInterval(() => {
+        document.getElementById('jamLokal').innerText = formatTanggal(new Date());
+    }, 1000);
+
+    // 2. Mengambil Jam Kiosk (Server Raspberry Pi)
+    async function fetchJamServer() {
+        try {
+            const response = await fetch('/api/get_hw_time');
+            if (response.ok) {
+                const result = await response.json();
+                document.getElementById('jamServer').innerText = result.current_time;
+            } else {
+                document.getElementById('jamServer').innerText = "Gagal membaca";
+            }
+        } catch (error) {
+            document.getElementById('jamServer').innerText = "Koneksi terputus";
+        }
+    }
+    
+    // Tarik data jam Kiosk saat pertama kali dimuat, lalu ulangi setiap 1 detik
+    fetchJamServer();
+    setInterval(fetchJamServer, 1000);
+
+    // --- FUNGSI PENGIRIMAN DATA ---
+
+    async function kirimKeServer(waktuString) {
+        const statusDiv = document.getElementById('statusPesan');
+        statusDiv.innerText = "⏳ Menyimpan ke RTC...";
+        statusDiv.style.color = "#FFD700";
+
+        try {
+            const response = await fetch('/api/set_hw_time', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ datetime: waktuString })
+            });
+            const result = await response.json();
+            if (response.ok) {
+                statusDiv.innerText = "✅ Sukses: " + result.message + "\nKembali ke menu admin...";
+                statusDiv.style.color = "#4CAF50";
+                // Langsung update jam Kiosk setelah sukses
+                fetchJamServer(); 
+                // Skenario 1: Redirect kembali ke halaman Admin setelah jeda 2 detik
+                setTimeout(() => {
+                    window.location.href = '/admin';
+                }, 2000);
+            } else {
+                statusDiv.innerText = "❌ Gagal: " + result.message;
+                statusDiv.style.color = "#FF3333";
+            }
+        } catch (error) {
+            statusDiv.innerText = "❌ Terjadi kesalahan jaringan.";
+            statusDiv.style.color = "#FF3333";
+        }
+    }
+
+    function sinkronWaktuOtomatis() {
+        const waktuString = formatTanggal(new Date());
+        // if(confirm(`Yakin ingin menyamakan jam Kiosk dengan HP Anda ke:\n${waktuString} ?`)) {
+        //     kirimKeServer(waktuString);
+        // }
+        kirimKeServer(waktuString);
+    }
+
+    function setWaktuManual() {
+        const inputManual = document.getElementById('waktuManual').value;
+        if (!inputManual) {
+            alert("Silakan isi tanggal dan jam terlebih dahulu!");
+            return;
+        }
+        const waktuString = inputManual.replace('T', ' ').replace(/\.\d+/, '');
+        kirimKeServer(waktuString);
+    }
+</script>
+
+</body>
+</html>

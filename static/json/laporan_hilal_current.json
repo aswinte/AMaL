@@ -1,0 +1,24 @@
+{
+    "metadata": {
+        "tanggal_pengamatan": "2026-04-17",
+        "lokasi": {
+            "kota": "Yogyakarta",
+            "lat": -7.7956,
+            "lon": 110.3695
+        },
+        "last_updated": "2026-04-22 15:37:16"
+    },
+    "data_lokal": {
+        "tinggi_hilal": -3.37,
+        "elongasi": 3.92,
+        "status_mabims": "Belum Memenuhi",
+        "status_wh": "Di Bawah Ufuk"
+    },
+    "data_nasional": {
+        "mabims_sukses": false,
+        "wh_sukses": false
+    },
+    "data_global": {
+        "khgt_sukses": true
+    }
+}

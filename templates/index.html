@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AMaL: Anjungan Masjid Libre</title>
+    <meta name="google" content="notranslate">
+    <style>
+        :root {
+            /* Jembatan Variabel dari Python/Jinja2 ke CSS */
+            --color-mabims: {{C_NAS_MABIMS}};
+            --color-wh: {{C_NAS_WH}};
+            --color-khgt: {{C_KHGT}};
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" href="/static/images/AMaL.jpeg" type="image/jpeg">
+</head>
+<body>
+    <div class="container">
+        
+        <div class="top-section">            
+            <div class="sidebar-left">
+
+                <div class="header-info">
+                    <h2 id="nama-masjid">Memuat Nama Masjid...</h2>
+                    <p id="alamat-masjid" class="alamat-teks">Memuat Alamat...</p>
+                </div>
+
+                <div class="main-clock">
+                    <h1 id="jam">00:00:00</h1>
+                    <p id="tgl-masehi" class="tgl-masehi">Memuat tanggal...</p>
+
+                    <div id="moon-container" class="moon-container"></div>
+                    
+                    <p id="tgl-hijri" class="hijri">Memuat hijriah...</p>
+                    <div id="info-metode" class="teks-metode"></div>
+
+                    <p id="tgl-jawa" class="jawa">Memuat jawa...</p>
+                    <div id="info-kurup" class="teks-metode teks-kurup"></div>
+                    
+                    <div id="adzan-countdown" class="adzan-countdown"></div>
+                </div>
+
+                <div class="lokasi-container">
+                    <div class="lokasi-header">
+                        <p id="info-kota" class="info-kota">Memuat Kota...</p>
+                        <p class="info-koordinat">(</p>
+                        <p id="info-lokasi" class="info-koordinat">( Memuat lokasi... )</p>
+                        <p class="info-koordinat">)</p>
+                    </div>
+
+                    <div class="kompas-box">
+                        <div class="kompas-lingkaran">
+                            <div class="kompas-pusat"></div>
+                            
+                            <!-- SKY DOME BARU -->
+                            <div id="sky-dome">
+                                <div class="sky-grid"></div>
+                                <div id="obj-sun" class="sky-object"></div>
+                                <div id="obj-moon" class="sky-object"></div>
+                            </div>
+
+                            <div class="cardinal N">U</div>
+                            <div class="cardinal E">T</div>
+                            <div class="cardinal S">S</div>
+                            <div class="cardinal W">B</div>
+
+                            <div id="sun-ray"></div>
+                            <div id="shadow-line"></div>
+                            
+                            <!-- <div id="ikon-kabah-rashdul" class="kompas-elemen-tengah" style="z-index: 6; transition: transform 1.5s ease;">                                
+                                <div class="kompas-elemen-absolut">
+                                    <svg class="animasi-pendar" width="2.5vmin" height="2.5vmin" viewBox="0 0 40 40">
+                                        <rect width="40" height="40" rx="4" fill="#3a3a3a" /> 
+                                        <rect width="40" height="8" y="10" fill="#ffd700" /> 
+                                        <rect width="8" height="12" x="16" y="28" fill="#000" /> 
+                                    </svg>
+                                </div>
+                            </div> -->
+                            
+                            <div id="ikon-kabah" class="kompas-elemen-tengah">
+                                <div class="kompas-elemen-absolut">                                
+                                    <svg class="svg-kabah" width="2.5vmin" height="2.5vmin" viewBox="0 0 40 40"  >
+                                        <rect width="40" height="40" rx="4" fill="#3a3a3a" /> 
+                                        <rect width="40" height="8" y="10" fill="#ffd700" /> 
+                                        <rect width="8" height="12" x="16" y="28" fill="#000" /> 
+                                    </svg>
+                                </div>
+                            </div>
+
+                        </div>
+                        
+                        <div class="teks-kiblat-container">
+                            <p id="teks-kiblat" class="teks-kiblat">--°</p>
+                            <p id="teks-waktu-rashdul" class="teks-waktu-rashdul">--:--</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-footer">
+                    <img src="/static/images/AMaL2.png" alt="Logo AMaL">
+                    <div class="sidebar-footer-teks">
+                        <p class="judul">AMaL</p>
+                        <p class="sub">Anjungan Masjid Libre</p>
+                        <p class="lisensi">⚖️ GNU AGPLv3 License</p>
+                    </div>                    
+                </div>
+            </div>
+
+            <div class="sidebar-right">
+                <div id="calendar-container" class="calendar-container">
+                    
+                    <div id="rashdul-takeover" class="takeover-overlay takeover-rashdul">
+                        <div class="takeover-icon">☀️ 🕋</div>
+                        <h2 class="takeover-title" style="color: #ffd700;">Momentum Kalibrasi Kiblat</h2>
+                        <h2 class="takeover-title" style="color: #ffd700;">Rashdul Qiblah Global (Istiwa A'dham)</h2>
+                        <div id="rashdul-countdown" class="takeover-countdown" style="color: #00ff88; text-shadow: 0 0 20px rgba(0,255,136,0.6);">-14:59</div>
+                        <p id="rashdul-instruksi" class="takeover-desc">
+                            Matahari saat ini sedang bergerak menuju titik tepat di atas Ka'bah.<br>
+                            <span style="color: #00ff88;">Siapkan benda tegak lurus (tongkat/bandul).</span> Saat waktu habis, bayangan benda tersebut akan mengarah lurus ke Kiblat.
+                        </p>
+                    </div>
+
+                    <div id="gerhana-takeover" class="takeover-overlay takeover-gerhana">
+                        <div id="gerhana-ikon" class="takeover-icon">🌘</div>
+                        <h2 id="gerhana-judul" class="takeover-title" style="color: #ff4444;">Peringatan Gerhana</h2>
+                        <div id="gerhana-countdown" class="takeover-countdown" style="color: #ffd700; text-shadow: 0 0 20px rgba(255,215,0,0.6);">-00:00</div>
+                        <p class="takeover-desc">
+                            Mari perbanyak zikir, takbir, sedekah, dan bersiap melaksanakan <br>
+                            <span id="gerhana-nama-shalat" style="color: #ffd700; font-weight: bold; font-size: 1.2em;">Shalat Sunnah Gerhana</span>
+                        </p>
+                    </div>
+
+                    <div id="loading-overlay">
+                        <div class="spinner"></div>
+                        <h2 style="font-size: 3vmin; margin-bottom: 1vh; color: #ffd700;">Memuat Kalender...</h2>
+                        <p id="loading-text" style="font-size: 1.8vmin; color: #dddddd; max-width: 90%; line-height: 1.4; text-align: center;"></p>
+                    </div>
+
+                    <div class="calendar-header">
+                        <div id="cal-masehi-title">Maret 2026</div>
+                        <div id="cal-hijri-title">Ramadhan - Syawal 1447 H</div>
+                        <div id="cal-jawa-title"></div>
+                        <div id="cal-jawa-info"></div>
+                    </div>
+                    
+                    <div class="calendar-weekdays">
+                        <div>Ahad</div><div>Senin</div><div>Selasa</div><div>Rabu</div><div>Kamis</div><div>Jumat</div><div>Sabtu</div>
+                    </div>
+
+                    <div id="calendar-grid" class="calendar-grid"></div>
+                </div>
+
+                <div id="info-display-container"></div>
+            </div>
+        </div> 
+        
+        <div class="jadwal-container-horizontal">
+            <div class="kartu" id="kartu-Imsak"><span class="title">Imsak</span><span class="nama-shalat">Imsak</span><h2 id="Imsak">--:--</h2><span class="selisih"></span></div>
+            <div class="kartu" id="kartu-Subuh"><span class="title">Subuh</span><span class="nama-shalat">Subuh</span><h2 id="Subuh">--:--</h2><span class="selisih"></span></div>
+            <div class="kartu" id="kartu-Terbit"><span class="title">Terbit</span><span class="nama-shalat">Terbit</span><h2 id="Terbit">--:--</h2><span class="selisih"></span></div>
+            <div class="kartu" id="kartu-Dzuhur"><span class="title">Dzuhur</span><span class="nama-shalat">Dzuhur</span><h2 id="Dzuhur">--:--</h2><span class="selisih"></span></div>
+            <div class="kartu" id="kartu-Ashar"><span class="title">Ashar</span><span class="nama-shalat">Ashar</span><h2 id="Ashar">--:--</h2><span class="selisih"></span></div>
+            <div class="kartu" id="kartu-Maghrib"><span class="title">Maghrib</span><span class="nama-shalat">Maghrib</span><h2 id="Maghrib">--:--</h2><span class="selisih"></span></div>
+            <div class="kartu" id="kartu-Isya"><span class="title">Isya</span><span class="nama-shalat">Isya</span><h2 id="Isya">--:--</h2><span class="selisih"></span></div>
+        </div>
+        
+    </div> 
+    
+    <div class="footer-ticker">
+        <div class="ticker-wrapper">
+            <div class="ticker-content" id="running-text-1">Memuat informasi...</div>
+            <div class="ticker-content" id="running-text-2">Memuat informasi...</div>
+        </div>
+    </div>
+
+    <div id="fullscreen-overlay">
+        <div id="overlay-content"></div>
+    </div>
+
+    <div id="layar-blackout"></div>
+
+    {% raw %}
+    <template id="tmpl-slide-rashdul">
+        <div class="slide-box tema-rashdul">
+            <div class="slide-icon">🔭 🕋</div>
+            <h2 class="slide-title">INFO RASHDUL QIBLAH</h2>
+            <h3 class="slide-subtitle">{{TGL}} - Pukul {{JAM}} WIB</h3>
+            
+            <div class="slide-desc-box">
+                <strong>PETUNJUK TEKNIS KALIBRASI:</strong><br>
+                1. Siapkan benda tegak lurus (tongkat/bandul/tiang).<br>
+                2. Letakkan di area datar yang terkena sinar matahari.<br>
+                3. Tepat pada jam di atas, <strong>garis bayangan benda</strong> adalah arah Kiblat yang paling akurat.<br>
+                4. Gunakan spidol/selotip untuk menandai garis bayangan tersebut.
+            </div>
+        </div>
+    </template>
+
+    <template id="tmpl-slide-gerhana">
+        <div class="slide-box tema-gerhana">
+            <div class="slide-icon">{{IKON}}</div>
+            <h2 class="slide-title">INFO GERHANA {{JENIS}}</h2>
+            <h3 class="slide-subtitle">{{TGL}} - Pukul {{JAM}} WIB</h3>
+            
+            <div class="slide-desc-box">
+                <strong>ANJURAN IBADAH:</strong><br>
+                Berdasarkan sunnah Rasulullah SAW, mari kita persiapkan diri untuk:<br>
+                • Memperbanyak Zikir, Istighfar, dan Takbir.<br>
+                • Melaksanakan <strong>Shalat Sunnah {{SHALAT}}</strong> secara berjamaah.<br>
+                • Memperbanyak sedekah dan amal kebaikan.
+            </div>
+        </div>
+    </template>
+
+    <template id="tmpl-slide-hilal">
+        <div class="hilal-slide-wrapper">
+            <div class="hilal-slide-left">
+                <img src="{{IMG_URL}}">
+            </div>
+            <div class="hilal-slide-right">
+                <div class="hilal-header">
+                    <div class="slide-icon" style="font-size: 1.5em; margin-bottom: 2px;">🔭 🌒</div>
+                    <h2>RUKYATUL HILAL</h2>
+                    <h4>{{TGL_PENGAMATAN}}</h4>
+                </div>
+                <div class="hilal-metrics">
+                    <div class="hilal-metric-box">
+                        <div class="hilal-metric-label">Tinggi</div>
+                        <div class="hilal-metric-value">{{TINGGI}}°</div>
+                    </div>
+                    <div class="hilal-metric-box">
+                        <div class="hilal-metric-label">Elongasi</div>
+                        <div class="hilal-metric-value">{{ELONGASI}}°</div>
+                    </div>
+                </div>
+                <div class="hilal-card-title">Hasil 5 Kriteria</div>
+                <div class="hilal-card-container">
+                    
+                    <div class="hilal-card" style="border-left-color: {{C_LOK_MABIMS}};">
+                        <div class="hilal-card-source">Lokal<br><strong>MABIMS</strong></div>
+                        <div class="hilal-card-status" style="color: {{C_LOK_MABIMS}};">{{I_LOK_MABIMS}} {{S_LOK_MABIMS}}</div>
+                    </div>
+                    
+                    <div class="hilal-card" style="border-left-color: {{C_LOK_WH}};">
+                        <div class="hilal-card-source">Lokal<br><strong>W. Hilal</strong></div>
+                        <div class="hilal-card-status" style="color: {{C_LOK_WH}};">{{I_LOK_WH}} {{S_LOK_WH}}</div>
+                    </div>
+                    
+                    <div class="hilal-card" style="border-left-color: {{C_NAS_MABIMS}};">
+                        <div class="hilal-card-source">Nasional<br><strong>MABIMS</strong></div>
+                        <div class="hilal-card-status" style="color: {{C_NAS_MABIMS}};">{{I_NAS_MABIMS}} {{S_NAS_MABIMS}}</div>
+                    </div>
+                    
+                    <div class="hilal-card" style="border-left-color: {{C_NAS_WH}};">
+                        <div class="hilal-card-source">Nasional<br><strong>W. Hilal</strong></div>
+                        <div class="hilal-card-status" style="color: {{C_NAS_WH}};">{{I_NAS_WH}} {{S_NAS_WH}}</div>
+                    </div>
+                    
+                    <div class="hilal-card" style="border-left-color: {{C_KHGT}};">
+                        <div class="hilal-card-source">Global<br><strong>KHGT</strong></div>
+                        <div class="hilal-card-status" style="color: {{C_KHGT}};">{{I_KHGT}} {{S_KHGT}}</div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </template>
+    {% endraw %}
+
+    <script src="/static/js/utils.js"></script>
+    <script src="/static/js/kalender_jawa.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}?v={{ v }}"></script>
+</body>
+</html>

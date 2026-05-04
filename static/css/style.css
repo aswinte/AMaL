@@ -1,0 +1,624 @@
+/* ==========================================
+   1. RESET & BASE
+   ========================================== */
+body {
+    background-color: #121212;
+    color: white;
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+.container { 
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    padding: 1.5vh 2vw 5vh 1.5vw;
+    box-sizing: border-box;
+    gap: 1.5vh;
+    overflow: hidden;
+}
+
+/* ==========================================
+   2. LAYOUT UTAMA (GRID & SIDEBAR)
+   ========================================== */
+.top-section {
+    display: flex;
+    flex: 1;
+    gap: 2vw;
+    min-height: 0; 
+}
+
+.sidebar-left {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 1vh;
+    text-align: center;
+    box-sizing: border-box;
+    width: 18vw;
+}
+
+/* Pola Geometris (Watermark) */
+.sidebar-left::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: radial-gradient(circle at 100% 150%, #121212 24%, #ffffff 24%, #ffffff 28%, #121212 28%, #121212 36%, #ffffff 36%, #ffffff 40%, transparent 40%, transparent), radial-gradient(circle at 0 150%, #121212 24%, #ffffff 24%, #ffffff 28%, #121212 28%, #121212 36%, #ffffff 36%, #ffffff 40%, transparent 40%, transparent), radial-gradient(circle at 50% 100%, #ffffff 10%, #121212 10%, #121212 23%, #ffffff 23%, #ffffff 30%, #121212 30%, #121212 43%, #ffffff 43%, #ffffff 50%, #121212 50%, #121212 63%, #ffffff 63%, #ffffff 71%, transparent 71%, transparent), radial-gradient(circle at 100% 50%, #ffffff 5%, #121212 5%, #121212 15%, #ffffff 15%, #ffffff 20%, #121212 20%, #121212 29%, #ffffff 29%, #ffffff 34%, #121212 34%, #121212 44%, #ffffff 44%, #ffffff 49%, transparent 49%, transparent), radial-gradient(circle at 0 50%, #ffffff 5%, #121212 5%, #121212 15%, #ffffff 15%, #ffffff 20%, #121212 20%, #121212 29%, #ffffff 29%, #ffffff 34%, #121212 34%, #121212 44%, #ffffff 44%, #ffffff 49%, transparent 49%, transparent);
+    background-size: 50px 50px;
+    opacity: 0.03;
+    z-index: 0;
+}
+
+.sidebar-left > * {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-right {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-grow: 1;
+    flex: 1;
+    flex-direction: column;
+    gap: 1.5vh;
+    min-height: 0;
+    box-sizing: border-box;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* Hiasan Sudut Kiri Atas & Kanan Bawah */
+.sidebar-right::before, .sidebar-right::after {
+    content: ""; position: absolute; width: 40px; height: 40px; pointer-events: none;
+}
+.sidebar-right::before {
+    top: 0; left: 0; border-top: 2px solid rgba(255, 215, 0, 0.5); border-left: 2px solid rgba(255, 215, 0, 0.5); border-top-left-radius: 15px;
+}
+.sidebar-right::after {
+    bottom: 0; right: 0; border-bottom: 2px solid rgba(255, 215, 0, 0.5); border-right: 2px solid rgba(255, 215, 0, 0.5); border-bottom-right-radius: 15px;
+}
+
+/* ==========================================
+   3. TIPOGRAFI & HEADER MASJID
+   ========================================== */
+.header-info h2 { font-size: 4vmin; margin: 0; color: #aaaaaa; font-weight: bold; }
+.header-info p.alamat-teks { font-size: 1.5vmin; margin: 0; line-height: 1.4; color: #aaaaaa; word-wrap: break-word; text-align: center; }
+
+/* ==========================================
+   4. JAM UTAMA & TANGGAL
+   ========================================== */
+.main-clock h1 { font-size: 8vmin; color: #00ff88; font-weight: bold; margin: 1vh 0 0 0; }
+.main-clock h1 .detik { font-size: 0.40em; color: #ffd700; font-weight: normal; }
+
+.tgl-masehi { font-size: 2vh; margin-bottom: 0; }
+.moon-container { margin: 2vh 0; position: relative; display: flex; justify-content: center; align-items: center; }
+.hijri { color: #ffd700; font-size: 2vmin; margin: 0; }
+.jawa { color: #f59e0b; font-size: 2vmin; margin: 0.5vh 0 0 0; }
+.teks-metode { font-size: 1.5vmin; color: #aaaaaa; margin-bottom: 1vh; font-weight: normal; letter-spacing: 1px; }
+.teks-kurup { color: rgba(245, 158, 11, 0.7); }
+
+.adzan-countdown {
+    color: #ff4444; font-weight: bold; font-size: 2vmin; margin: 0.5vh 0;
+    display: none; background: rgba(255, 68, 68, 0.1); border: 1px solid #ff4444;
+    border-radius: 8px; padding: 5px; animation: pulse 1s infinite;
+}
+
+/* ==========================================
+   5. KOMPAS & LOKASI (RASHDUL & PLANETARIUM)
+   ========================================== */
+.lokasi-container { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.lokasi-header { display: flex; align-items: baseline; gap: 8px; justify-content: center; }
+.lokasi-header p { margin: 0; }
+.info-kota { color: #00ff88; font-size: 2vmin; font-weight: bold; }
+.info-koordinat { color: #aaa; font-size: 1.5vmin; }
+
+.kompas-box { margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.kompas-lingkaran { position: relative; width: 14vmin; height: 14vmin; border: 1px dashed rgba(0, 255, 136, 0.3); border-radius: 50%; background: rgba(255, 255, 255, 0.2); }
+.kompas-pusat { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 0.5vmin; height: 0.5vmin; background: #00ff88; border-radius: 50%; z-index: 5; box-shadow: 0 0 5px #00ff88; }
+/* elemen tengah kompas matahari bulan dan bayangan  */
+.kompas-elemen-tengah { position: absolute; top: 50%; left: 50%; transform-origin: 0 0; }
+.kompas-elemen-absolut { position: absolute; top: 0; left: 0; transform: translate(-80%, -80%); }
+/* -------------------------------------------------*/
+/* gant ini */
+/* container utama */
+#sky-dome {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    overflow: hidden;
+    color: #a3b4cf;
+
+    /* background langit */
+    background: radial-gradient(circle at center, #3d4656 35%, rgba(255, 215, 0, 0) 100%);
+    /* background: radial-gradient(circle at center, #0a0f1a 0%, #000 100%); */
+
+    transition: background 0.5s ease; /* Transisi warna langit */
+}
+/* grid (altitude circles) */
+/* .sky-grid::before,
+.sky-grid::after {
+    content: '';
+    position: absolute;
+    border: 1px dashed rgba(255,255,255,0.15);
+    border-radius: 50%;
+}
+ *//* alt ~30° */
+/* .sky-grid::before {
+    width: 66%;
+    height: 66%;
+    top: 17%;
+    left: 17%;
+} */
+/* alt ~60° */
+/* .sky-grid::after {
+    width: 33%;
+    height: 33%;
+    top: 33.5%;
+    left: 33.5%;
+} */
+.sky-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Agar tidak menghalangi klik pada matahari */
+    z-index: 1; /* Pastikan di atas background langit */
+}
+
+/* Lingkaran Altitude (Garis Putus-putus) */
+.sky-grid::before,
+.sky-grid::after {
+    content: '';
+    position: absolute;
+    border: 1px dashed rgba(255, 255, 255, 0.3); /* Naikkan opacity agar terlihat */
+    border-radius: 50%;
+    box-sizing: border-box; /* Agar border tidak menambah ukuran */
+    transform: translate(-50%, -50%); /* Sentralisasi sempurna */
+    top: 50%;
+    left: 50%;
+}
+
+/* alt ~30° */
+.sky-grid::before {
+    width: 66.6%;
+    height: 66.6%;
+}
+
+/* alt ~60° */
+.sky-grid::after {
+    width: 33.3%;
+    height: 33.3%;
+}
+
+
+
+/* arah mata angin/ cardinal direction*/
+.cardinal {
+    position: absolute;
+    color: rgba(255,255,255,0.5);
+    font-size: 1.2vmin;
+    /* font-style: italic; */
+    font-weight: bold;
+    transform: translate(-50%, -50%);
+}
+
+.N { top: 5%; left: 50%; }
+.S { top: 95%; left: 50%; }
+.E { top: 50%; left: 95%; }
+.W { top: 50%; left: 5%; }
+
+/* .N { top: -5%; left: 50%; }
+.S { top: 105%; left: 50%; }
+.E { top: 50%; left: 105%; }
+.W { top: 50%; left: -5%; } */
+
+/* obyek langit */
+.sky-object {
+    position: absolute;
+    width: 1vmin;
+    height: 1vmin;
+    transform: translate(-50%, -50%);
+    z-index: 4;
+}
+/* matahari */
+#obj-sun {
+    width: 1.5vmin;
+    height: 1.5vmin;
+    background: radial-gradient(circle, #ffd700, #ff8c00);
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+    /* transform: translate(-50%, -50%);  */
+}
+/* bulan  asli*/
+/* #obj-moon {
+    background: #e2e8f0;
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(200, 220, 255, 0.6);
+} */
+/* bulan putih perak dengan simulasi kawah*/
+/* #obj-moon {
+    width: 1.3vmin;
+    height: 1.3vmin;
+    background: radial-gradient(circle at 30% 30%, #ffffff 0%, #cbd5e1 100%);
+    border-radius: 50%;
+    box-shadow: 
+        0 0 10px rgba(226, 232, 240, 0.4), 
+        0 0 20px rgba(148, 163, 184, 0.2);
+    position: absolute;
+    transform: translate(-50%, -50%);
+    z-index: 8;
+} */
+/* Efek kawah sederhana menggunakan pseudo-element */
+/* #obj-moon::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-image: 
+        radial-gradient(circle at 60% 70%, rgba(0,0,0,0.05) 10%, transparent 10%),
+        radial-gradient(circle at 40% 50%, rgba(0,0,0,0.08) 15%, transparent 15%);
+    border-radius: 50%;
+} */
+
+#obj-moon {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: 1.3vmin;
+    height: 1.3vmin;
+    z-index: 8;
+    /* Hapus background dan box-shadow lama agar tidak tumpang tindih dengan ikon */
+    background: none; 
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#obj-moon svg {
+    /* brightness: membuat bagian putih lebih cemerlang */
+    /* drop-shadow: memberikan 'garis tepi' halus agar kontras dengan biru */
+    filter: brightness(1.5) drop-shadow(0 0 5px rgba(255, 255, 255, 0.6));
+    transition: filter 0.5s ease;
+}
+
+
+/* cahaya matahari */
+#sun-ray {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50%;
+    height: 2px;
+
+    transform-origin: left center;
+
+    background: linear-gradient(
+        to left,
+        rgba(255, 215, 0, 1)50%,
+        rgba(255, 215, 0, 0.4),
+        transparent
+    );
+
+    z-index: 9;
+    opacity: 0;
+
+    pointer-events: none; /* Agar tidak mengganggu klik */
+    transition: opacity 0.5s ease;
+}
+#sun-ray {
+    box-shadow: 0 0 6px rgba(255, 215, 0, 0.6);
+}
+/* bayangan */
+#shadow-line {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50%;
+    height: 2px;
+    transform-origin: left center;
+    /* background: linear-gradient(to right, rgba(200, 220, 255, 0.9), transparent); */
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.9), transparent);
+    opacity: 1;
+    z-index: 10;
+}
+
+/* efek glow saat rashdul */
+/* .rashdul-active #sun-ray {
+    background: linear-gradient(
+        to left,
+        rgba(255, 255, 0, 1),
+        rgba(255, 255, 0, 0.6),
+        transparent
+    );
+    box-shadow: 0 0 10px rgba(255, 255, 0, 0.9);
+}
+.rashdul-active #shadow-line {
+    background: linear-gradient(
+        to right,
+        rgba(0, 255, 255, 0.9),
+        transparent
+    );
+    box-shadow: 0 0 8px rgba(0, 255, 255, 0.8);
+}
+.rashdul-menjauh #sun-ray {
+    box-shadow: 0 0 12px yellow;
+}
+.rashdul-menuju #shadow-line {
+    box-shadow: 0 0 12px cyan;
+} */
+
+/* .rashdul-active #ikon-kabah-rashdul {
+    filter: drop-shadow(0 0 12px gold);
+}
+@keyframes glowPulse {
+    0% { filter: drop-shadow(0 0 5px gold); }
+    50% { filter: drop-shadow(0 0 15px gold); }
+    100% { filter: drop-shadow(0 0 5px gold); }
+}
+.rashdul-active #ikon-kabah-rashdul {
+    animation: pulse 1.5s infinite;
+} */
+
+.ikon-kabah { position: absolute; top: 50%; left: 50%; transform-origin: 0 0; z-index: 6;}
+.svg-kabah {filter: drop-shadow(0px 0px 5px rgba(255, 215, 0, 0.9));}
+
+/* fix agar tidak konflik */
+#sky-dome * {
+    pointer-events: none;
+}
+
+/* ---------------------------- */
+
+.teks-kiblat-container { margin-top: 5px; text-align: center; }
+.teks-kiblat { color: #00ff88; font-size: 1.8vmin; font-weight: bold; margin: 0; }
+.teks-waktu-rashdul { color: #fff; font-size: 1.5vmin; margin: 0; }
+
+/* Animasi Kompas */
+@keyframes kabah-glow { 0%, 100% { filter: drop-shadow(0 0 2px gold); } 50% { filter: drop-shadow(0 0 8px gold); } }
+@keyframes pendar-kabah { 0% { filter: drop-shadow(0 0 2px rgba(0, 255, 136, 0.4)); } 50% { filter: drop-shadow(0 0 10px gold); } 100% { filter: drop-shadow(0 0 2px gold); } }
+.animasi-pendar { animation: pendar-kabah 1.5s infinite ease-in-out; }
+
+/* Animasi Rashdul Qiblah Alert */
+@keyframes rashdul-alert { 0% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.2); border-color: rgba(0, 255, 136, 0.3); } 50% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.9), inset 0 0 15px rgba(255, 215, 0, 0.4); border-color: rgba(255, 215, 0, 1); } 100% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.2); border-color: rgba(0, 255, 136, 0.3); } }
+.sedang-rashdul { animation: rashdul-alert 1.5s infinite ease-in-out !important; background: rgba(255, 215, 0, 0.1) !important; }
+
+@keyframes teks-rashdul-alert { 0% { color: #fff; text-shadow: 0 0 5px rgba(255, 215, 0, 0); } 50% { color: #ffd700; text-shadow: 0 0 15px rgba(255, 215, 0, 1), 0 0 5px rgba(255, 215, 0, 0.8); } 100% { color: #fff; text-shadow: 0 0 5px rgba(255, 215, 0, 0); } }
+.teks-sedang-rashdul { animation: teks-rashdul-alert 1.5s infinite ease-in-out !important; }
+
+/* ==========================================
+   6. FOOTER SIDEBAR (LISENSI & LOGO)
+   ========================================== */
+.sidebar-footer { margin-top: auto; border-top: 2px solid rgba(255,255,255,0.15); padding-top: 1vh; width: 100%; display: flex; align-items: center; justify-content: center; gap: 2px; }
+.sidebar-footer img { max-height: 4vh; width: auto; flex-shrink: 0; filter: invert(100%); opacity: 0.9; }
+.sidebar-footer-teks { text-align: center; }
+.sidebar-footer-teks .judul { margin: 0; font-size: 1.4vmin; font-weight: bold; color: #77da05; letter-spacing: 1px; }
+.sidebar-footer-teks .sub { margin: 2px 0 0 0; font-size: 1vmin; color: #aaa; }
+.sidebar-footer-teks .lisensi { margin: 4px 0 0 0; font-size: 1vmin; color: #3b82f6; font-family: monospace; }
+
+/* ==========================================
+   7. KALENDER UTAMA
+   ========================================== */
+.calendar-container {
+    background: rgba(255, 255, 255, 0.03); border-radius: 15px; padding: 1.5vh;
+    border: 1px solid rgba(255, 255, 255, 0.1); box-sizing: border-box;
+    display: flex; flex-direction: column; height: 100%; min-height: 0; position: relative; overflow: hidden;
+}
+.calendar-header { text-align: center; margin-bottom: 3vh; }
+#cal-masehi-title { font-size: 3.5vmin; font-weight: bold; color: #fff; margin-bottom: 1vh; }
+#cal-hijri-title { font-size: 1.8vmin; color: #00ff88; }
+#cal-jawa-title { font-size: 1.8vmin; color: #f59e0b; margin-top: 2px; }
+#cal-jawa-info { font-size: 1.3vmin; color: #aaa; margin-top: 2px; }
+
+.calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-weight: bold; font-size: 1.6vmin; margin-bottom: 0.5vh; }
+.calendar-weekdays div { color: #ffd700; position: relative; padding: 0.5vh 0; }
+.calendar-weekdays div:nth-child(1), .calendar-weekdays div:nth-child(7) { color: #ff4d4d; }
+.calendar-weekdays div:nth-child(6) { color: #00ff88; }
+
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: repeat(6, 1fr); gap: 5px; flex: 1; min-height: 0; width: 100%; table-layout: fixed; }
+.calendar-day { background: rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 0.5vh; position: relative; border: 1px solid rgba(255, 255, 255, 0.05); box-sizing: border-box; }
+.calendar-day.today { background: rgba(0, 255, 136, 0.15); border: 2px solid #00ff88; box-shadow: inset 0 0 15px rgba(0, 255, 136, 0.5); }
+
+.calendar-day .tgl-masehi { font-size: 2.75vmin; white-space: nowrap; display: flex; justify-content: space-between; align-items: flex-start; font-weight: bold; color: #fff; line-height: 1; }
+.calendar-day.today .tgl-masehi { color: #ffffff !important; font-size: 3vmin; font-weight: 900; text-shadow: 0 0 10px rgba(0, 255, 136, 0.6); }
+.calendar-day .pasaran { font-size: 1.5vmin; color: #00ff88; margin-left: 5px; font-weight: normal; display: inline-block; }
+.calendar-day .tgl-moonicon { color: #ffd700; font-size: 0.7em; opacity: 0.9; filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.5)); }
+.calendar-day .tgl-hijri-astro { position: absolute; bottom: 4px; left: 6px; color: #ffd700; font-size: 1.5vmin; }
+.calendar-day .tgl-jawa { position: absolute; bottom: 1px; right: 6px; color: #f59e0b; font-size: 1.5vmin; white-space: nowrap; }
+.calendar-day.today .tgl-hijri-astro { color: #ffffff; font-weight: bold; }
+
+.event-container { margin-top: 1px; display: flex; flex-direction: column; gap: 1px; width: 100%; overflow: hidden; white-space: nowrap; }
+.event-text { font-size: 1.25vmin; background: rgba(255, 215, 0, 0.15); color: #ffd700; padding: 1px 3px; border-radius: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; max-width: 100%; line-height: 1.1; border-left: 2px solid #ffd700; position: relative; }
+.calendar-day.today .event-container { margin-top: 0px; }
+.calendar-day.today .event-text { background: rgba(255, 255, 255, 0.2); color: #fff; border-left: 2px solid #fff; }
+
+.calendar-day.ahad .tgl-masehi, .calendar-day.sabtu .tgl-masehi { color: #ff4d4d; }
+.calendar-day.jumat .tgl-masehi { color: #00ff88; }
+
+/* ==========================================
+   8. INFO ROLLING & TAKEOVER (OVERLAYS)
+   ========================================== */
+#info-display-container {
+    display: none; flex-grow: 1; min-height: 0; flex-direction: column; justify-content: center; align-items: center;
+    background: rgba(255, 255, 255, 0.05); border-radius: 15px; text-align: center; padding: 2vw; animation: fadeIn 0.8s ease-out;
+}
+.info-tag { color: #ffd700; font-size: 2vmin; font-weight: bold; letter-spacing: 0.5vw; margin-bottom: 2vh; }
+.info-text { font-size: 4.5vmin; font-weight: bold; color: #fff; line-height: 1.2; }
+
+/* Overlay Takeover Umum (Rashdul & Gerhana) */
+.takeover-overlay {
+    display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; flex-direction: column;
+    justify-content: center; align-items: center; text-align: center; border-radius: 15px; 
+    backdrop-filter: blur(10px); padding: 20px; z-index: 100;
+}
+.takeover-rashdul { background: rgba(0, 20, 40, 0.95); border: 3px solid #ffd700; box-shadow: 0 0 30px rgba(255, 215, 0, 0.3); }
+.takeover-gerhana { background: rgba(30, 0, 0, 0.95); border: 3px solid #ff4444; box-shadow: 0 0 30px rgba(255, 68, 68, 0.4); z-index: 101; }
+
+.takeover-icon { font-size: 3.5em; margin-bottom: 10px; animation: pulse 2s infinite; }
+.takeover-title { font-size: 2.2em; margin: 0 0 10px 0; text-transform: uppercase; }
+.takeover-countdown { font-size: 5em; font-weight: bold; margin: 15px 0; font-family: monospace; }
+.takeover-desc { color: #fff; font-size: 1.3em; max-width: 90%; line-height: 1.5; }
+
+/* Loading Overlay */
+#loading-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(18, 18, 18, 0.95);
+    z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center;
+    backdrop-filter: blur(5px); border-radius: 15px;
+}
+.spinner { border: 8px solid rgba(255, 255, 255, 0.1); border-top: 8px solid #00ff88; border-radius: 50%; width: 8vmin; height: 8vmin; animation: spin 1s linear infinite; margin-bottom: 3vh; }
+
+/* ==========================================
+   9. JADWAL SHALAT KARTU (BAWAH)
+   ========================================== */
+.jadwal-container-horizontal {
+    display: flex; justify-content: space-between; gap: 1vw; width: 100%; height: 10vh; box-sizing: border-box; align-items: center;
+}
+
+.kartu {
+    flex: 1; background-color: rgba(255, 255, 255, 0.03); border-radius: 25px 25px 8px 8px;
+    border-top: 3px solid rgba(0, 255, 136, 0.3); border-bottom: 4px solid #333;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    opacity: 0.6; filter: grayscale(80%); transition: all 0.4s ease; height: 100%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(18,18,18,0) 80%);
+}
+.kartu h2 { font-size: 3vmin; margin: 0; }
+.kartu .title { font-size: 1.2vmin; opacity: 0.6; }
+.kartu .selisih { font-size: 1.8vmin; opacity: 0.6;}
+
+.kartu.active { background: linear-gradient(135deg, #004d40, #00c853) !important; box-shadow: 0 0 15px rgba(0, 255, 136, 0.4); border-bottom-color: #00ff88 !important; transform: scale(1.02); opacity: 1 !important; filter: grayscale(0%) !important; }
+.kartu.next { background: linear-gradient(135deg, #9f7200, #eee595) !important; box-shadow: 0 0 15px rgba(239, 224, 141, 0.6); border-bottom-color: #f3e88d !important; color: #212121 !important; opacity: 1 !important; filter: grayscale(0%) !important; }
+.kartu.pra-adzan { background: linear-gradient(135deg, #ff6f00, #ffab00) !important; animation: flash-yellow 1s infinite alternate; }
+
+/* ==========================================
+   10. FOOTER TICKER
+   ========================================== */
+.footer-ticker { position: fixed; bottom: 0; width: 100%; height: 3vh; background: #000; border-top: 2px solid #252525; display: flex; align-items: center; z-index: 999; }
+.ticker-wrapper { display: flex; white-space: nowrap; animation: scroll 25s linear infinite; }
+.ticker-content { padding-right: 50vw; font-size: 2vh; color: #00ff88; background-color: #000000 ; font-weight: bold; vertical-align: middle; }
+
+/* ==========================================
+   11. TRI-STATE & ANIMASI GLOBAL
+   ========================================== */
+#fullscreen-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; background: #000; color: #fff; text-align: center; font-family: sans-serif; }
+#overlay-content { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; }
+#layar-blackout { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000000; z-index: 99999; display: none; cursor: none; }
+
+.teks-arab { font-family: 'Amiri', 'Noto Naskh Arabic', serif; font-size: 2em; line-height: 1.8; }
+
+/* ANIMASI KEYFRAMES UTAMA */
+@keyframes scroll { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes flash-yellow { from { opacity: 1; } to { opacity: 0.7; transform: scale(1.05); } }
+
+/* ==========================================
+   12. SLIDE TEMPLATE CLASSES (HILAL, RASHDUL, GERHANA)
+   ========================================== */
+.slide-box { text-align: center; padding: 10px 30px; }
+.slide-icon { font-size: 3em; margin-bottom: 5px; }
+.slide-title { font-size: 2em; margin: 0; text-transform: uppercase; }
+.slide-subtitle { font-size: 1.5em; margin: 5px 0 15px 0; }
+.slide-desc-box { background: rgba(0,0,0,0.5); padding: 15px; text-align: left; border-radius: 8px; font-size: 1.1em; line-height: 1.6; color: #fff; }
+
+/* Warna Khusus Tema Slide */
+.tema-rashdul .slide-title { color: #ffd700; }
+.tema-rashdul .slide-subtitle { color: #00ff88; }
+.tema-rashdul .slide-desc-box { border-left: 5px solid #ffd700; }
+
+.tema-gerhana .slide-title { color: #ff4444; }
+.tema-gerhana .slide-subtitle { color: #ffd700; }
+.tema-gerhana .slide-desc-box { border-left: 5px solid #ff4444; }
+
+/* Kustomisasi Template Hilal */
+.hilal-slide-wrapper { display: flex; width: 100%; height: 100%; background: #121212; border-radius: 15px; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+.hilal-slide-left { width: 85%; background: #000; display: flex; align-items: center; justify-content: center; border-right: 2px solid #333; }
+.hilal-slide-left img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.hilal-slide-right { width: 15%; padding: 15px; display: flex; flex-direction: column; justify-content: flex-start; color: white; }
+
+.hilal-header { text-align: center; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+.hilal-header h2 { color: #ffd700; margin: 0; font-size: 1.2em; }
+.hilal-header h4 { color: #aaa; margin: 2px 0 0 0; font-size: 0.8em; font-weight: normal; }
+
+.hilal-metrics { display: flex; gap: 8px; margin-bottom: 15px; }
+.hilal-metric-box { flex: 1; background: rgba(0,0,0,0.4); padding: 8px 5px; border-radius: 8px; text-align: center; border-top: 2px solid #0fbcf9; }
+.hilal-metric-label { font-size: 0.6em; color: #aaa; }
+.hilal-metric-value { font-size: 1.1em; font-weight: bold; color: #0fbcf9; }
+
+.hilal-card-container { display: flex; flex-direction: column; gap: 6px; }
+.hilal-card-title { font-size: 0.7em; color: #aaa; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; text-align: center; }
+.hilal-card { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 10px; border-radius: 6px; border-left: 4px solid; }
+.hilal-card-source { font-size: 0.65em; line-height: 1.2; color: #ccc; }
+.hilal-card-source strong { color: white; font-size: 1.1em; }
+.hilal-card-status { font-size: 0.75em; font-weight: bold; }
+
+/* ==========================================
+   13. SLIDE KONTEN (PENGUMUMAN, KUTIPAN, KAS)
+   ========================================== */
+.slide-pengumuman {
+    width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;
+    background: radial-gradient(circle at top right, #1e293b, #121212); border-radius: 15px;
+    border: 1px solid rgba(0, 255, 136, 0.2); position: relative; overflow: hidden; padding: 5%;
+    box-sizing: border-box; box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+}
+.slide-pengumuman .bg-icon { position: absolute; bottom: -20px; right: -20px; font-size: 20vmin; opacity: 0.03; pointer-events: none; filter: grayscale(100%); }
+.slide-pengumuman .tag { position: relative; z-index: 1; margin-bottom: 2vh; background: rgba(0, 255, 136, 0.1); border: 1px solid rgba(0, 255, 136, 0.3); color: #00ff88; padding: 5px 15px; border-radius: 20px; font-size: 2.5vmin; }
+.slide-pengumuman .teks { position: relative; z-index: 1; text-align: center; font-size: 4.5vmin; line-height: 1.5; color: #f8fafc; max-width: 90%; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+
+.slide-gambar {
+    width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: rgba(0,0,0,0.5); border-radius: 15px;
+}
+.slide-gambar img { max-width:100%; max-height:100%; object-fit:contain; border-radius:15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+.slide-kutipan {
+    width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;
+    background: radial-gradient(circle at bottom left, #2d2b19, #121212); border-radius: 15px;
+    border: 1px solid rgba(255, 215, 0, 0.2); position: relative; overflow: hidden; padding: 5%;
+    box-sizing: border-box; box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+}
+.slide-kutipan .bg-quote { position: absolute; top: 0px; left: 30px; font-size: 35vmin; opacity: 0.04; pointer-events: none; font-family: 'Georgia', serif; color: #ffd700; line-height: 1; }
+.slide-kutipan .tag { position: relative; z-index: 1; margin-bottom: 3vh; background: rgba(255, 215, 0, 0.1); border: 1px solid rgba(255, 215, 0, 0.3); color: #ffd700; padding: 5px 15px; border-radius: 20px; font-size: 2.5vmin; }
+.slide-kutipan .arab { font-family: 'Amiri', serif; font-size: 6.5vmin; direction: rtl; position: relative; z-index: 1; text-align: center; color: #ffffff; line-height: 1.6; text-shadow: 0 4px 10px rgba(0,0,0,0.8); }
+.slide-kutipan .arti { font-size: 3.5vmin; margin-top: 3vh; position: relative; z-index: 1; text-align: center; font-style: italic; color: #e2e8f0; max-width: 85%; }
+.slide-kutipan .sumber { color: #ffd700; font-size: 2.5vmin; margin-top: 3vh; position: relative; z-index: 1; font-weight: bold; letter-spacing: 1px; }
+
+.slide-kas {
+    width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;
+    background: rgba(0,255,136,0.05); border-radius: 15px; border: 2px solid rgba(0,255,136,0.3); box-sizing: border-box; padding: 20px;
+}
+.slide-kas h2 { color: #00ff88; font-size: 5vmin; margin: 0 0 5px 0; }
+.slide-kas p { color: #aaa; font-size: 2.5vmin; margin: 0 0 4vh 0; letter-spacing: 1px; }
+.slide-kas table { width: 85%; font-size: 3.5vmin; color: white; border-collapse: collapse; }
+.slide-kas td { padding: 1.5vh 0; }
+.slide-kas .row-border { border-bottom: 1px solid rgba(255,255,255,0.1); }
+.slide-kas .row-total { border-bottom: 2px solid white; }
+.slide-kas .text-right { text-align: right; }
+.slide-kas .text-left { text-align: left; }
+
+/* ==========================================
+   14. FULLSCREEN OVERLAY CONTENT
+   ========================================== */
+.fs-adzan h1 { font-size: 10vmin; color: #ffd700; margin:0; }
+.fs-adzan p { font-size: 5vmin; margin:0; }
+
+.fs-iqomah h2 { font-size: 6vmin; margin:0; }
+.fs-iqomah h1 { font-size: 25vmin; color: #ff3333; font-weight: bold; margin:0; }
+.fs-iqomah p { font-size: 4vmin; margin:0; }
+
+.floating-clock { position: absolute; font-size: 10vmin; color: #333; white-space: nowrap; opacity: 0.6; will-change: transform; }

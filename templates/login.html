@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Admin - AMaL</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="icon" href="/static/images/AMaL.jpeg" type="image/jpeg">
+</head>
+<body class="login-body">
+    
+    <div class="login-container">
+        <div class="login-header">
+            <h2>AMaL</h2>
+            <h2>Anjungan Masjid Libre</h2>
+            <p>Panel Manajemen AMaL</p>
+        </div>
+
+        <div id="error-message" class="error-message" style="display: none;"></div>
+
+        <div class="logo-wrapper">
+            <img src="../../static/images/AMaL2.png" alt="Logo AMaL" style="max-width: 180px; height: auto; display: block; margin: 0 auto; filter: invert(100%);">
+        </div>
+
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required autocomplete="off">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit" class="btn-login">Masuk ke Sistem</button>
+        </form>
+
+        <div class="login-footer">
+            <a href="/">← Kembali ke Layar Kiosk</a>
+        </div>
+
+        <div style="margin-top: 3vh; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 1.5vh; width: 100%; text-align: center">
+            <p style="margin: 4px 0 0 0; font-size: 1.1vmin; color: #3b82f6; font-family: monospace;">⚖️ GNU AGPLv3 License</p>
+        </div>
+
+    </div>
+
+    <script>
+        // Cek jika URL memiliki ?kicked=1 (Dilempar paksa oleh sistem)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('kicked')) {
+            const errBox = document.getElementById('error-message');
+            errBox.innerText = "Sesi Anda telah diputus secara paksa karena Superadmin masuk ke dalam sistem.";
+            errBox.style.display = "block";
+        }
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault(); 
+            
+            const btn = document.querySelector('.btn-login');
+            const errBox = document.getElementById('error-message');
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+
+            // Buat fungsi rekursif untuk bisa memanggil dirinya sendiri jika superadmin memaksa masuk
+            async function prosesLogin(payload) {
+                btn.innerText = payload.force ? "Memaksa Masuk..." : "Memeriksa...";
+                btn.style.opacity = "0.7";
+
+                try {
+                    const res = await fetch('/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok && data.status === "success") {
+                        window.location.href = '/admin';
+                    } 
+                    else if (data.status === "confirm_override") {
+                        // KONDISI KHUSUS: Superadmin diminta konfirmasi
+                        btn.innerText = "Masuk ke Sistem";
+                        btn.style.opacity = "1";
+                        
+                        if (confirm(data.msg)) {
+                            // Jika Superadmin klik OK, kirim ulang paket dengan status force = true
+                            payload.force = true;
+                            prosesLogin(payload);
+                        }
+                    } 
+                    else {
+                        errBox.innerText = data.msg || "Login gagal!";
+                        errBox.style.display = "block";
+                        btn.innerText = "Masuk ke Sistem";
+                        btn.style.opacity = "1";
+                    }
+                } catch (err) {
+                    errBox.innerText = "Terjadi kesalahan koneksi ke server.";
+                    errBox.style.display = "block";
+                    btn.innerText = "Masuk ke Sistem";
+                    btn.style.opacity = "1";
+                }
+            }
+
+            // Panggilan pertama
+            prosesLogin({ username: u, password: p, force: false });
+        });
+    </script>
+</body>
+</html>
