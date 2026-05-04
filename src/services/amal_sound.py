@@ -23,12 +23,27 @@ class SoundEngine:
         with open(path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=4)
 
+    # def get_status(self):
+    #     """Membaca posisi terakhir, default ke Al-Fatihah 1 jika kosong"""
+    #     return self._load_json(self.status_path, {
+    #         "surat": "001",
+    #         "ayat": "001"
+    #     })
+    
     def get_status(self):
-        """Membaca posisi terakhir, default ke Al-Fatihah 1 jika kosong"""
-        return self._load_json(self.status_path, {
-            "surat": "001",
-            "ayat": "001"
-        })
+        """Membaca posisi terakhir, jika tidak ada maka buat berkas baru dengan default Al-Fatihah 1"""
+        # Cek apakah file ada
+        if not os.path.exists(self.status_path):
+            default_data = {
+                "surat": "001", 
+                "ayat": "001"
+            }
+            # Buat berkas baru
+            self._save_json(self.status_path, default_data)
+            return default_data
+        
+        # Jika ada, load seperti biasa
+        return self._load_json(self.status_path)
 
     def build_playlist(self):
         """Fungsi utama merakit playlist untuk jadwal shalat terdekat"""

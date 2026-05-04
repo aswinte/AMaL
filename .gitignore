@@ -36,6 +36,7 @@ static/img/pengumuman/archive/*
 !/data/generated/.gitkeep
 /data/uploads/uploads_temp/*
 !/data/uploads/uploads_temp/.gitkeep
+/data/status_bacaan.json
 static/audio/quran/*
 !static/audio/quran/.gitkeep
 
