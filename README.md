@@ -36,9 +36,9 @@ Tidak ada lagi penyesuaian (*offset*) hari secara manual. AMaL menghitung posisi
 * **Kalender Hijriah Komputasional:** Dihitung langsung menggunakan algoritma astronomi berdasarkan kriteria **Wujudul Hilal, MABIMS, dan KHGT**.
 * **Sistem Penanggalan Lengkap & Kultural:** Tampilan utamanya adalah kelender Hijrian dan Masehi. AMaL juga memiliki pilihan menampilkan kalender Jawa sebagai warisan budaya lokal.
 * **Jadwal Sholat & Arah Kiblat:** Disesuaikan dengan presisi titik koordinat lokal masjid.
-* **Murottal:** Memperdengarkan murattal Al Quran otomatis menjelang adzan.
 * **Pengingat Puasa:** Menampilkan jadwal puasa wajib dan sunnah secara otomatis di layar utama.
 * **Manajemen Hari Libur:** Mengakomodasi hari libur/besar rutin tahunan (Hijriah/Masehi) maupun kejadian insidentil.
+* **Audio:** Memperdengarkan murottal Al Quran dan/atau tarhim otomatis menjelang adzan serta Adzan. Fungsi murottal, tarhim, dan adzan ini dapat dinonaktifkan oleh takmir. Selain itu takmir juga dapat memutar murottal secara manual.
 
 ### 📢 2. Papan Informasi Cerdas (*Smart Signage*)
 Mesin pengumunan otomatis yang dinamis sebagai sarana komunikasi antara takmir dan jemaah.

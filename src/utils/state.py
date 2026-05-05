@@ -14,3 +14,12 @@ state_audio = {
     "teks_indo": "",
     "surat_ayat": ""
 }
+
+state_tilawah = {
+    "aktif": False,
+    "surat": None,
+    "ayat": None,
+    "qari": None, # Menggunakan qari aktif dari konfigurasi
+    "sesi_baru": False,
+    "perlu_bismillah": False
+}

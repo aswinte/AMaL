@@ -2305,3 +2305,106 @@ window.testAudioServer = async function() {
         alert("❌ Terjadi kesalahan jaringan saat mencoba menghubungi server.");
     }
 };
+
+// ==========================================
+// KENDALI TILAWAH MANUAL (ON-DEMAND)
+// ==========================================
+
+function playTilawahManual() {
+    const suratInput = document.getElementById('manual-surat').value;
+    const ayatInput = document.getElementById('manual-ayat').value;
+    const statusDiv = document.getElementById('status-tilawah-manual');
+
+    // Ubah status UI menjadi loading
+    statusDiv.innerText = "⏳ Mempersiapkan tilawah...";
+    statusDiv.style.color = "#eab308"; // Kuning
+
+    // Siapkan data yang akan dikirim (Payload)
+    let payload = {};
+    if (suratInput) {
+        // Jika user memilih surat spesifik, kirim surat dan ayat (default ayat 1 jika kosong)
+        payload = { 
+            surat: parseInt(suratInput), 
+            ayat: ayatInput ? parseInt(ayatInput) : 1 
+        };
+    }
+
+    // Tembak ke API Flask
+    fetch('/api/tilawah/play', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            statusDiv.innerText = "▶️ " + data.msg;
+            statusDiv.style.color = "#00ff88"; // Hijau
+        } else {
+            statusDiv.innerText = "❌ Gagal: " + data.msg;
+            statusDiv.style.color = "#f43f5e"; // Merah
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        statusDiv.innerText = "❌ Terjadi kesalahan jaringan.";
+        statusDiv.style.color = "#f43f5e";
+    });
+}
+
+function stopTilawahManual() {
+    const statusDiv = document.getElementById('status-tilawah-manual');
+    statusDiv.innerText = "⏳ Menunggu ayat saat ini selesai...";
+    statusDiv.style.color = "#eab308";
+
+    fetch('/api/tilawah/stop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        statusDiv.innerText = "⏹️ " + data.msg;
+        statusDiv.style.color = "#aaa"; // Abu-abu
+        
+        // Kosongkan inputan agar kembali ke "Lanjutkan Posisi Terakhir"
+        document.getElementById('manual-surat').value = "";
+        document.getElementById('manual-ayat').value = "";
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        statusDiv.innerText = "❌ Gagal menghentikan.";
+    });
+}
+
+// Fungsi untuk memuat 114 Surat secara otomatis ke Dropdown
+function muatDaftarSurat() {
+    const daftarSurat = [
+        "Al-Fatihah", "Al-Baqarah", "Ali 'Imran", "An-Nisa'", "Al-Ma'idah", "Al-An'am", "Al-A'raf", "Al-Anfal", "At-Taubah", "Yunus",
+        "Hud", "Yusuf", "Ar-Ra'd", "Ibrahim", "Al-Hijr", "An-Nahl", "Al-Isra'", "Al-Kahf", "Maryam", "Ta-Ha",
+        "Al-Anbiya'", "Al-Hajj", "Al-Mu'minun", "An-Nur", "Al-Furqan", "Asy-Syu'ara'", "An-Naml", "Al-Qasas", "Al-'Ankabut", "Ar-Rum",
+        "Luqman", "As-Sajdah", "Al-Ahzab", "Saba'", "Fatir", "Ya-Sin", "As-Saffat", "Sad", "Az-Zumar", "Ghafir",
+        "Fussilat", "Asy-Syura", "Az-Zukhruf", "Ad-Dukhan", "Al-Jasiyah", "Al-Ahqaf", "Muhammad", "Al-Fath", "Al-Hujurat", "Qaf",
+        "Az-Zariyat", "At-Tur", "An-Najm", "Al-Qamar", "Ar-Rahman", "Al-Waqi'ah", "Al-Hadid", "Al-Mujadalah", "Al-Hasyr", "Al-Mumtahanah",
+        "As-Saff", "Al-Jumu'ah", "Al-Munafiqun", "At-Tagabun", "At-Talaq", "At-Tahrim", "Al-Mulk", "Al-Qalam", "Al-Haqqah", "Al-Ma'arij",
+        "Nuh", "Al-Jinn", "Al-Muzzammil", "Al-Muddassir", "Al-Qiyamah", "Al-Insan", "Al-Mursalat", "An-Naba'", "An-Nazi'at", "'Abasa",
+        "At-Takwir", "Al-Infitar", "Al-Mutaffifin", "Al-Insyiqaq", "Al-Buruj", "At-Tariq", "Al-A'la", "Al-Gasyiyah", "Al-Fajr", "Al-Balad",
+        "Asy-Syams", "Al-Lail", "Ad-Duha", "Asy-Syarh", "At-Tin", "Al-'Alaq", "Al-Qadr", "Al-Bayyinah", "Az-Zalzalah", "Al-'Adiyat",
+        "Al-Qari'ah", "At-Takasur", "Al-'Asr", "Al-Humazah", "Al-Fil", "Quraisy", "Al-Ma'un", "Al-Kausar", "Al-Kafirun", "An-Nasr",
+        "Al-Lahab", "Al-Ikhlas", "Al-Falaq", "An-Nas"
+    ];
+
+    const selectSurat = document.getElementById('manual-surat');
+    
+    daftarSurat.forEach((namaSurat, index) => {
+        let nomorSurat = index + 1;
+        let nilaiOption = nomorSurat.toString().padStart(3, '0'); // Format 001, 002, dst
+        
+        let option = document.createElement('option');
+        option.value = nilaiOption;
+        option.text = `${nomorSurat}. ${namaSurat}`;
+        selectSurat.appendChild(option);
+    });
+}
+
+// Jalankan saat halaman selesai dimuat
+document.addEventListener('DOMContentLoaded', muatDaftarSurat);

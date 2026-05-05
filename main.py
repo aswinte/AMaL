@@ -49,7 +49,9 @@ class EndpointFilter(logging.Filter):
         msg = record.getMessage()
         muted_endpoints = [         # Daftar kata kunci/endpoint yang ingin dibisukan
             '/api/simulasi',
-            '/static/images/moon200.png'
+            '/static/images/moon200.png',
+            '/api/audio_state',
+            '/api/heartbeat'
         ]
         return not any(endpoint in msg for endpoint in muted_endpoints)
 

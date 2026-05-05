@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 from src.utils.logger import catat_log
 from src.services.quran_processor import QuranProcessor
 
-from src.utils.state import state_simulasi, state_audio
+from src.utils.state import state_simulasi, state_audio, state_tilawah
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -188,3 +188,43 @@ def api_test_audio():
         
     except Exception as e:
         return jsonify({"status": "error", "msg": str(e)}), 500
+
+# ==========================================
+# 4. TILAWAH ON DEMAND
+# ==========================================
+@api_audio_bp.route('/api/tilawah/play', methods=['POST'])
+def play_tilawah():
+    global state_tilawah
+    data = request.json
+    
+    # Ambil qari aktif dari config[cite: 2]
+    config_path = os.path.join(BASE_DIR, 'config.json')
+    qari_aktif = ""
+    if os.path.exists(config_path):
+        with open(config_path, 'r', encoding='utf-8') as f:
+            qari_aktif = json.load(f).get('audio_settings', {}).get('qari_aktif', "")
+            
+    if not qari_aktif:
+        return jsonify({"status": "error", "msg": "Qari belum dipilih di konfigurasi utama."})
+
+    state_tilawah["aktif"] = True
+    state_tilawah["qari"] = qari_aktif
+    state_tilawah["sesi_baru"] = True 
+    state_tilawah["perlu_bismillah"] = True
+    
+    # Jika user spesifik memilih surat
+    if data.get("surat"):
+        state_tilawah["surat"] = str(data["surat"]).zfill(3)
+        state_tilawah["ayat"] = str(data.get("ayat", 1)).zfill(3)
+    else:
+        # Jika kosong, biarkan Worker membaca dari status_bacaan.json
+        state_tilawah["surat"] = None
+        state_tilawah["ayat"] = None
+        
+    return jsonify({"status": "success", "msg": "Tilawah Manual diaktifkan. Mempersiapkan ayat..."})
+
+@api_audio_bp.route('/api/tilawah/stop', methods=['POST'])
+def stop_tilawah():
+    global state_tilawah
+    state_tilawah["aktif"] = False
+    return jsonify({"status": "success", "msg": "Berhenti pada akhir ayat saat ini."})

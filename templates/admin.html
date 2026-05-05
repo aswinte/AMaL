@@ -990,6 +990,35 @@
 
                     </div>
                 </div>
+
+                <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 8px; border-top: 3px solid #f43f5e; margin-top: 20px;">
+                    <h3 style="color: #f43f5e; margin-top: 0;">5. Pemutar Tilawah Manual (On-Demand)</h3>
+                    <p style="font-size: 13px; color: #aaa; margin-bottom: 15px;">Putar Al-Qur'an secara manual. Sistem akan otomatis berhenti memutar ayat baru pada 5 menit sebelum jadwal audio otomatis (Murottal/Tarhim/Adzan) dimulai agar tidak bertabrakan.</p>
+                    
+                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group">
+                            <label>Pilih Surat Awal (Opsional)</label>
+                            <select id="manual-surat" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;">
+                                <option value="">Lanjutkan Posisi Terakhir</option>
+                                <!-- Nanti diisi pakai JavaScript dengan daftar 114 Surat -->
+                                <!-- <option value="001">1. Al-Fatihah</option> -->
+                                <!-- <option value="002">2. Al-Baqarah</option> -->
+                                <!-- ... dst ... -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Mulai Ayat Ke-</label>
+                            <input type="number" id="manual-ayat" placeholder="Auto" min="1" 
+                                style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;">
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: flex-end; gap: 10px;">
+                            <button onclick="playTilawahManual()" style="flex: 1; padding: 10px; background: #f43f5e; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">▶️ Putar</button>
+                            <button onclick="stopTilawahManual()" style="flex: 1; padding: 10px; background: #555; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">⏹️ Berhenti</button>
+                        </div>
+                    </div>
+                    <div id="status-tilawah-manual" style="font-size: 12px; font-weight: bold; color: #00ff88;"></div>
+                </div>
+
             </div>
 
             <div id="panel-waktu" class="panel" style="display: none;">

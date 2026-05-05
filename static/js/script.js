@@ -2366,8 +2366,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    
-
     // ==========================================
     // FUNGSI PEMBUAT RUNNING TEXT (HARI BESAR LOKAL)
     // ==========================================
@@ -2496,6 +2494,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Variabel untuk melacak status terakhir agar tidak merender ulang DOM terus-menerus
+    let isAudioCurrentlyPlaying = false;
+
+    function fetchAudioState() {
+        fetch('/api/audio_state')
+            .then(response => response.json())
+            .then(data => {
+                const widget = document.getElementById('widget-now-playing');
+                const teksSurat = document.getElementById('np-surat-ayat');
+
+                if (data.is_playing) {
+                    // Update teksnya
+                    teksSurat.innerText = data.surat_ayat;
+                    
+                    // Jika sebelumnya mati, sekarang munculkan widget-nya
+                    if (!isAudioCurrentlyPlaying) {
+                        widget.style.top = "30px"; // Munculkan ke atas
+                        widget.style.right = "50px";
+                        isAudioCurrentlyPlaying = true;
+                    }
+                } else {
+                    // Jika sedang tidak ada audio yang diputar, sembunyikan widget
+                    if (isAudioCurrentlyPlaying) {
+                        widget.style.top = "-100px"; // Turunkan hingga sembunyi
+                        isAudioCurrentlyPlaying = false;
+                    }
+                }
+            })
+            .catch(error => console.error("Gagal mengambil state audio:", error));
+    }
+
+    // Jalankan polling setiap 1 detik (1000 milidetik)
+    setInterval(fetchAudioState, 1000);
+    
     // ==========================================
     // 5. RUN
     // ==========================================

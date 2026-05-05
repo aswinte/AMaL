@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import platform
 import pygame
 
-from src.utils.state import state_audio
+from src.utils.state import state_audio, state_tilawah
 from src.services.amal_sound import SoundEngine
 from src.services.astronomy import get_prayer_times_data
 
@@ -179,6 +179,103 @@ def audio_background_worker():
                         print(f"[AMaL Audio] Tilawah Selesai.")
             else:
                 sudah_dirakit_untuk_jadwal = "" 
+
+            # ========================================================
+            # 6. BLOK TILAWAH MANUAL (ON-DEMAND)
+            # ========================================================
+            if state_tilawah.get("aktif"):
+                # Hitung DEADLINE (Batas waktu mentok 5 menit sebelum kegiatan berikutnya)
+                # 1. Mulai dari waktu Adzan
+                batas_waktu_audio = waktu_adzan 
+                
+                # 2. Tarik mundur jika Tarhim aktif
+                if tarhim_aktif:
+                    batas_waktu_audio -= timedelta(seconds=(60 + durasi_tarhim))
+                    
+                # 3. Tarik mundur jika Murottal Otomatis aktif
+                if audio_conf.get('murottal_aktif', False):
+                    t_durasi = audio_conf.get('target_durasi_menit', 10) or 10
+                    t_toleransi = audio_conf.get('toleransi_tamat_menit', 3) or 3
+                    batas_waktu_audio -= timedelta(minutes=t_durasi + t_toleransi)
+                
+                # Deadline absolut: 5 menit sebelum batas_waktu_audio
+                deadline_stop = batas_waktu_audio - timedelta(minutes=5)
+
+                if now < deadline_stop:
+                    # Ambil posisi terakhir dari file jika user tidak memilih spesifik
+                    if not state_tilawah["surat"]:
+                        status_terakhir = engine.get_status()
+                        state_tilawah["surat"] = status_terakhir["surat"]
+                        state_tilawah["ayat"] = status_terakhir["ayat"]
+
+                    qari = state_tilawah["qari"]
+                    surat_skrg = state_tilawah["surat"]
+                    ayat_skrg = state_tilawah["ayat"]
+
+                    # Variabel penampung apa yang akan diputar di siklus ini
+                    item_to_play = None
+                    next_surat = surat_skrg
+                    next_ayat = ayat_skrg
+                    update_posisi_bacaan = False
+
+                    # LOGIKA ANTRETAN TILAWAH (SUTRADARA)
+                    if state_tilawah.get("sesi_baru", False):
+                        # 1. Putar Ta'awwudh di awal sesi
+                        item_to_play = engine.get_taawudh()
+                        state_tilawah["sesi_baru"] = False
+                        
+                    elif ayat_skrg == "001" and state_tilawah.get("perlu_bismillah", True):
+                        # 2. Putar Bismillah di awal surat (jika disyaratkan)
+                        item_to_play = engine.get_bismillah(qari, surat_skrg)
+                        state_tilawah["perlu_bismillah"] = False
+                        
+                        # Bypass khusus untuk At-Taubah (item_to_play akan bernilai None)
+                        if not item_to_play:
+                            item_to_play, next_surat, next_ayat = engine.get_single_ayat(qari, surat_skrg, ayat_skrg)
+                            state_tilawah["perlu_bismillah"] = True
+                            update_posisi_bacaan = True
+                            
+                    else:
+                        # 3. Putar Ayat Utama
+                        item_to_play, next_surat, next_ayat = engine.get_single_ayat(qari, surat_skrg, ayat_skrg)
+                        state_tilawah["perlu_bismillah"] = True # Reset jika nanti pindah ke surat baru
+                        update_posisi_bacaan = True
+
+                    # EKSEKUSI PEMUTARAN AUDIO
+                    if item_to_play and not pygame.mixer.music.get_busy():
+                        file_path = os.path.join(BASE_DIR, "static", "audio", item_to_play["file"])
+                        if os.path.exists(file_path):
+                            state_audio["is_playing"] = True
+                            state_audio["teks_arab"] = item_to_play["teks_arab"]
+                            state_audio["teks_indo"] = item_to_play["teks_indo"]
+                            state_audio["surat_ayat"] = f"{item_to_play['surat_nama']} {item_to_play['ayat_num']}"
+
+                            print(f"[AMaL Tilawah] Memutar {state_audio['surat_ayat']}...")
+                            
+                            pygame.mixer.music.load(file_path)
+                            pygame.mixer.music.play()
+                            
+                            # Tahan loop SELAMA audio ini berbunyi
+                            while pygame.mixer.music.get_busy():
+                                if not state_tilawah["aktif"]:
+                                    break
+                                time.sleep(0.1)
+
+                            # Simpan posisi HANYA jika yang baru selesai diputar adalah Ayat (bukan Ta'awwudh/Basmalah)
+                            if update_posisi_bacaan:
+                                state_tilawah["surat"] = next_surat
+                                state_tilawah["ayat"] = next_ayat
+                                engine._save_json(engine.status_path, {
+                                    "surat": next_surat,
+                                    "ayat": next_ayat
+                                })
+                                
+                            state_audio["is_playing"] = False
+                            
+                else:
+                    # Menabrak Deadline H-5 Menit!
+                    print(f"[AMaL Tilawah] Waktu habis (Mendekati jadwal otomatis). Tilawah dihentikan.")
+                    state_tilawah["aktif"] = False
 
             # ========================================================
             # 4. BLOK TARHIM

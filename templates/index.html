@@ -101,7 +101,7 @@
                 <div class="sidebar-footer">
                     <img src="/static/images/AMaL2.png" alt="Logo AMaL">
                     <div class="sidebar-footer-teks">
-                        <p class="judul">AMaL</p>
+                        <!-- <p class="judul">AMaL</p> -->
                         <p class="sub">Anjungan Masjid Libre</p>
                         <p class="lisensi">⚖️ GNU AGPLv3 License</p>
                     </div>                    
@@ -180,6 +180,46 @@
     </div>
 
     <div id="layar-blackout"></div>
+
+    <!-- Widget Now Playing (Disembunyikan secara default) -->
+    <div id="widget-now-playing" style="
+        position: fixed; 
+        top: -100px; /* Sembunyi di bawah layar */
+        right: 30px; 
+        background: rgba(15, 23, 42, 0.9); 
+        color: white; 
+        padding: 12px 25px; 
+        border-radius: 50px; 
+        border: 2px solid #00ff88;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        display: flex; 
+        align-items: center; 
+        gap: 15px;
+        transition: top 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 9999;
+        font-family: sans-serif;
+    ">
+        <!-- Animasi Equalizer Sederhana -->
+        <div style="display: flex; gap: 3px; align-items: flex-end; height: 20px;">
+            <div class="bar" style="width: 4px; background: #00ff88; animation: bounce 1s infinite ease-in-out;"></div>
+            <div class="bar" style="width: 4px; background: #00ff88; animation: bounce 1s infinite ease-in-out 0.2s;"></div>
+            <div class="bar" style="width: 4px; background: #00ff88; animation: bounce 1s infinite ease-in-out 0.4s;"></div>
+        </div>
+        
+        <!-- Teks Info Surat -->
+        <div>
+            <div style="font-size: 11px; color: #00ff88; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Sedang Diputar</div>
+            <div id="np-surat-ayat" style="font-size: 18px; font-weight: bold; margin-top: 2px;">Al-Baqarah 2:19</div>
+        </div>
+    </div>
+
+    <!-- Tambahan CSS untuk Animasi Equalizer -->
+    <style>
+        @keyframes bounce {
+            0%, 100% { height: 5px; }
+            50% { height: 20px; }
+        }
+    </style>
 
     {% raw %}
     <template id="tmpl-slide-rashdul">

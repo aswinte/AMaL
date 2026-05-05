@@ -125,35 +125,6 @@ class SoundEngine:
                 })
                 total_durasi += data_ayat["durasi"]
 
-            # # Evaluasi Waktu (Apakah sudah mencapai 10 menit?)
-            # if total_durasi >= target_detik:
-            #     # --- ADAB 3: The 3-Minute Rule (Toleransi Tamat) ---
-            #     sisa_ayat = total_ayat_di_surat - int(curr_ayat)
-                
-            #     # Hitung durasi sisa ayat di surat ini
-            #     estimasi_sisa_durasi = 0
-            #     for a in range(int(curr_ayat) + 1, total_ayat_di_surat + 1):
-            #         a_str = str(a).zfill(3)
-            #         estimasi_sisa_durasi += data_surat["ayahs"].get(a_str, {}).get("durasi", 0)
-
-            #     # Jika sisa durasi sangat singkat, JANGAN BERHENTI. Teruskan sampai tamat.
-            #     if estimasi_sisa_durasi > 0 and estimasi_sisa_durasi <= toleransi_detik:
-            #         pass # Biarkan looping lanjut sampai akhir surat
-            #     else:
-            #         selesai_kumpul = True # Stop pengumpulan di sini!
-
-            # # Majukan ke ayat berikutnya
-            # if not selesai_kumpul:
-            #     next_ayat_int = int(curr_ayat) + 1
-            #     if next_ayat_int > total_ayat_di_surat:
-            #         # Pindah ke Surat Berikutnya
-            #         curr_surat = str(int(curr_surat) + 1).zfill(3)
-            #         curr_ayat = "001"
-            #         if int(curr_surat) > 114:
-            #             curr_surat = "001" # Reset ke Al-Fatihah (Khatam)
-            #     else:
-            #         curr_ayat = str(next_ayat_int).zfill(3)
-
             # Evaluasi Waktu (Apakah sudah mencapai 10 menit?)
             if total_durasi >= target_detik:
                 # Hitung estimasi sisa durasi di surat ini
@@ -205,3 +176,81 @@ class SoundEngine:
             "total_detik": round(total_durasi, 2),
             "playlist": playlist
         }
+    
+    def get_single_ayat(self, qari, curr_surat, curr_ayat):
+        """Mengambil data satu ayat dan menentukan ayat berikutnya"""
+        master_path = os.path.join(self.generated_dir, f"quran_master_{qari}.json")
+        if not os.path.exists(master_path):
+            return None
+
+        metadata = self._load_json(master_path)
+        data_surat = metadata.get(curr_surat)
+        if not data_surat: return None
+
+        total_ayat_di_surat = data_surat["total_ayahs"]
+        
+        # Penanganan Bismillah di awal surat (opsional, bisa Anda kembangkan)
+        # Untuk kesederhanaan, kita langsung tembak ayat yang diminta.
+        data_ayat = data_surat["ayahs"].get(curr_ayat)
+        if not data_ayat: return None
+
+        item_ayat = {
+            "surat_nama": data_surat["nama_latin"],
+            "ayat_num": f"{int(curr_surat)}:{int(curr_ayat)}",
+            "file": f"quran/{qari}/{curr_surat}{curr_ayat}.mp3",
+            "teks_arab": data_ayat["arab"],
+            "teks_indo": data_ayat["indo"]
+        }
+
+        # Kalkulasi indeks berikutnya[cite: 1]
+        next_ayat_int = int(curr_ayat) + 1
+        next_surat = curr_surat
+        next_ayat = str(next_ayat_int).zfill(3)
+
+        if next_ayat_int > total_ayat_di_surat:
+            next_surat = str(int(curr_surat) + 1).zfill(3)
+            next_ayat = "001"
+            if int(next_surat) > 114:
+                next_surat = "001"
+
+        return item_ayat, next_surat, next_ayat
+    
+    def get_taawudh(self):
+        """Mengembalikan data audio dan teks untuk Ta'awwudh"""
+        return {
+            "surat_nama": "Mulai Tilawah",
+            "ayat_num": "Ta'awwudh",
+            "file": "core/taawudh.mp3",
+            "teks_arab": "أَعُوذُ بِٱللَّهِ مِنَ ٱلشَّيْطَانِ ٱلرَّجِيمِ",
+            "teks_indo": "Aku berlindung kepada Allah dari godaan setan yang terkutuk."
+        }
+
+    def get_bismillah(self, qari, curr_surat):
+        """Mengembalikan data Bismillah sesuai Qari dan Surat, atau None jika tidak perlu"""
+        master_path = os.path.join(self.generated_dir, f"quran_master_{qari}.json")
+        metadata = self._load_json(master_path)
+        data_surat = metadata.get(curr_surat)
+
+        # Jika surat tidak butuh basmalah (seperti At-Taubah), kembalikan None
+        if not data_surat or not data_surat.get("requires_bismillah"):
+            return None
+        
+        # Cek apakah Qari punya bismillah sendiri (di ayat 000)
+        ayat_000 = data_surat["ayahs"].get("000", {})
+        if ayat_000 and ayat_000.get("durasi", 0) > 0:
+            return {
+                "surat_nama": data_surat["nama_latin"],
+                "ayat_num": "Basmalah",
+                "file": f"quran/{qari}/{curr_surat}000.mp3",
+                "teks_arab": ayat_000["arab"],
+                "teks_indo": ayat_000["indo"]
+            }
+        else:
+            # Fallback ke Bismillah bawaan sistem (core)
+            return {
+                "surat_nama": data_surat["nama_latin"],
+                "ayat_num": "Basmalah",
+                "file": "core/bismillah.mp3",
+                "teks_arab": "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
+                "teks_indo": "Dengan menyebut nama Allah Yang Maha Pemurah lagi Maha Penyayang."
+            }
