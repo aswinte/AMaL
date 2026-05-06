@@ -927,8 +927,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 UI.tglJawa.innerText = `${infoJawa.tanggal} ${infoJawa.sasi} ${infoJawa.tahunAngka} J`;
             }
         }
-        // Tanggal Jawa di bawah Hijriah
-        // const infoKurupEl = document.getElementById('info-kurup'); // Ambil elemen baru
         
         if (UI.tglJawa && window.KalenderJawa) {
             const infoJawa = window.KalenderJawa.getInfoUrfi(now);
@@ -2494,6 +2492,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ==========================================
+    // FUNGSI MENAMPILKAN AUDIO YANG DIPUTAR
+    // ==========================================
     // Variabel untuk melacak status terakhir agar tidak merender ulang DOM terus-menerus
     let isAudioCurrentlyPlaying = false;
 
@@ -2510,21 +2511,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     // Jika sebelumnya mati, sekarang munculkan widget-nya
                     if (!isAudioCurrentlyPlaying) {
-                        widget.style.top = "30px"; // Munculkan ke atas
+                        widget.style.top = "30px"; // Munculkan di kanan atas
                         widget.style.right = "50px";
                         isAudioCurrentlyPlaying = true;
                     }
                 } else {
                     // Jika sedang tidak ada audio yang diputar, sembunyikan widget
                     if (isAudioCurrentlyPlaying) {
-                        widget.style.top = "-100px"; // Turunkan hingga sembunyi
+                        widget.style.top = "-100px"; // Naikkan hingga sembunyi
                         isAudioCurrentlyPlaying = false;
                     }
                 }
             })
             .catch(error => console.error("Gagal mengambil state audio:", error));
     }
-
     // Jalankan polling setiap 1 detik (1000 milidetik)
     setInterval(fetchAudioState, 1000);
     

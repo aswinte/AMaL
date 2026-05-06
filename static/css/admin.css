@@ -139,13 +139,13 @@ body.admin-body {
 .nav-menu {
     list-style: none;
     padding: 0;
-    margin: 20px 0;
+    margin: 10px 0;
     flex: 1;
 }
 
 .nav-menu li a {
     display: block;
-    padding: 15px 20px;
+    padding: 10px 15px;
     color: var(--text-muted);
     text-decoration: none;
     transition: all 0.3s;
@@ -159,8 +159,8 @@ body.admin-body {
 }
 
 .sidebar-footer {
-    padding: 20px;
-    border-top: 1px solid rgba(255,255,255,0.05);
+    padding: 10px;
+    /* border-top: 1px solid rgba(255,255,255,0.05); */
 }
 
 .btn-logout {

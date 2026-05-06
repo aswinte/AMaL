@@ -181,7 +181,7 @@ def audio_background_worker():
                 sudah_dirakit_untuk_jadwal = "" 
 
             # ========================================================
-            # 6. BLOK TILAWAH MANUAL (ON-DEMAND)
+            # 4. BLOK TILAWAH MANUAL (ON-DEMAND)
             # ========================================================
             if state_tilawah.get("aktif"):
                 # Hitung DEADLINE (Batas waktu mentok 5 menit sebelum kegiatan berikutnya)
@@ -278,7 +278,7 @@ def audio_background_worker():
                     state_tilawah["aktif"] = False
 
             # ========================================================
-            # 4. BLOK TARHIM
+            # 5. BLOK TARHIM
             # ========================================================
             if tarhim_aktif:
                 # Kapan Tarhim mulai? Titik Adzan ditarik mundur 60 detik, lalu ditarik mundur lagi sepanjang durasi Tarhim.
@@ -304,7 +304,7 @@ def audio_background_worker():
                     print(f"[AMaL Audio] Tarhim Selesai. Menunggu 1 menit menuju Adzan {nama_target}.")
 
             # ========================================================
-            # 5. BLOK ADZAN
+            # 6. BLOK ADZAN
             # ========================================================
             if now >= waktu_adzan and adzan_sudah_berbunyi_untuk != nama_target:
                 

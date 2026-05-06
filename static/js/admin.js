@@ -2311,6 +2311,17 @@ window.testAudioServer = async function() {
 // ==========================================
 
 function playTilawahManual() {
+
+    const selectSurat = document.getElementById('manual-surat');
+    const inputAyat = document.getElementById('manual-ayat');
+    const maxAyat = selectSurat.options[selectSurat.selectedIndex].getAttribute('data-max');
+    const ayatValue = parseInt(inputAyat.value);
+    if (maxAyat && ayatValue > parseInt(maxAyat)) {
+        alert(`Surat ini hanya memiliki ${maxAyat} ayat.`);
+        inputAyat.value = maxAyat; // Koreksi otomatis
+        return;
+    }
+
     const suratInput = document.getElementById('manual-surat').value;
     const ayatInput = document.getElementById('manual-ayat').value;
     const statusDiv = document.getElementById('status-tilawah-manual');
@@ -2376,35 +2387,79 @@ function stopTilawahManual() {
     });
 }
 
-// Fungsi untuk memuat 114 Surat secara otomatis ke Dropdown
-function muatDaftarSurat() {
-    const daftarSurat = [
-        "Al-Fatihah", "Al-Baqarah", "Ali 'Imran", "An-Nisa'", "Al-Ma'idah", "Al-An'am", "Al-A'raf", "Al-Anfal", "At-Taubah", "Yunus",
-        "Hud", "Yusuf", "Ar-Ra'd", "Ibrahim", "Al-Hijr", "An-Nahl", "Al-Isra'", "Al-Kahf", "Maryam", "Ta-Ha",
-        "Al-Anbiya'", "Al-Hajj", "Al-Mu'minun", "An-Nur", "Al-Furqan", "Asy-Syu'ara'", "An-Naml", "Al-Qasas", "Al-'Ankabut", "Ar-Rum",
-        "Luqman", "As-Sajdah", "Al-Ahzab", "Saba'", "Fatir", "Ya-Sin", "As-Saffat", "Sad", "Az-Zumar", "Ghafir",
-        "Fussilat", "Asy-Syura", "Az-Zukhruf", "Ad-Dukhan", "Al-Jasiyah", "Al-Ahqaf", "Muhammad", "Al-Fath", "Al-Hujurat", "Qaf",
-        "Az-Zariyat", "At-Tur", "An-Najm", "Al-Qamar", "Ar-Rahman", "Al-Waqi'ah", "Al-Hadid", "Al-Mujadalah", "Al-Hasyr", "Al-Mumtahanah",
-        "As-Saff", "Al-Jumu'ah", "Al-Munafiqun", "At-Tagabun", "At-Talaq", "At-Tahrim", "Al-Mulk", "Al-Qalam", "Al-Haqqah", "Al-Ma'arij",
-        "Nuh", "Al-Jinn", "Al-Muzzammil", "Al-Muddassir", "Al-Qiyamah", "Al-Insan", "Al-Mursalat", "An-Naba'", "An-Nazi'at", "'Abasa",
-        "At-Takwir", "Al-Infitar", "Al-Mutaffifin", "Al-Insyiqaq", "Al-Buruj", "At-Tariq", "Al-A'la", "Al-Gasyiyah", "Al-Fajr", "Al-Balad",
-        "Asy-Syams", "Al-Lail", "Ad-Duha", "Asy-Syarh", "At-Tin", "Al-'Alaq", "Al-Qadr", "Al-Bayyinah", "Az-Zalzalah", "Al-'Adiyat",
-        "Al-Qari'ah", "At-Takasur", "Al-'Asr", "Al-Humazah", "Al-Fil", "Quraisy", "Al-Ma'un", "Al-Kausar", "Al-Kafirun", "An-Nasr",
-        "Al-Lahab", "Al-Ikhlas", "Al-Falaq", "An-Nas"
-    ];
+// // Fungsi untuk memuat 114 Surat secara otomatis ke Dropdown
+// function muatDaftarSurat() {
+//     const daftarSurat = [
+//         "Al-Fatihah", "Al-Baqarah", "Ali 'Imran", "An-Nisa'", "Al-Ma'idah", "Al-An'am", "Al-A'raf", "Al-Anfal", "At-Taubah", "Yunus",
+//         "Hud", "Yusuf", "Ar-Ra'd", "Ibrahim", "Al-Hijr", "An-Nahl", "Al-Isra'", "Al-Kahf", "Maryam", "Ta-Ha",
+//         "Al-Anbiya'", "Al-Hajj", "Al-Mu'minun", "An-Nur", "Al-Furqan", "Asy-Syu'ara'", "An-Naml", "Al-Qasas", "Al-'Ankabut", "Ar-Rum",
+//         "Luqman", "As-Sajdah", "Al-Ahzab", "Saba'", "Fatir", "Ya-Sin", "As-Saffat", "Sad", "Az-Zumar", "Ghafir",
+//         "Fussilat", "Asy-Syura", "Az-Zukhruf", "Ad-Dukhan", "Al-Jasiyah", "Al-Ahqaf", "Muhammad", "Al-Fath", "Al-Hujurat", "Qaf",
+//         "Az-Zariyat", "At-Tur", "An-Najm", "Al-Qamar", "Ar-Rahman", "Al-Waqi'ah", "Al-Hadid", "Al-Mujadalah", "Al-Hasyr", "Al-Mumtahanah",
+//         "As-Saff", "Al-Jumu'ah", "Al-Munafiqun", "At-Tagabun", "At-Talaq", "At-Tahrim", "Al-Mulk", "Al-Qalam", "Al-Haqqah", "Al-Ma'arij",
+//         "Nuh", "Al-Jinn", "Al-Muzzammil", "Al-Muddassir", "Al-Qiyamah", "Al-Insan", "Al-Mursalat", "An-Naba'", "An-Nazi'at", "'Abasa",
+//         "At-Takwir", "Al-Infitar", "Al-Mutaffifin", "Al-Insyiqaq", "Al-Buruj", "At-Tariq", "Al-A'la", "Al-Gasyiyah", "Al-Fajr", "Al-Balad",
+//         "Asy-Syams", "Al-Lail", "Ad-Duha", "Asy-Syarh", "At-Tin", "Al-'Alaq", "Al-Qadr", "Al-Bayyinah", "Az-Zalzalah", "Al-'Adiyat",
+//         "Al-Qari'ah", "At-Takasur", "Al-'Asr", "Al-Humazah", "Al-Fil", "Quraisy", "Al-Ma'un", "Al-Kausar", "Al-Kafirun", "An-Nasr",
+//         "Al-Lahab", "Al-Ikhlas", "Al-Falaq", "An-Nas"
+//     ];
 
-    const selectSurat = document.getElementById('manual-surat');
+//     const selectSurat = document.getElementById('manual-surat');
     
-    daftarSurat.forEach((namaSurat, index) => {
-        let nomorSurat = index + 1;
-        let nilaiOption = nomorSurat.toString().padStart(3, '0'); // Format 001, 002, dst
+//     daftarSurat.forEach((namaSurat, index) => {
+//         let nomorSurat = index + 1;
+//         let nilaiOption = nomorSurat.toString().padStart(3, '0'); // Format 001, 002, dst
+        
+//         let option = document.createElement('option');
+//         option.value = nilaiOption;
+//         option.text = `${nomorSurat}. ${namaSurat}`;
+//         selectSurat.appendChild(option);
+//     });
+// }
+
+function muatDaftarSurat() {
+    const selectSurat = document.getElementById('manual-surat');
+    const inputAyat = document.getElementById('manual-ayat');
+
+    // Kosongkan dulu jika perlu, kecuali opsi pertama
+    selectSurat.innerHTML = '<option value="">Lanjutkan Posisi Terakhir</option>';
+
+    // Loop mulai dari index 1 karena index 0 di QuranData.Sura kosong/array kosong
+    for (let i = 1; i <= 114; i++) {
+        const data = QuranData.Sura[i];
+        const nomorSurat = i;
+        const jumlahAyat = data[1]; // Index 1 adalah jumlah ayat (ayas)
+        const namaSurat = data[5];   // Index 5 adalah tname (transliteration name)
+        
+        let nilaiOption = nomorSurat.toString().padStart(3, '0');
         
         let option = document.createElement('option');
         option.value = nilaiOption;
-        option.text = `${nomorSurat}. ${namaSurat}`;
+        option.setAttribute('data-max', jumlahAyat); // Simpan jumlah ayat di sini
+        option.text = `${nomorSurat}. ${namaSurat} (${jumlahAyat} Ayat)`;
         selectSurat.appendChild(option);
+    }
+
+    // Tambahkan Event Listener untuk mendeteksi perubahan pilihan surat
+    selectSurat.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const maxAyat = selectedOption.getAttribute('data-max');
+
+        if (maxAyat) {
+            inputAyat.max = maxAyat;
+            inputAyat.placeholder = `1-${maxAyat}`;
+        } else {
+            inputAyat.removeAttribute('max');
+            inputAyat.placeholder = "Auto";
+        }
+        
+        // Reset nilai input ayat jika melebihi batas baru
+        if (parseInt(inputAyat.value) > parseInt(maxAyat)) {
+            inputAyat.value = maxAyat;
+        }
     });
 }
+
 
 // Jalankan saat halaman selesai dimuat
 document.addEventListener('DOMContentLoaded', muatDaftarSurat);

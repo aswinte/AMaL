@@ -14,28 +14,21 @@
             <div class="sidebar-header">
                 <div>
                     <div style="display: flex; align-items: center; justify-content: center; gap: 10px; padding-bottom: 0px;">
-                        <!-- <img src="/static/images/AMaL2.png" alt="Logo AMaL" style="max-height: 8.5vh; width: auto; filter: invert(100%); opacity: 0.9;"> -->
-                        <h2 style="font-size: 2vmin;">AMaL - Anjungan Masjid Libre</h2>
+                        <!-- <img src="/static/images/AMaL2.png" alt="Logo AMaL" style="max-height: 90px; width: auto; filter: invert(100%); opacity: 0.9;"> -->
+                        <h2>AMaL - Anjungan Masjid Libre</h2>
                     </div>
                     <p>Halo, <span style="color: #00ff88;">{{ username }}</span></p>
-                    <small style="color: #aaa; font-size: 11px;">Akses: <span style="font-weight: bold;">{{ role }}</span></small>
+                    <small style="color: #aaa; font-size: 15px;">Akses: <span style="font-weight: bold;">{{ role }}</span></small>
                 </div>
                 <div style="margin-top:10px;">
                     <a href="{{ url_for('web.logout') }}" class="btn-logout">🚪 Keluar (Logout)</a>
+
+                    {% if role == 'superadmin' or role == 'admin_konten' %}
+                    <button id="btn-refresh-tv" class="btn-login" style="background: #f59e0b; margin-top: 10px;">🔄 Refresh Layar TV</button>
+                    {% endif %}
                 </div>
             </div>
             
-            <!-- <ul class="nav-menu">
-                <li><a href="#" data-target="panel-dashboard" class="active">📊 Status Sistem</a></li>
-                <li><a href="#" data-target="panel-masjid">🕌 Profil & Lokasi</a></li>
-                <li><a href="#" data-target="panel-konten">📢 Pengumuman & Gambar</a></li>
-                <li><a href="#" data-target="panel-kutipan">📜 Mutiara Hikmah</a></li>
-                <li><a href="#" data-target="panel-waktu">⚙️ Pengaturan Waktu</a></li>
-                <li><a href="#" data-target="panel-jangkar">🗓️ Kalender Jangkar</a></li>
-                <li><a href="#" data-target="panel-log">🕵️ Catatan Aktifitas</a></li>
-                <li><a href="#" data-target="panel-akun">👥 Manajemen Akun</a></li>
-            </ul> -->
-
             <ul class="nav-menu">
                 <li><a href="#" data-target="panel-dashboard" class="active">📊 Status Sistem</a></li>
                 
@@ -44,12 +37,12 @@
                 {% endif %}
 
                 {% if role == 'superadmin' %}
-                <li><a href="#" data-target="panel-waktu">⏰ Pengaturan Jam</a></li>
-                {% endif %}                
-
-                {% if role == 'superadmin' %}
                 <li><a href="#" data-target="panel-waktu-shalat">⚙️ Pengaturan Waktu Shalat</a></li>
                 {% endif %}
+
+                {% if role == 'superadmin' %}
+                <li><a href="#" data-target="panel-waktu">⏰ Pengaturan Jam</a></li>
+                {% endif %}                
 
                 {% if role == 'superadmin' %}
                 <li><a href="#" data-target="panel-tristate">💤 Screen Saver</a></li>
@@ -85,10 +78,6 @@
 
                 <li><a href="#" data-target="panel-akun">👥 Manajemen Akun</a></li>
             </ul>
-
-            {% if role == 'superadmin' %}
-            <button id="btn-refresh-tv" class="btn-login" style="background: #f59e0b; margin-top: 10px;">🔄 Refresh Layar TV</button>
-            {% endif %}
 
             <div style="margin-top: auto; border-top: 2px solid rgba(255,255,255,0.15); padding-top: 1vh; width: 100%; display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: center; gap: 2px;">
                 <img src="/static/images/AMaL2.png" alt="Logo AMaL" style="max-height: 4vh; width: auto; flex-shrink: 0; filter: invert(100%); opacity: 0.9;">
@@ -947,11 +936,14 @@
                     </div>
 
                     <div style="margin-bottom: 30px; padding-bottom: 25px; border-bottom: 1px dashed rgba(255,255,255,0.2);">
-                        <button id="btn-save-audio" class="btn-login" style="width: auto; padding: 12px 25px; background: #00ff88; color: #121212; font-size: 15px;">💾 Simpan Pengaturan Audio & Status</button>
+                        <button id="btn-save-audio" class="btn-login" style="width: auto; padding: 12px 25px; background: #00ff88; color: #121212; font-size: 15px;">💾 Simpan Pengaturan Audio Adzan, Murottal, dan Tarhmin</button>
                         <span id="pesan-audio" style="margin-left: 15px; font-weight: bold; font-size: 14px;"></span>
                     </div>
+                    
+                </div>
 
-                    <h4 style="color: #ddd;">Manajemen Berkas Qari (Murottal)</h4>
+                <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 8px; border-top: 3px solid #11aeb0; margin-top: 20px;">
+                    <h3 style="color: #147873; margin-top: 0;">5. Manajemen Berkas Qari (Murottal)</h3>
                     <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; align-items: start;">
                         
                         <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 6px;">
@@ -992,7 +984,7 @@
                 </div>
 
                 <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 8px; border-top: 3px solid #f43f5e; margin-top: 20px;">
-                    <h3 style="color: #f43f5e; margin-top: 0;">5. Pemutar Tilawah Manual (On-Demand)</h3>
+                    <h3 style="color: #f43f5e; margin-top: 0;">6. Pemutar Tilawah Manual (On-Demand)</h3>
                     <p style="font-size: 13px; color: #aaa; margin-bottom: 15px;">Putar Al-Qur'an secara manual. Sistem akan otomatis berhenti memutar ayat baru pada 5 menit sebelum jadwal audio otomatis (Murottal/Tarhim/Adzan) dimulai agar tidak bertabrakan.</p>
                     
                     <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
@@ -1034,6 +1026,7 @@
 
     <script src="/static/js/utils.js"></script>
     <script src="/static/js/kalender_jawa.js"></script>
+    <script src="/static/js/quran-data.js"></script>
     <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
 </body>
 </html>
