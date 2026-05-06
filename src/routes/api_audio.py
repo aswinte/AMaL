@@ -189,6 +189,23 @@ def api_test_audio():
     except Exception as e:
         return jsonify({"status": "error", "msg": str(e)}), 500
 
+@api_audio_bp.route('/set_volume', methods=['POST'])
+def set_volume():
+    try:
+        # Ambil data JSON dari request
+        data = request.get_json()
+        volume_level = float(data.get('volume', 0.5))
+        
+        # Batasi agar tetap di range 0.0 - 1.0
+        volume_level = max(0.0, min(1.0, volume_level))
+        
+        # Terapkan ke Pygame
+        pygame.mixer.music.set_volume(volume_level)
+        
+        return jsonify({"status": "success", "volume": volume_level})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 400
+
 # ==========================================
 # 4. TILAWAH ON DEMAND
 # ==========================================

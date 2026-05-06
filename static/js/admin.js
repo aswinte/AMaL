@@ -2460,6 +2460,30 @@ function muatDaftarSurat() {
     });
 }
 
+document.getElementById('volume-slider').addEventListener('input', function() {
+    const volumeValue = this.value;
+    
+    // Update teks persentase di UI
+    document.getElementById('volume-val').innerText = Math.round(volumeValue * 100);
+
+    // Kirim ke Flask menggunakan Fetch API
+    fetch('/set_volume', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ volume: volumeValue })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            console.log("Volume berhasil diatur ke: " + data.volume);
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+});
 
 // Jalankan saat halaman selesai dimuat
 document.addEventListener('DOMContentLoaded', muatDaftarSurat);
